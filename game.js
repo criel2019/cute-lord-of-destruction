@@ -2112,6 +2112,20 @@ function defeatEnemy() {
     state.enemy = makeEnemy(state.floor);
     _lastEnemyFloor = state.floor;
     state.paused = false;
+    // 새 적 등장 슬라이드인
+    if (el.arenaEnemy) {
+      el.arenaEnemy.src = state.enemy.image;
+      el.arenaEnemy.classList.remove("enemy-defeated", "enemy-defeated-elite", "enemy-defeated-boss", "enemy-dying", "enemy-bloodied");
+      el.arenaEnemy.classList.add("enemy-enter");
+      window.setTimeout(() => el.arenaEnemy.classList.remove("enemy-enter"), 420);
+    }
+    // 적 이름도 팝인
+    if (el.enemyName) {
+      el.enemyName.classList.remove("enemy-name-pop");
+      void el.enemyName.offsetWidth;
+      el.enemyName.classList.add("enemy-name-pop");
+      window.setTimeout(() => el.enemyName.classList.remove("enemy-name-pop"), 500);
+    }
 
     // 보스층 진입 시 소울라이크 타이틀 표시
     if (state.enemy.isBoss) {
@@ -4194,6 +4208,13 @@ function showBossReport(floorNum, shardGain) {
 
   const report = document.createElement("div");
   report.className = "boss-report-card";
+  const shareText = [
+    `👑 귀염뽀짝 파멸의 군주 — ${floorNum}F 보스 처치! [${grade}]`,
+    `막기 ${intercepts}회 · PERFECT ${perfects}회 · 막기율 ${totalRate}%`,
+    `실제: 보좌관이 다 막음 / 발표: 짐의 위엄이니라!`,
+    `▶ https://criel2019.github.io/cute-lord-of-destruction/`,
+  ].join("\n");
+  const shareBtnHtml = `<button class="boss-report-share" type="button">${navigator.share ? "📢 공유하기" : "📋 결과 복사"}</button>`;
   report.innerHTML = `
     <div class="boss-report-header">
       <span class="boss-report-floor">${floorNum}F 보스 처치</span>
@@ -4209,6 +4230,7 @@ function showBossReport(floorNum, shardGain) {
     </div>
     <p class="boss-report-comment">${gradeComment}</p>
     ${nextZoneLine}
+    ${shareBtnHtml}
     <span class="boss-report-close">탭하여 닫기</span>
   `;
   document.body.appendChild(report);
@@ -4216,6 +4238,20 @@ function showBossReport(floorNum, shardGain) {
     report.classList.add("boss-report-exit");
     window.setTimeout(() => report.remove(), 400);
   };
+  const shareBtn = report.querySelector(".boss-report-share");
+  if (shareBtn) {
+    shareBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (navigator.share) {
+        navigator.share({ text: shareText }).catch(() => {});
+      } else {
+        navigator.clipboard?.writeText(shareText).then(() => {
+          shareBtn.textContent = "✅ 복사됨!";
+          window.setTimeout(close, 1200);
+        }).catch(() => { shareBtn.textContent = "직접 선택하세요"; });
+      }
+    });
+  }
   report.addEventListener("click", close);
   window.setTimeout(close, 5500);
 }

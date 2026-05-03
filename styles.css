@@ -648,6 +648,14 @@ h1 {
   color: var(--game-text);
   text-shadow: 0 2px 8px rgba(0,0,0,0.8);
 }
+@keyframes enemyNamePop {
+  0%   { opacity: 0.3; transform: translateX(-8px) scale(0.94); }
+  60%  { opacity: 1; transform: translateX(2px) scale(1.04); }
+  100% { opacity: 1; transform: translateX(0) scale(1); }
+}
+.enemy-header h2.enemy-name-pop {
+  animation: enemyNamePop 0.5s cubic-bezier(0.22,1,0.36,1) both;
+}
 
 .enemy-header .enemy-label {
   color: var(--rose);
@@ -7476,6 +7484,24 @@ h1 {
   font-size: 10px;
   color: rgba(255,255,255,0.35);
 }
+.boss-report-share {
+  display: block;
+  width: 100%;
+  margin: 8px 0 4px;
+  padding: 8px 12px;
+  background: linear-gradient(135deg, rgba(243,197,95,0.18), rgba(240,154,187,0.12));
+  border: 1px solid rgba(243,197,95,0.35);
+  border-radius: 8px;
+  color: #ffe566;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 120ms ease, transform 120ms ease;
+}
+.boss-report-share:hover, .boss-report-share:active {
+  background: linear-gradient(135deg, rgba(243,197,95,0.28), rgba(240,154,187,0.2));
+  transform: scale(1.02);
+}
 
 /* 칭호 레벨업 배너 */
 @keyframes titleBannerIn {
@@ -7677,6 +7703,16 @@ h1 {
 @keyframes enemyDyingPulse {
   0%, 100% { filter: brightness(0.65) saturate(0.5) sepia(0.4) contrast(1.2); }
   50% { filter: brightness(0.5) saturate(0.3) sepia(0.6) contrast(1.3); }
+}
+
+/* 새 적 등장 슬라이드인 */
+@keyframes enemyEnter {
+  0%   { opacity: 0; transform: translateX(40px) scale(0.88); filter: brightness(1.5); }
+  55%  { opacity: 1; transform: translateX(-6px) scale(1.03); filter: brightness(1.1); }
+  100% { opacity: 1; transform: translateX(0) scale(1); filter: brightness(1); }
+}
+.arena-enemy.enemy-enter {
+  animation: enemyEnter 0.42s cubic-bezier(0.22,1,0.36,1) both;
 }
 
 /* 적 처치 연출 — mob / elite / boss */

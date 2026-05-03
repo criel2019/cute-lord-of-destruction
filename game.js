@@ -2146,11 +2146,12 @@ function openReincarnate(forced = false) {
     : "";
   const gradeEmoji = { S: "🌟", A: "⭐", B: "✨", C: "💫" };
   const shareText = [
-    `귀염뽀짝 파멸의 군주`,
+    `👑 귀염뽀짝 파멸의 군주`,
     `${state.floor - 1}층 도달 · ${runGrade}등급 ${gradeEmoji[runGrade] || ""}`,
     `막기 ${state.runInterceptTotal || 0}회 · PERFECT ${state.runPerfectTotal || 0}회`,
-    forced ? `체면 완전 상실 (짐은 하나도 무섭지 않았느니라!)` : `자진 환생 (전략적 후퇴니라!)`,
+    forced ? `짐은... 하나도 무섭지 않았느니라! (체면 상실)` : `전략적 후퇴니라! (자진 환생)`,
     runScore > 0 ? `${runScore.toLocaleString()}점` : "",
+    `▶ https://criel2019.github.io/cute-lord-of-destruction/`,
   ].filter(Boolean).join("\n");
   const shareBtn = `<button class="run-share-btn" type="button" data-share-text="${shareText.replace(/"/g, "&quot;")}">📋 결과 복사</button>`;
   el.reincarnateSummary.innerHTML = forced

@@ -2,7 +2,11 @@
 <html lang="ko">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="theme-color" content="#0e0a12" />
     <title>귀염뽀짝 파멸의 군주</title>
     <meta name="description" content="허세 마왕님이 사실은 보좌관들이 다 해주는데 본인이 한 척하는 클리커 RPG. 30층 마왕성을 정복하세요!" />
     <meta property="og:title" content="귀염뽀짝 파멸의 군주" />
@@ -55,6 +59,10 @@
           </div>
         </div>
       </header>
+      <!-- 층 진행 바 — 보스까지 남은 거리 -->
+      <div class="floor-progress-track" aria-label="보스까지 진행도">
+        <div class="floor-progress-fill" id="floorProgressBar"></div>
+      </div>
 
       <!-- 전체 플레이 영역 -->
       <main class="play-layout">

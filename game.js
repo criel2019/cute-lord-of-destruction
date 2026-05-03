@@ -3665,12 +3665,12 @@ function renderStageReward() {
   const rewardText = isNewPlayer
     ? newPlayerGoal
     : dignityCritical
-      ? `체면 ${dignityPercent}% · 다음 공격 막고 마왕님 살리기`
+      ? `⚠ 체면 위기 ${dignityPercent}% — 다음 공격을 막아라!`
       : state.ultimate >= 100
-        ? `궁극기 준비 · 지금 반격 컷 연출 가능 · ${owned}/${total}개`
+        ? `✦ 궁극기 사용 가능! 파츠 ${owned}/${total}개`
         : state.enemy?.isBoss
-          ? `지금 보스 격파 → 영상 파츠 선택 · ${owned}/${total}개 · ${power.synergyName}`
-          : `${nextBossFloor}F 보스까지 ${floorsLeft}층${goal30} · ${owned}/${total}개`;
+          ? `▶ 보스 격파 → 영상 파츠 선택 (${owned}/${total}개)`
+          : `▶ ${nextBossFloor}F 보스까지 ${floorsLeft}층 · 파츠 ${owned}/${total}개`;
   const key = `${state.floor}:${state.enemy?.isBoss ? 1 : 0}:${rewardText}:${nextTraitLabel}:${bossLabel}:${ultimateLabel}:${dignityPercent}:${ids.map((id) => `${id}:${getPartLevel(id)}`).join("|")}:${state._prepClickCount || 0}:${state.firstBlockSeen ? 1 : 0}:${state.sideUnlocked ? 1 : 0}`;
   if (renderCache.stageReward === key) return;
   renderCache.stageReward = key;

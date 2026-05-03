@@ -2141,11 +2141,7 @@ h1 {
   font-weight: 600;
 }
 .upgrade-truth {
-  font-size: 9px;
-  color: rgba(255,255,255,0.38);
-  font-style: italic;
-  letter-spacing: 0.01em;
-  margin-top: 1px;
+  display: none;
 }
 
 .run-upgrade .cost {

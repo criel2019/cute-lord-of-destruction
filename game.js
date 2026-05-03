@@ -1371,6 +1371,8 @@ function rescueAction() {
       state._consecutivePerfect = 0;
     }
     state.rageTimer = 0;
+    // 첫 막기 성공 시 creditCut을 더 오래 표시 — 핵심 개그를 읽을 시간 확보
+    const isFirstBlock = !state.firstBlockSeen;
     showCreditCut(
       "rescue",
       timing.key === "perfect" ? "실제: 보좌관이 완벽하게 막음" : "실제: 보좌관이 대신 맞을 뻔함",
@@ -1393,7 +1395,7 @@ function rescueAction() {
             "발표: 이 정도는 짐에게 재채기 수준이니라!",
             "발표: 짐의 전략이 적의 타이밍을 완벽히 읽었느니라!",
           ]),
-      1.35,
+      isFirstBlock ? 2.4 : 1.35,
     );
     // 적 도발에 대한 마왕 반박 대사 (막기 성공)
     const counterLines = timing.key === "perfect"
@@ -1505,6 +1507,10 @@ function rescueAction() {
   // 기력 충전 클릭 횟수 추적
   state._prepClickCount = (state._prepClickCount || 0) + 1;
   if (state._prepClickCount === 1 && state.run <= 1) {
+    // 첫 탭: 마왕님 등장 연출 — 파티클 + 특별 대사
+    spawnParticles(20);
+    flashScreen("mint", 0.22);
+    setDialogue("오! 시작하는구나! 보좌관들, 준비해라! 짐이 지켜보고 있겠느니라!", "명령");
     window.setTimeout(() => showToast("기력을 쌓는 중! 적이 공격할 때(빨간 버튼) 막으면 기력만큼 더 강하게 반격!"), 300);
   }
   playSfx("click");
@@ -2859,14 +2865,24 @@ function renderStageReward() {
   const bossLabel = state.enemy?.isBoss ? "지금 보스" : `${nextBossFloor}F 보스`;
   const ultimateLabel = state.ultimate >= 100 ? "궁극기 준비" : `궁극기 ${Math.round(state.ultimate)}%`;
   const goal30 = state.bestFloor < 30 ? ` · 목표 30층` : ` · 30층 클리어!`;
-  const rewardText = dignityCritical
-    ? `체면 ${dignityPercent}% · 다음 공격 막고 마왕님 살리기`
-    : state.ultimate >= 100
-      ? `궁극기 준비 · 지금 반격 컷 연출 가능 · ${owned}/${total}개`
-      : state.enemy?.isBoss
-        ? `지금 보스 격파 → 영상 파츠 선택 · ${owned}/${total}개 · ${power.synergyName}`
-        : `${nextBossFloor}F 보스까지 ${floorsLeft}층${goal30} · ${owned}/${total}개`;
-  const key = `${state.floor}:${state.enemy?.isBoss ? 1 : 0}:${rewardText}:${nextTraitLabel}:${bossLabel}:${ultimateLabel}:${dignityPercent}:${ids.map((id) => `${id}:${getPartLevel(id)}`).join("|")}`;
+  // 첫 판 초반(1~2층, 5번 탭 이하)은 단계별 신규 목표 안내
+  const isNewPlayer = state.run <= 1 && state.floor <= 2 && (state._prepClickCount || 0) < 12;
+  const prepPct = Math.round(state.prep || 0);
+  const newPlayerGoal = !state.firstBlockSeen
+    ? `① 탭해서 기력 쌓기 — 지금 기력 ${prepPct}%`
+    : (state._prepClickCount || 0) < 8
+      ? `② 기력 50% 이상 쌓은 뒤 빨간 버튼 막기!`
+      : `③ 적 처치 후 강화 탭에서 보좌관 강화!`;
+  const rewardText = isNewPlayer
+    ? newPlayerGoal
+    : dignityCritical
+      ? `체면 ${dignityPercent}% · 다음 공격 막고 마왕님 살리기`
+      : state.ultimate >= 100
+        ? `궁극기 준비 · 지금 반격 컷 연출 가능 · ${owned}/${total}개`
+        : state.enemy?.isBoss
+          ? `지금 보스 격파 → 영상 파츠 선택 · ${owned}/${total}개 · ${power.synergyName}`
+          : `${nextBossFloor}F 보스까지 ${floorsLeft}층${goal30} · ${owned}/${total}개`;
+  const key = `${state.floor}:${state.enemy?.isBoss ? 1 : 0}:${rewardText}:${nextTraitLabel}:${bossLabel}:${ultimateLabel}:${dignityPercent}:${ids.map((id) => `${id}:${getPartLevel(id)}`).join("|")}:${state._prepClickCount || 0}:${state.firstBlockSeen ? 1 : 0}`;
   if (renderCache.stageReward === key) return;
   renderCache.stageReward = key;
 

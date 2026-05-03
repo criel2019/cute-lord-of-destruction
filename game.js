@@ -920,7 +920,9 @@ function makeEnemy(floor) {
     image: (isBoss ? cleanBossImages[data.kind] : cleanEnemyImages[data.kind]) || data.image,
     isBoss,
     isElite,
-    name: isElite ? (eliteNames[data.kind] || data.name) : data.name,
+    name: isElite
+      ? (eliteNames[data.kind] || data.name)
+      : (floor >= 26 ? `신화급 ${data.name}` : floor >= 21 ? `전설의 ${data.name}` : floor >= 16 ? `심연의 ${data.name}` : floor >= 11 ? `냉기 ${data.name}` : floor >= 6 ? `강화된 ${data.name}` : data.name),
     title: isElite ? (eliteTitles[data.kind] || data.title) : data.title,
     hp: Math.round(maxHp * (isElite ? 1.45 : 1)),
     maxHp: Math.round(maxHp * (isElite ? 1.45 : 1)),

@@ -2827,6 +2827,25 @@ function buyRunUpgrade(id) {
   setPose("proud", 0.7, "강화");
   triggerPulse(id === "guard" ? "brace" : "assist", 0.42);
   const isFirstEverUpgrade = Object.values(state.runUpgrades).every(v => v <= 1) && state.runUpgrades[id] === 1;
+  // 강화 구매 creditCut — 핵심 유머: 보좌관이 강해지는데 마왕이 자기 공으로 돌림
+  const upgradeTruths = {
+    auto:   "실제: 보좌관들이 더 열심히 일함",
+    click:  "실제: 반격 수련은 보좌관이 함",
+    guard:  "실제: 보좌관들이 방패막이가 됨",
+    showoff:"실제: 보좌관이 카메라 앵글 조정",
+    crit:   "실제: 보좌관의 비밀 무기 해금",
+  };
+  const upgradeClaims = {
+    auto:   "발표: 짐의 명령이 더욱 위엄있어짐!",
+    click:  "발표: 짐의 주먹에 신성한 기운이!",
+    guard:  "발표: 짐의 체면이 두꺼워졌느니라!",
+    showoff:"발표: 짐의 허세가 한 단계 진화!",
+    crit:   "발표: 짐이 원래 이 정도였느니라!",
+  };
+  const creditTruth = upgradeTruths[id] || "실제: 보좌관이 다 함";
+  const creditClaim = upgradeClaims[id] || "발표: 짐의 위엄이 강해졌느니라!";
+  window.setTimeout(() => showCreditCut("streak", creditTruth, creditClaim, 1.5), 150);
+
   if (isFirstEverUpgrade) {
     setDialogue("흐흥! 공물로 강화라... 짐의 보좌관들이 쓸만해지는군. 아니, 원래부터 짐 덕분이니라!", "허세");
     window.setTimeout(() => showToast("💡 강화할수록 자동으로 더 강해집니다!"), 600);
@@ -2835,6 +2854,7 @@ function buyRunUpgrade(id) {
       `${upgrade.name}? 흠, 짐의 위엄에 걸맞은 공물이니라.`,
       `좋다. 보좌관이 조금 쓸만해졌느니라.`,
       `이 정도 강화는 짐이 원래 계획한 것이니라.`,
+      `짐은 항상 최고의 보좌관만 쓰느니라. 당연히 짐의 선견지명이니라.`,
     ]), "허세");
   }
   showToast(`${upgrade.name} Lv.${state.runUpgrades[id]} 강화!`);

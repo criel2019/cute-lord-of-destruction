@@ -3589,27 +3589,33 @@ h1 {
     display: none;
   }
 
-  /* 모바일: enemy-header를 좌측 상단 작은 블록으로 */
+  /* 모바일: enemy-header 배경 제거, 텍스트만 상단에 */
   .enemy-header {
-    padding: 5px 8px 4px;
-    flex-direction: column;
+    padding: 5px 8px 0;
+    background: none;          /* 그라데이션 오버레이 완전 제거 */
     align-items: flex-start;
-    gap: 2px;
-    /* 캐릭터 얼굴 영역(우측)은 비워둠 — 좌측 40%만 차지 */
-    right: auto;
-    width: 58%;
-    max-width: 58%;
+    gap: 4px;
   }
 
+  /* 적 이름/라벨만 작은 pill 배경으로 */
+  .enemy-title-group {
+    gap: 0;
+    background: rgba(14,10,18,0.72);
+    border-radius: 6px;
+    padding: 3px 8px 4px;
+    max-width: 54%;
+  }
+
+  /* intent-badge는 우측 상단에 pill로 */
   .enemy-intent-badge {
-    padding: 3px 7px;
+    padding: 3px 8px;
     gap: 3px;
-    max-width: 100%;
+    flex-shrink: 0;
+    max-width: 44%;
   }
 
-  /* intent-timer 크게 — 핵심 정보 */
   .intent-timer {
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 900;
   }
 
@@ -8906,7 +8912,7 @@ h1 {
 }
 
 /* ── 모바일 전투 화면 클린업 ─────────────────────────────────────────────── */
-/* 캐릭터를 덮는 모든 오버레이 텍스트를 완전 제거 */
+/* 캐릭터를 덮는 모든 오버레이를 완전 제거 */
 @media (max-width: 760px) {
   .battle-readout { display: none !important; }
   .combatant-stat { display: none !important; }
@@ -8914,4 +8920,6 @@ h1 {
   .prep-gauge > strong { display: none !important; }
   .arena-core .station-label { display: none !important; }
   .command-station { display: none !important; }
+  /* main-stage 위 가로 게이지 전부 숨김 — 캐릭터 위 오버레이 제거 */
+  .stage-meters { display: none !important; }
 }

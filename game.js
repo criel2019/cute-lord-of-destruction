@@ -1338,9 +1338,12 @@ function rescueAction() {
     showGradePopup(timing.key);
     // ⑤ BLOCK! 중앙 폭발 텍스트
     showBlockBurst(timing.key);
-    // ② 첫 막기 성공 특별 연출
-    if (!state.firstBlockSeen) {
+    // ② 첫 막기 성공 특별 연출 — isFirstBlock을 먼저 캡처해야 creditCut 지속시간에 반영됨
+    const isFirstBlock = !state.firstBlockSeen;
+    if (isFirstBlock) {
       state.firstBlockSeen = true;
+      spawnParticles(36);
+      flashScreen("gold", 0.45);
       window.setTimeout(() => {
         showToast("🎉 첫 가로채기 성공! 적이 공격할 때(빨간불) 막으면 됩니다!");
         setDialogue("흐흥! 봤느냐! 짐의 보좌관이... 아니, 짐의 위엄으로 막은 것이니라!", "허세");
@@ -1398,12 +1401,10 @@ function rescueAction() {
       state._consecutivePerfect = 0;
     }
     state.rageTimer = 0;
-    // 첫 막기 성공 시 creditCut을 더 오래 표시 — 핵심 개그를 읽을 시간 확보
-    const isFirstBlock = !state.firstBlockSeen;
     showCreditCut(
       "rescue",
-      timing.key === "perfect" ? "실제: 보좌관이 완벽하게 막음" : "실제: 보좌관이 대신 맞을 뻔함",
-      timing.key === "perfect"
+      isFirstBlock ? "실제: 보좌관이 목숨 걸고 막음" : (timing.key === "perfect" ? "실제: 보좌관이 완벽하게 막음" : "실제: 보좌관이 대신 맞을 뻔함"),
+      isFirstBlock ? "발표: 짐의 위엄이 공격을 막은 것이니라!" : (timing.key === "perfect"
         ? randomPick([
             "발표: 짐의 완전무결한 반응속도가 막은 것이니라!",
             "발표: 완벽? 당연하지. 짐은 항상 이 정도니라!",
@@ -1421,7 +1422,7 @@ function rescueAction() {
             "발표: 짐의 기세에 눌려 적이 힘을 잃은 것이니라!",
             "발표: 이 정도는 짐에게 재채기 수준이니라!",
             "발표: 짐의 전략이 적의 타이밍을 완벽히 읽었느니라!",
-          ]),
+          ])),
       isFirstBlock ? 2.4 : 1.35,
     );
     // 적 도발에 대한 마왕 반박 대사 (막기 성공)

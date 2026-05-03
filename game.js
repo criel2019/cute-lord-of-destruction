@@ -447,10 +447,10 @@ const enemyPool = [
 ];
 
 const bossPool = [
-  { kind: "angel", name: "마왕님 훈계 천사장", title: "보스", image: "assets/boss_angel_clean.png", intent: "즉사급 훈계를 준비합니다." },
-  { kind: "bishop", name: "질서의 사탕 주교", title: "보스", image: "assets/boss_bishop_clean.png", intent: "마왕님 체면을 꺾는 설교를 시전합니다." },
-  { kind: "dragon", name: "분홍 혜성룡", title: "보스", image: "assets/boss_dragon_clean.png", intent: "거대한 별빛 박치기를 준비합니다." },
-  { kind: "golem", name: "성벽 크림 골렘", title: "보스", image: "assets/boss_golem_clean.png", intent: "피할 수 없는 꿀밤을 충전합니다." },
+  { kind: "angel", name: "마왕님 훈계 천사장", title: "보스", image: "assets/boss_angel_clean.png", intent: "즉사급 훈계를 준비합니다.", taunt: ["마왕 따위, 이 천사가 직접 나섰다!", "죄목: 귀여운 척. 처벌: 즉사급 훈계!", "네 보좌관들도 용서받지 못한다!"] },
+  { kind: "bishop", name: "질서의 사탕 주교", title: "보스", image: "assets/boss_bishop_clean.png", intent: "마왕님 체면을 꺾는 설교를 시전합니다.", taunt: ["마왕이라니... 자격 없다! 내 설교를 들어라!", "규칙을 어긴 자에게 자비는 없다!", "사탕으로 만든 주교라 우습게 보지 마라!"] },
+  { kind: "dragon", name: "분홍 혜성룡", title: "보스", image: "assets/boss_dragon_clean.png", intent: "거대한 별빛 박치기를 준비합니다.", taunt: ["마카롱 색이라 약하다고? 두고 봐라!", "별빛 박치기... 막아보려면 막아봐!", "으르렁! 마왕 따위 한 방이면 충분하다!"] },
+  { kind: "golem", name: "성벽 크림 골렘", title: "보스", image: "assets/boss_golem_clean.png", intent: "피할 수 없는 꿀밤을 충전합니다.", taunt: ["성벽이 무너진다... 마왕성도 마찬가지다!", "크림이라 달콤하겠지만 주먹은 아프다!", "이 꿀밤 하나면 끝난다!"] },
 ];
 
 const partDefs = {
@@ -2184,6 +2184,17 @@ function defeatEnemy() {
         : ["저, 저기... 보스가 나타났습니다! 짐은 당연히 알고 있었느니라!", "흐, 흠. 보스라고 해도 짐의 위엄 앞엔 소용없느니라."];
       window.setTimeout(() => {
         setDialogue(randomPick(bossFloorLines), "긴장");
+        // 보스 선전포고 대사
+        const bossTaunt = state.enemy?.taunt;
+        if (bossTaunt && el.enemyIntentText) {
+          const tauntLine = randomPick(bossTaunt);
+          el.enemyIntentText.textContent = tauntLine;
+          el.enemyIntentBadge?.classList.add("boss-taunt-flash");
+          window.setTimeout(() => {
+            el.enemyIntentBadge?.classList.remove("boss-taunt-flash");
+            el.enemyIntentText.textContent = bossIntent;
+          }, 2200);
+        }
         showBossTitleOverlay(bossName, bossIntent, state.enemy?.image);
         // 보스 등장 시 강화 탭으로 자동 전환 후 2.5초 뒤 원래대로
         if (state.sideUnlocked) {

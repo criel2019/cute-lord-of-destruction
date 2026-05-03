@@ -315,13 +315,13 @@ const poseImages = {
 };
 
 const heroSprites = {
-  idle: "assets/mainchar_hit_proud_clean.png",
-  threat: "assets/mainchar_hit_proud_clean.png",
-  hit: "assets/mainchar_hit_proud_clean.png",
-  proud: "assets/mainchar_proud_clean.png",
-  rescue: "assets/mainchar_proud_clean.png",
-  counter: "assets/mainchar_proud_clean.png",
-  ultimate: "assets/mainchar_proud_clean.png",
+  idle:     "assets/demon_state_idle.png",
+  threat:   "assets/demon_state_hit.png",
+  hit:      "assets/demon_state_hit.png",
+  proud:    "assets/demon_state_proud.png",
+  rescue:   "assets/demon_state_proud.png",
+  counter:  "assets/demon_state_proud.png",
+  ultimate: "assets/demon_state_ultimate.png",
 };
 
 const cleanEnemyImages = {
@@ -2793,6 +2793,8 @@ function buyUpgrade(id, cost) {
   state.permanent[id] = (state.permanent[id] || 0) + 1;
   state.dignity = clamp(state.dignity + 20, 0, getStats().maxDignity);
   playSfx("upgrade");
+  flashScreen("gold", 0.5);
+  spawnParticles(32);
   const statsAfter = getStats();
   const upgradeDef = upgradeDefs.find(u => u.id === id);
   if (upgradeDef) {
@@ -2803,8 +2805,35 @@ function buyUpgrade(id, cost) {
       reward: `파편 획득 +${Math.round((statsAfter.rewardMult/statsBefore.rewardMult - 1)*100)}% 향상`,
       ultimate: `궁극기 위력 +${Math.round((statsAfter.ultimatePower/statsBefore.ultimatePower - 1)*100)}% 향상`,
     };
-    showToast(`${upgradeDef.name} Lv.${level} 강화!`);
+    showToast(`✦ ${upgradeDef.name} Lv.${level} 영구 강화!`);
     window.setTimeout(() => showToast(feedbacks[id] || "강화 완료!"), 500);
+    // 영구 강화 creditCut — "짐의 그릇이 커지는 것이니라" vs "파편으로 보좌관이 성장함"
+    const permTruths = {
+      power:   "실제: 보좌관들이 반격 수련 완료",
+      dignity: "실제: 보좌관들이 방어막 두텁게",
+      reward:  "실제: 보좌관이 파편 수집 효율화",
+      ultimate:"실제: 보좌관들이 절초식 더 연습",
+    };
+    const permClaims = {
+      power:   "발표: 짐의 반격 기운이 한 단계 각성!",
+      dignity: "발표: 짐의 체면이 더욱 두터워졌느니라!",
+      reward:  "발표: 짐의 영향력이 세계로 뻗어나감!",
+      ultimate:"발표: 짐의 절초식이 더욱 완성됐느니라!",
+    };
+    window.setTimeout(() => showCreditCut(
+      "rescue",
+      permTruths[id] || "실제: 보좌관이 열심히 성장함",
+      permClaims[id] || "발표: 짐의 그릇이 커졌느니라!",
+      1.8,
+    ), 200);
+    // 영구 강화 마왕 대사 — 환생 맥락이므로 살짝 진지한 톤 허용
+    const permDialogues = {
+      power:   "흐흥! 반격이 더 강해졌다. 보좌관들이 성장한... 아니, 짐의 기운이 반격에 깃든 것이니라!",
+      dignity: "체면이 더 두터워졌느니라. 보좌관들의 노력이... 아, 짐의 위엄이 증폭된 것이니라!",
+      reward:  "이제 더 많은 파편이 모이겠군. 보좌관들이 효율적으로... 아니, 짐의 명성이 퍼진 것이니라!",
+      ultimate:"절초식이 더 강해졌느니라. 보좌관들이 열심히 연습한... 짐이 원래 이 정도니라!",
+    };
+    window.setTimeout(() => setDialogue(permDialogues[id] || "짐의 그릇이 커졌느니라!", "각성"), 400);
   }
   renderUpgrades();
   render();

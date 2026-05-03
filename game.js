@@ -2402,6 +2402,7 @@ function restartRun(addPendingReward = false) {
   state.traits = carry ? [carry] : [];
   state.runUpgrades = { click: 0, auto: 0, guard: 0, showoff: 0, crit: 0 };
   state.enemy = makeEnemy(1);
+  state._prepClickCount = 0;   // 2판 이후에도 신규 목표 안내 초기화
   state.paused = false;
   state.choiceOpen = false;
   state.partChoiceOpen = false;
@@ -2432,34 +2433,37 @@ function restartRun(addPendingReward = false) {
   saveGame();
 
   window.setTimeout(() => {
-    showToast(`제 ${state.run}판 시작!`);
     if (carryTrait) {
-      window.setTimeout(() => showToast(`계승: ${carryTrait.name} — 이 특성을 들고 시작합니다`), 600);
+      window.setTimeout(() => showToast(`계승 ✓ ${carryTrait.name} — 이 특성을 들고 시작합니다`), 1800);
     }
     if (prevRun > 0) {
       const newStats = getStats();
       const newDps = newStats.autoDamage * newStats.autoSpeed;
       const pct = prevDps > 0 ? Math.round((newDps / prevDps - 1) * 100) : 0;
-      if (pct > 0) {
-        window.setTimeout(() => {
-          spawnParticles(32);
-          flashScreen("gold", 0.35);
-          // 시각적 성장 배너 — 더 극적으로
-          const banner = document.createElement("div");
-          banner.className = "run-power-banner";
-          const carryLine = carryTrait ? `<em>${carryTrait.name} 계승</em>` : "";
-          banner.innerHTML = `<span>제 ${state.run}판 시작</span><strong>+${pct}% 강해짐!</strong>${carryLine}`;
-          el.stagePanel.appendChild(banner);
-          window.setTimeout(() => banner.remove(), 3000);
-        }, carryTrait ? 1200 : 800);
+      window.setTimeout(() => {
+        spawnParticles(pct > 0 ? 40 : 18);
+        flashScreen(pct > 0 ? "gold" : "mint", pct > 0 ? 0.4 : 0.22);
+        const banner = document.createElement("div");
+        banner.className = "run-power-banner";
+        const runNum = state.run;
+        const prevBest = state.bestFloor;
+        const nextTarget = prevBest <= 4 ? 5 : Math.min(30, Math.ceil(prevBest / 5) * 5 + 5);
+        const growLine = pct > 0
+          ? `<strong>+${pct}% 강해짐!</strong>`
+          : `<strong>이번엔 더 잘할 수 있어!</strong>`;
+        const carryLine = carryTrait ? `<em>${carryTrait.name} 계승 ✓</em>` : "";
+        const targetLine = `<em style="color:rgba(134,216,199,0.9)">목표: ${nextTarget}F 도달 (지난 최고 ${prevBest}F)</em>`;
+        banner.innerHTML = `<span>제 ${runNum}판 시작</span>${growLine}${carryLine}${targetLine}`;
+        el.stagePanel.appendChild(banner);
+        window.setTimeout(() => banner.remove(), 3600);
+      }, carryTrait ? 1200 : 700);
+      // 배너 사라진 뒤 — 영구 강화 유도 (파편이 있을 때만)
+      if (state.shards > 0) {
+        const recPerm = getRecommendedUpgrade();
+        const permDef = upgradeDefs.find(u => u.id === recPerm);
+        const permHint = permDef ? permDef.name : "영구 강화";
+        window.setTimeout(() => showToast(`💠 파편 ${state.shards}개 — 환생 모달에서 [${permHint}] 강화 가능!`), 4200);
       }
-      // 이번 판 목표 힌트
-      const runGoal = state.bestFloor <= 5
-        ? `목표: 5층 보스 처치! 지난 최고: ${state.bestFloor}F`
-        : state.bestFloor <= 10
-          ? `목표: 10층 돌파! 파편 ${state.shards}개 모였어요`
-          : `목표: ${Math.ceil(state.bestFloor / 5) * 5 + 5}F 도전! 현재 최고 ${state.bestFloor}F`;
-      window.setTimeout(() => showToast(`📍 ${runGoal}`), carryTrait ? 1900 : 1400);
     }
   }, 300);
 }

@@ -235,6 +235,21 @@ const enemyTaunts = {
   golem_boss: ["꿀밤 간다!", "막을 수 있나?!", "성벽이 무너진다!"],
 };
 
+const idleDialogueLines = [
+  { mood: "위엄", text: "흥... 짐이 허락해서 이 정도인 것이니라." },
+  { mood: "허세", text: "보좌관들이 잘 하고 있는 건지 짐이 감시 중이니라." },
+  { mood: "명령", text: "다들 짐의 명령을 기다리는 중이다. 짐이 원래 여기 있었느니라." },
+  { mood: "위엄", text: "이 정도 적은... 짐에겐 간식 수준이니라." },
+  { mood: "허세", text: "흐흥. 짐의 무공은 원래 이 정도이니라. 놀라지 마라." },
+  { mood: "울먹임", text: "사, 사실 짐도 좀 무섭긴 한데... 안 무서운 척이니라." },
+  { mood: "명령", text: "보좌관들! 긴장 풀지 마라! 짐이 보고 있다!" },
+  { mood: "허세", text: "짐은 원래 이런 상황쯤은 다 예측하고 있었느니라." },
+  { mood: "위엄", text: "적이 떨고 있는 것이 느껴지는가? 짐의 오라 때문이니라." },
+  { mood: "울먹임", text: "...짐, 짐은 지금 전략적으로 아무것도 안 하고 있는 것이니라." },
+  { mood: "허세", text: "보좌관아, 수고가 많은데 이건 다 짐의 전술이니라." },
+  { mood: "명령", text: "적이 감히 짐 앞에 나타나다니... 용기는 가상하다." },
+];
+
 const enemyPool = [
   { kind: "knight", name: "솜방망이 기사", title: "일반 적", image: "assets/enemy_clicker_knight_clean.png", intent: "빠른 망치로 마왕님을 연속 가격합니다.", speedMod: 1.22, damageMod: 0.72 },
   { kind: "golem", name: "졸린 설탕 골렘", title: "일반 적", image: "assets/enemy_clicker_golem_clean.png", intent: "느리지만 육중한 주먹을 모읍니다.", speedMod: 0.72, damageMod: 1.55 },
@@ -603,6 +618,7 @@ const defaultState = () => ({
   _pendingCrisisBonus: 0,
   _cutsceneAutoResolve: null,
   _firstPerfectSeen: false,
+  _idleDialogueTimer: 4.5,
 });
 
 let state = loadState();
@@ -2929,7 +2945,13 @@ function render() {
     el.stagePanel.classList.toggle(`build-${tag}`, state.activeBuildTag === tag);
   });
   el.moodText.textContent = state.mood;
-  el.dialogueText.textContent = state.dialogue;
+  if (renderCache.dialogue !== state.dialogue) {
+    renderCache.dialogue = state.dialogue;
+    el.dialogueText.classList.remove("dialogue-fade");
+    void el.dialogueText.offsetWidth;
+    el.dialogueText.textContent = state.dialogue;
+    el.dialogueText.classList.add("dialogue-fade");
+  }
   const buyableCount = state.sideUnlocked ? runUpgradeDefs.filter(u => state.tributes >= getRunUpgradeCost(u)).length : 0;
   const canAffordUpgrade = buyableCount > 0;
   // 공물이 늘어서 새로 구매 가능해졌을 때 HUD 바운스
@@ -3660,6 +3682,21 @@ function update(now) {
     }
 
     if (state.enemy.attackTimer <= 0) enemyHits();
+
+    // 아이들 마왕 혼잣말 — idle 포즈 중 3~7초마다 랜덤 대사
+    {
+      const phase = getCombatPhase(state.enemy, getStats());
+      if (state.pose === "idle" && !phase.aiming && !phase.dangerReady) {
+        state._idleDialogueTimer = (state._idleDialogueTimer || 4.5) - dt;
+        if (state._idleDialogueTimer <= 0) {
+          const line = randomPick(idleDialogueLines);
+          setDialogue(line.text, line.mood);
+          state._idleDialogueTimer = 3.5 + Math.random() * 3.5;
+        }
+      } else {
+        state._idleDialogueTimer = 2.5;
+      }
+    }
 
     // aiming 시작 시 적 도발 말풍선
     const _curPhaseForTaunt = getCombatPhase(state.enemy, getStats());

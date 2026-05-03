@@ -1398,6 +1398,15 @@ h1 {
   text-overflow: ellipsis;
 }
 
+.dialogue-fade {
+  animation: dialogueTextFade 0.38s ease both;
+}
+
+@keyframes dialogueTextFade {
+  0% { opacity: 0; transform: translateY(4px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
 /* 구 meter-stack → stage-bottom-meters로 대체 */
 .meter-stack { display: none; }
 .meter-card { display: none; }

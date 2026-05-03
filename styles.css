@@ -4163,13 +4163,12 @@ h1 {
 .arena-combat,
 .battle-readout,
 .threat-lane,
-.scene-overlay,
-.credit-cut,
-.impact-vfx,
-.counter-vfx,
+.scene-overlay {
+  z-index: 4;
+}
 .damage-layer,
 .particle-layer {
-  z-index: 4;
+  z-index: 8;
 }
 
 .enemy-side .combat-label,

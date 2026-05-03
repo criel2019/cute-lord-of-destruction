@@ -2,6 +2,8 @@ const SAVE_KEY = "cute-lord-rescue-save-v2";
 
 const $ = (selector) => document.querySelector(selector);
 
+const isMobile = window.innerWidth <= 760;
+
 // ── Web Audio SFX (사용자 인터랙션 후 초기화) ──
 let _audioCtx = null;
 function getAudioCtx() {
@@ -3829,28 +3831,32 @@ function render() {
     el.enemyIntentBadge.classList.toggle("intent--aiming", phase.aiming && !dangerReady);
   }
   el.threatBar.style.width = `${clamp(threatRate * 100, 0, 100)}%`;
-  el.timingCall.textContent = dangerReady
-    ? impactSoon ? "맞기 직전!!" : state.ultimate >= 100 ? "✦ 궁극기 먼저! → 막기!" : "빨간 버튼으로 막기!"
-    : phase.aiming
-      ? `조준 중 — ${Math.max(0, state.enemy.attackTimer).toFixed(1)}초 후 공격!`
-      : dignityCritical
-        ? `⚠ 체면 위험 ${dignityPercent}%`
-        : state.ultimate >= 100
-          ? "✦ 궁극기 준비 완료!"
-          : prepRate >= 70
-            ? "기력 MAX — 공격 타이밍 기다려!"
-            : prepRate >= 30
-              ? `기력 충전 중 ${Math.round(prepRate)}% — 계속 탭!`
-              : "탭해서 기력 모으기!";
+  if (!isMobile) {
+    el.timingCall.textContent = dangerReady
+      ? impactSoon ? "맞기 직전!!" : state.ultimate >= 100 ? "✦ 궁극기 먼저! → 막기!" : "빨간 버튼으로 막기!"
+      : phase.aiming
+        ? `조준 중 — ${Math.max(0, state.enemy.attackTimer).toFixed(1)}초 후 공격!`
+        : dignityCritical
+          ? `⚠ 체면 위험 ${dignityPercent}%`
+          : state.ultimate >= 100
+            ? "✦ 궁극기 준비 완료!"
+            : prepRate >= 70
+              ? "기력 MAX — 공격 타이밍 기다려!"
+              : prepRate >= 30
+                ? `기력 충전 중 ${Math.round(prepRate)}% — 계속 탭!`
+                : "탭해서 기력 모으기!";
+  }
   const streakN = state.rescueStreak || 0;
-  el.comboText.textContent = streakN >= 7
-    ? `🔥 FEVER ${streakN}연속 · x${comboMult.toFixed(2)}`
-    : streakN >= 3
-      ? `⚡ ${streakN}연속 · x${comboMult.toFixed(2)}`
-      : streakN >= 1
-        ? `${streakN}연속 · x${comboMult.toFixed(2)}`
-        : dignityCritical ? `체면 위험 ${dignityPercent}%` : state.ultimate >= 100 ? "궁극기 준비!" : `기력 ${Math.round(prepRate)}%`;
-  el.comboText.dataset.streak = streakN >= 7 ? "fever" : streakN >= 3 ? "hot" : streakN >= 1 ? "warm" : "";
+  if (!isMobile) {
+    el.comboText.textContent = streakN >= 7
+      ? `🔥 FEVER ${streakN}연속 · x${comboMult.toFixed(2)}`
+      : streakN >= 3
+        ? `⚡ ${streakN}연속 · x${comboMult.toFixed(2)}`
+        : streakN >= 1
+          ? `${streakN}연속 · x${comboMult.toFixed(2)}`
+          : dignityCritical ? `체면 위험 ${dignityPercent}%` : state.ultimate >= 100 ? "궁극기 준비!" : `기력 ${Math.round(prepRate)}%`;
+    el.comboText.dataset.streak = streakN >= 7 ? "fever" : streakN >= 3 ? "hot" : streakN >= 1 ? "warm" : "";
+  }
   const breakCount = state.enemy.isBoss ? (state.enemy._breakCount || 0) : 0;
   const breakStars = state.enemy.isBoss
     ? "★".repeat(Math.min(3, breakCount)) + "☆".repeat(Math.max(0, 3 - breakCount))
@@ -3870,11 +3876,13 @@ function render() {
       ? "궁극기!"
       : `궁극기 ${Math.round(state.ultimate)}%`;
   }
-  el.prepText.textContent = dangerReady
-    ? `기력 ${Math.round(prepRate)}%`
-    : prepRate >= 70
-      ? `기력 ${Math.round(prepRate)}% ★`
-      : `기력 ${Math.round(prepRate)}%`;
+  if (!isMobile) {
+    el.prepText.textContent = dangerReady
+      ? `기력 ${Math.round(prepRate)}%`
+      : prepRate >= 70
+        ? `기력 ${Math.round(prepRate)}% ★`
+        : `기력 ${Math.round(prepRate)}%`;
+  }
   el.prepBar.style.width = `${prepRate}%`;
   el.prepBar.style.setProperty("--prep-multiplier-text", `"x${prepMult.toFixed(2)}"`);
   el.prepBar.closest(".prep-gauge")?.classList.toggle("prep-charged", prepRate >= 70);
@@ -3888,7 +3896,7 @@ function render() {
     : prepRate < 20 ? "탭 탭 탭!"
     : prepRate < 60 ? "기력 충전 중..."
     : "막을 준비 완료!";
-  if (el.enemyAttackStat) {
+  if (!isMobile && el.enemyAttackStat) {
     el.enemyAttackStat.textContent = dangerReady
       ? "⚡ 막기!"
       : phase.aiming
@@ -3896,10 +3904,12 @@ function render() {
         : impactSoon ? "맞는다!!" : `HP ${Math.round(state.enemy.hp / state.enemy.maxHp * 100)}%`;
     el.enemyAttackStat.classList.toggle("stat-danger", dangerReady || impactSoon);
   }
-  el.clickPowerText.textContent = dangerReady
-    ? `반격 x${prepMult.toFixed(2)}`
-    : phase.aiming ? "막을 준비" : dignityCritical ? `체면 ${dignityPercent}%` : `반격 x${prepMult.toFixed(2)}`;
-  el.autoPowerText.textContent = dangerReady ? "위험!" : phase.aiming ? "조준 감지" : state.rescueStreak ? `연속 ${state.rescueStreak}회` : `자동 ${formatNumber(stats.autoDamage * stats.autoSpeed * stats.autoTempo)}/s`;
+  if (!isMobile) {
+    el.clickPowerText.textContent = dangerReady
+      ? `반격 x${prepMult.toFixed(2)}`
+      : phase.aiming ? "막을 준비" : dignityCritical ? `체면 ${dignityPercent}%` : `반격 x${prepMult.toFixed(2)}`;
+    el.autoPowerText.textContent = dangerReady ? "위험!" : phase.aiming ? "조준 감지" : state.rescueStreak ? `연속 ${state.rescueStreak}회` : `자동 ${formatNumber(stats.autoDamage * stats.autoSpeed * stats.autoTempo)}/s`;
+  }
   el.tapBtn.classList.toggle("danger-ready", dangerReady);
   el.tapBtn.classList.toggle("watching", phase.aiming);
   el.tapBtn.classList.toggle("near-aim", phase.aiming && aimSecs <= 1.2 && !dangerReady);
@@ -5279,6 +5289,16 @@ document.addEventListener("keydown", () => startBgm(), { once: true });
 
 startMurmurLoop();
 requestAnimationFrame(update);
+
+// 모바일 전투 오버레이 클린업 — JS inline style로 확실히 숨김
+if (isMobile) {
+  ["timingCall", "comboText", "autoPowerText", "enemyAttackStat", "clickPowerText", "prepText"].forEach(id => {
+    const node = document.getElementById(id);
+    if (node) node.style.cssText = "display:none!important";
+  });
+  const readout = document.querySelector(".battle-readout");
+  if (readout) readout.style.cssText = "display:none!important";
+}
 
 // 탭 숨김/복귀 시 방치 보상 표시
 let _hiddenAt = null;

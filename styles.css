@@ -1777,7 +1777,7 @@ h1 {
   overflow: hidden;
   transition: max-height 250ms ease, opacity 200ms, filter 200ms;
   flex-shrink: 0;
-  max-height: 35vh;
+  max-height: 42vh;
 }
 
 /* ② aiming 시 탭 패널 줄어들기, danger 시 거의 숨김 */
@@ -1896,8 +1896,8 @@ h1 {
 }
 
 .run-upgrade {
-  min-height: 58px;
-  padding: 8px 10px;
+  min-height: 52px;
+  padding: 7px 10px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 8px;
   color: var(--game-text);

@@ -103,73 +103,91 @@ let _wasDanger = false;
 // ── 앰비언트 BGM ──
 let _bgmNodes = null;
 let _bgmMelodyTimer = null;
+let _bgmStarted = false;
 
 function startBgm() {
   if (_bgmNodes) return;
   const ctx = getAudioCtx();
   if (!ctx) return;
+  _bgmStarted = true;
   try {
+    // 마스터 게인 (전체 볼륨 조절용)
+    const master = ctx.createGain();
+    master.gain.value = 0;
+    master.connect(ctx.destination);
+    master.gain.linearRampToValueAtTime(1, ctx.currentTime + 2);
+
     // 드론: 낮은 베이스 패드
     const droneOsc = ctx.createOscillator();
     const droneGain = ctx.createGain();
     droneOsc.type = "sine";
     droneOsc.frequency.value = 110;
-    droneGain.gain.value = 0;
+    droneGain.gain.value = 0.032;
     droneOsc.connect(droneGain);
-    droneGain.connect(ctx.destination);
+    droneGain.connect(master);
     droneOsc.start();
-    droneGain.gain.linearRampToValueAtTime(0.032, ctx.currentTime + 1.5);
 
     // 하모닉 드론
     const drone2 = ctx.createOscillator();
     const drone2Gain = ctx.createGain();
     drone2.type = "triangle";
     drone2.frequency.value = 165;
-    drone2Gain.gain.value = 0;
+    drone2Gain.gain.value = 0.016;
     drone2.connect(drone2Gain);
-    drone2Gain.connect(ctx.destination);
+    drone2Gain.connect(master);
     drone2.start();
-    drone2Gain.gain.linearRampToValueAtTime(0.018, ctx.currentTime + 2.5);
 
-    _bgmNodes = { droneOsc, droneGain, drone2, drone2Gain };
+    _bgmNodes = { droneOsc, droneGain, drone2, drone2Gain, master };
 
-    // 멜로디 루프 — 마왕성 분위기 단순 음계
-    const melody = [330, 294, 330, 392, 349, 330, 294, 262];
-    let mi = 0;
+    // 느린 멜로디 루프 — 마왕성 앰비언트 (단계별 음계, 느린 박자)
+    // 단음들 사이 간격을 길게 → 더 분위기 있고 덜 귀찮음
+    const phrases = [
+      [330, 0], [294, 1100], [262, 900], [null, 1200],
+      [330, 1400], [370, 800], [330, 700], [null, 2000],
+      [294, 1200], [262, 1000], [220, 1100], [null, 2500],
+    ];
+    let pi = 0;
     function playMelodyNote() {
       const c = getAudioCtx();
       if (!c || !_bgmNodes) return;
-      const mOsc = c.createOscillator();
-      const mGain = c.createGain();
-      mOsc.type = "triangle";
-      mOsc.frequency.value = melody[mi % melody.length];
-      mGain.gain.setValueAtTime(0.038, c.currentTime);
-      mGain.gain.exponentialRampToValueAtTime(0.001, c.currentTime + 0.55);
-      mOsc.connect(mGain);
-      mGain.connect(c.destination);
-      mOsc.start(c.currentTime);
-      mOsc.stop(c.currentTime + 0.6);
-      mi++;
-      _bgmMelodyTimer = window.setTimeout(playMelodyNote, 680 + Math.random() * 120);
+      const [freq, gap] = phrases[pi % phrases.length];
+      if (freq) {
+        const mOsc = c.createOscillator();
+        const mGain = c.createGain();
+        mOsc.type = "sine";
+        mOsc.frequency.value = freq;
+        mGain.gain.setValueAtTime(0.055, c.currentTime);
+        mGain.gain.exponentialRampToValueAtTime(0.001, c.currentTime + 1.1);
+        mOsc.connect(mGain);
+        mGain.connect(_bgmNodes.master);
+        mOsc.start(c.currentTime);
+        mOsc.stop(c.currentTime + 1.2);
+      }
+      pi++;
+      _bgmMelodyTimer = window.setTimeout(playMelodyNote, (gap || 800) + Math.random() * 200);
     }
-    window.setTimeout(playMelodyNote, 2000);
+    window.setTimeout(playMelodyNote, 3000);
   } catch {}
+}
+
+function suspendBgm() {
+  try { getAudioCtx()?.suspend(); } catch {}
+  if (_bgmMelodyTimer) { clearTimeout(_bgmMelodyTimer); _bgmMelodyTimer = null; }
+}
+
+function resumeBgm() {
+  if (!_bgmStarted) return;
+  try { getAudioCtx()?.resume(); } catch {}
 }
 
 function stopBgm() {
   if (!_bgmNodes) return;
+  suspendBgm();
   try {
-    const ctx = getAudioCtx();
-    if (ctx && _bgmNodes.droneGain) {
-      _bgmNodes.droneGain.gain.linearRampToValueAtTime(0, ctx.currentTime + 1);
-      _bgmNodes.drone2Gain.gain.linearRampToValueAtTime(0, ctx.currentTime + 1);
-    }
-    window.setTimeout(() => {
-      try { _bgmNodes?.droneOsc?.stop(); _bgmNodes?.drone2?.stop(); } catch {}
-      _bgmNodes = null;
-    }, 1200);
+    _bgmNodes.droneOsc?.stop();
+    _bgmNodes.drone2?.stop();
   } catch {}
-  if (_bgmMelodyTimer) { clearTimeout(_bgmMelodyTimer); _bgmMelodyTimer = null; }
+  _bgmNodes = null;
 }
 
 const el = {
@@ -2844,11 +2862,14 @@ function render() {
     el.streakChip.classList.toggle("streak-hot", sn >= 3 && sn < 7);
   }
   el.floorText.textContent = `${state.floor}F`;
+  el.floorText.title = `${state.floor}층 / 30층`;
   if (el.bestFloorText) el.bestFloorText.textContent = `${state.bestFloor}F`;
   if (el.floorProgressBar) {
-    const cycleFloor = ((state.floor - 1) % 5) + 1;
-    el.floorProgressBar.style.width = `${(cycleFloor / 5) * 100}%`;
+    const totalFloors = 30;
+    const progress = Math.min(state.floor / totalFloors, 1);
+    el.floorProgressBar.style.width = `${progress * 100}%`;
     el.floorProgressBar.parentElement?.classList.toggle("floor-bar-boss", state.enemy?.isBoss);
+    el.floorProgressBar.title = `${state.floor}F / ${totalFloors}F`;
   }
   updateDemonTitle();
   el.shardText.textContent = formatNumber(state.shards);
@@ -3972,7 +3993,9 @@ let _hiddenAt = null;
 document.addEventListener("visibilitychange", () => {
   if (document.hidden) {
     _hiddenAt = Date.now();
+    suspendBgm();
   } else if (_hiddenAt !== null) {
+    resumeBgm();
     const away = (Date.now() - _hiddenAt) / 1000;
     _hiddenAt = null;
     if (away >= 30) {

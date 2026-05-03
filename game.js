@@ -4305,6 +4305,12 @@ function playIntro() {
   state.introSeen = true;
   state.paused = true;
 
+  // 마왕 캐릭터 등장 연출
+  if (el.mainCharacter) {
+    el.mainCharacter.classList.add("char-intro-entrance");
+    window.setTimeout(() => el.mainCharacter.classList.remove("char-intro-entrance"), 900);
+  }
+
   const lines = [
     { mood: "울먹임", text: "...흥. 저, 저게 또 짐을 혼내러 왔구나! 보좌관들, 대신 좀 막아줘... 아니, 짐이 막을 것이니라!", delay: 0 },
     { mood: "명령", text: "빨간 불이 들어오면 누르면 된다! 기력이 높을수록 반격이 강해지니라! (짐은 지시만 하는 것이니라)", delay: 1600 },

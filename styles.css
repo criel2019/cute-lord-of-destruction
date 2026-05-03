@@ -723,12 +723,27 @@ h1 {
 }
 
 .intent-timer {
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 1000;
   color: var(--gold);
   flex-shrink: 0;
-  min-width: 32px;
+  min-width: 34px;
   text-align: right;
+}
+
+.enemy-intent-badge.intent--aiming .intent-timer {
+  font-size: 17px;
+  color: #ffe47a;
+}
+
+.enemy-intent-badge.intent--danger .intent-timer {
+  font-size: 19px;
+  color: #ff6b6b;
+  animation: timerDangerPulse 0.35s ease-in-out infinite;
+}
+@keyframes timerDangerPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.12); }
 }
 
 .enemy-intent-badge.intent--aiming {
@@ -787,14 +802,14 @@ h1 {
 /* 스테이지 게이지 — main-stage 안 absolute, enemy-header 아래 */
 .stage-meters {
   position: absolute;
-  top: 52px;
+  top: 58px;
   left: 0;
   right: 0;
   z-index: 9;
   padding: 0 10px 4px;
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 4px;
   pointer-events: none;
 }
 
@@ -806,10 +821,10 @@ h1 {
 
 .stage-meter .meter {
   flex: 1;
-  height: 5px;
+  height: 6px;
   border-radius: 999px;
   overflow: hidden;
-  background: rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.1);
   border: none;
 }
 
@@ -855,7 +870,7 @@ h1 {
 .battle-readout {
   position: absolute;
   z-index: 8;
-  bottom: 10px;
+  bottom: 14px;
   left: 10px;
   right: 10px;
   display: flex;
@@ -867,20 +882,20 @@ h1 {
 
 .battle-readout span,
 .battle-readout strong {
-  min-height: 32px;
-  padding: 8px 11px;
+  min-height: 28px;
+  padding: 5px 10px;
   border-radius: 999px;
   color: #fff;
-  background: rgba(44, 25, 48, 0.86);
-  box-shadow: 0 14px 28px rgba(36, 23, 32, 0.18);
-  font-size: 13px;
+  background: rgba(44, 25, 48, 0.88);
+  box-shadow: 0 8px 20px rgba(36, 23, 32, 0.3);
+  font-size: 12px;
   font-weight: 1000;
   white-space: nowrap;
 }
 
 .battle-readout strong {
   color: #3a2436;
-  background: rgba(255, 238, 157, 0.9);
+  background: rgba(255, 238, 157, 0.92);
 }
 
 .threat-lane {
@@ -1511,7 +1526,7 @@ h1 {
   z-index: 3;
   flex-shrink: 0;
   min-height: 0;
-  padding: 4px 12px;
+  padding: 5px 12px;
   color: #fff;
   background: linear-gradient(135deg, rgba(20, 10, 30, 0.98), rgba(60, 30, 80, 0.94));
   border-top: 1px solid var(--game-border);
@@ -1523,16 +1538,16 @@ h1 {
 
 .dialogue-box span {
   color: var(--gold);
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 1000;
   white-space: nowrap;
   flex-shrink: 0;
 }
 
 .dialogue-box strong {
-  font-size: clamp(12px, 2.6vw, 16px);
+  font-size: clamp(13px, 2.8vw, 17px);
   line-height: 1.2;
-  color: #f0e0ff;
+  color: #f5eaff;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1559,12 +1574,12 @@ h1 {
   position: relative;
   z-index: 3;
   flex-shrink: 0;
-  padding: 5px 10px 6px;
+  padding: 6px 12px 7px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  background: rgba(14,10,18,0.92);
-  border-top: 1px solid rgba(255,255,255,0.06);
+  gap: 5px;
+  background: rgba(14,10,18,0.94);
+  border-top: 1px solid rgba(255,255,255,0.08);
 }
 
 .sbm-row {
@@ -1582,27 +1597,27 @@ h1 {
 
 .sbm-row .meter {
   flex: 1;
-  height: 6px;
+  height: 8px;
   border-radius: 999px;
   overflow: hidden;
-  background: rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.1);
   border: none;
 }
 
 .sbm-value {
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 800;
   color: var(--game-text-dim);
   white-space: nowrap;
-  min-width: 44px;
+  min-width: 48px;
   text-align: right;
 }
 
 .sbm-label {
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 800;
   color: var(--game-text-dim);
-  min-width: 36px;
+  min-width: 38px;
   white-space: nowrap;
 }
 
@@ -1769,28 +1784,39 @@ h1 {
 /* 막기 버튼 — stage-panel flex 자식, 단독 큰 버튼 */
 .tap-main-btn {
   width: 100%;
-  min-height: 64px !important;
-  font-size: 20px !important;
+  min-height: 68px !important;
+  font-size: 21px !important;
   border-radius: 0;
   border-left: none;
   border-right: none;
   border-top: 1px solid var(--game-border);
   border-bottom: none;
   flex-shrink: 0;
+  letter-spacing: 0.02em;
+}
+
+/* danger 시 막기 버튼 높이 증가 */
+.stage-panel.danger .tap-main-btn {
+  min-height: 80px !important;
+  font-size: 24px !important;
+}
+.stage-panel.impact-soon .tap-main-btn {
+  min-height: 84px !important;
+  font-size: 26px !important;
 }
 
 .command-bar {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
   gap: 6px;
-  padding: 6px 10px 8px;
+  padding: 6px 10px 10px;
   background: var(--hud-bg);
   border-top: 1px solid var(--game-border);
   flex-shrink: 0;
 }
 
 .command-btn {
-  min-height: 56px;
+  min-height: 52px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 8px;
   color: var(--game-text);

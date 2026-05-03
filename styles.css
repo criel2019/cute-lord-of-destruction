@@ -8912,14 +8912,20 @@ h1 {
 }
 
 /* ── 모바일 전투 화면 클린업 ─────────────────────────────────────────────── */
-/* 캐릭터를 덮는 모든 오버레이를 완전 제거 */
-@media (max-width: 760px) {
+/* 캐릭터를 덮는 모든 오버레이를 완전 제거 (전체 화면 너비 대상) */
+@media (max-width: 960px) {
   .battle-readout { display: none !important; }
   .combatant-stat { display: none !important; }
   .click-power-inline { display: none !important; }
   .prep-gauge > strong { display: none !important; }
   .arena-core .station-label { display: none !important; }
   .command-station { display: none !important; }
-  /* main-stage 위 가로 게이지 전부 숨김 — 캐릭터 위 오버레이 제거 */
+  /* main-stage 위 가로 게이지 전부 숨김 */
   .stage-meters { display: none !important; }
+  /* 튜토리얼 탭 힌트 — 캐릭터 아래쪽으로 */
+  .tap-hint-label {
+    bottom: 8% !important;
+    font-size: 13px !important;
+    padding: 7px 16px !important;
+  }
 }

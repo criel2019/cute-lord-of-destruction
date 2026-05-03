@@ -4038,6 +4038,14 @@ function showEndingSequence(runCount) {
   const overlay = document.createElement("div");
   overlay.className = "ending-overlay";
   const runLabel = runCount > 1 ? `(${runCount}판만에)` : "(첫 판에!)";
+  const shareText = [
+    `👑 귀염뽀짝 파멸의 군주 — 30층 완전 정복! ${runLabel}`,
+    `실제: 보좌관들이 다 해줌`,
+    `발표: 짐이 처음부터 이길 줄 알았느니라!`,
+    `최고층 ${state.bestFloor}F · 총 판수 ${state.run} · 파편 ${state.shards}개`,
+    `▶ https://criel2019.github.io/cute-lord-of-destruction/`,
+  ].join("\n");
+  const shareBtnLabel = navigator.share ? "📢 클리어 공유!" : "📋 결과 복사";
   overlay.innerHTML = `
     <div class="ending-inner">
       <div class="ending-sparkle">✦ ✦ ✦</div>
@@ -4055,13 +4063,30 @@ function showEndingSequence(runCount) {
         <span>파편 ${state.shards}개</span>
       </div>
       <p class="ending-hint">계속해서 더 강해지거나, 환생으로 새로운 도전을!</p>
-      <button class="command-btn primary ending-close-btn" type="button">계속하기</button>
+      <div class="ending-actions">
+        <button class="command-btn ending-share-btn" type="button" data-share-text="${shareText.replace(/"/g, "&quot;")}">${shareBtnLabel}</button>
+        <button class="command-btn primary ending-close-btn" type="button">계속하기</button>
+      </div>
     </div>
   `;
   document.body.appendChild(overlay);
   flashScreen("gold", 0.8);
   spawnParticles(60);
   playSfx("ultimate");
+  const shareBtnEl = overlay.querySelector(".ending-share-btn");
+  if (shareBtnEl) {
+    shareBtnEl.addEventListener("click", () => {
+      const txt = shareBtnEl.dataset.shareText;
+      if (navigator.share) {
+        navigator.share({ text: txt }).catch(() => {});
+      } else {
+        navigator.clipboard?.writeText(txt).then(() => {
+          shareBtnEl.textContent = "✅ 복사됨!";
+          window.setTimeout(() => { shareBtnEl.textContent = "📋 결과 복사"; }, 2000);
+        }).catch(() => { shareBtnEl.textContent = "직접 선택하세요"; });
+      }
+    });
+  }
   overlay.querySelector(".ending-close-btn").addEventListener("click", () => {
     overlay.classList.add("ending-exit");
     window.setTimeout(() => overlay.remove(), 500);

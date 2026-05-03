@@ -7551,8 +7551,29 @@ h1 {
   color: rgba(255,255,255,0.4);
   margin: 0;
 }
-.ending-close-btn {
+.ending-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
   margin-top: 8px;
+}
+.ending-share-btn {
+  min-width: 140px;
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: #fff;
+  font-weight: 700;
+  border: none;
+  animation: endingSharePulse 1.8s ease-in-out infinite;
+}
+.ending-share-btn:hover {
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+}
+@keyframes endingSharePulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(245,158,11,0); }
+  50% { box-shadow: 0 0 0 6px rgba(245,158,11,0.35); }
+}
+.ending-close-btn {
   min-width: 140px;
 }
 

@@ -3834,8 +3834,10 @@ function render() {
         : state.ultimate >= 100
           ? "✦ 궁극기 준비!"
           : prepRate >= 70
-            ? `기력 ${Math.round(prepRate)}% ★`
-            : `기력 ${Math.round(prepRate)}%`;
+            ? "기력 가득 — 적 공격을 기다려!"
+            : prepRate >= 30
+              ? `기력 충전 중 ${Math.round(prepRate)}%`
+              : "탭해서 기력 충전!";
   const streakN = state.rescueStreak || 0;
   el.comboText.textContent = streakN >= 7
     ? `🔥 FEVER ${streakN}연속 · x${comboMult.toFixed(2)}`
@@ -3876,12 +3878,12 @@ function render() {
   const aimSecs = Math.max(0, state.enemy.attackTimer);
   el.tapLabel.textContent = dangerReady
     ? state.ultimate >= 100 && !impactSoon ? "✦ 궁극기 먼저!" : nextStreakBonus ? "⚡ 연속 막기!" : "★ 지금 막아!"
-    : phase.aiming ? (aimSecs <= 1.2 ? "⚠ 곧 온다! 준비!" : "⏱ 막을 준비!")
-    : dignityCritical ? "🚨 위기! 막아!"
+    : phase.aiming ? (aimSecs <= 1.2 ? "⚠ 곧 온다!" : "⏱ 준비!")
+    : dignityCritical ? "🚨 위기!"
     : enemyLowHp ? "💥 마무리!"
-    : prepRate < 30 ? "탭 — 보좌관 준비!"
-    : prepRate < 70 ? `보좌관 출동 준비 ${Math.round(prepRate)}%`
-    : "보좌관 대기 완료 — 기다리는 중!";
+    : prepRate < 30 ? "탭!"
+    : prepRate < 70 ? "계속 탭!"
+    : "막을 준비 완료!";
   if (el.enemyAttackStat) {
     el.enemyAttackStat.textContent = dangerReady
       ? "⚡ 막기!"

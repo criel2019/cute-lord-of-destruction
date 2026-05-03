@@ -5211,10 +5211,12 @@ h1 {
 }
 
 .credit-cut span {
-  color: rgba(255, 250, 244, 0.8);
-  font-size: 13px;
+  color: rgba(200, 230, 255, 0.9);
+  font-size: 11px;
   font-weight: 900;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  opacity: 0.85;
 }
 
 .credit-cut strong {
@@ -5290,11 +5292,12 @@ h1 {
   }
 
   .credit-cut span {
-    font-size: 11px;
+    font-size: 12px;
+    letter-spacing: 0.04em;
   }
 
   .credit-cut strong {
-    font-size: 17px;
+    font-size: 20px;
   }
 
   .choice-card .claim-line {

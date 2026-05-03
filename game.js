@@ -1177,6 +1177,7 @@ function showCreditCut(kind, truth, claim, duration = 1.25) {
   state.creditTruth = truth;
   state.creditClaim = claim;
   state.creditTimer = duration;
+  state._creditDuration = duration;
 }
 
 function dealEnemyDamage(amount, source = "auto", label = "") {
@@ -3395,10 +3396,14 @@ function render() {
         el.creditCut.classList.remove("hidden");
         el.creditCut.style.animation = "none";
         void el.creditCut.offsetWidth;
+        // duration에 맞춰 animation 길이 동적 설정 — 2.4s면 2.4s 애니로
+        const dur = state._creditDuration || 1.25;
+        el.creditCut.style.animationDuration = `${dur}s`;
         el.creditCut.style.animation = "";
       }
     } else {
       el.creditCut.classList.add("hidden");
+      el.creditCut.style.animationDuration = "";
     }
   }
   // 상황에 따른 캐릭터 이미지 선택 (impactSoon > pose 순위)

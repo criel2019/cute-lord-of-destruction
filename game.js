@@ -2759,6 +2759,34 @@ function choosePart(id) {
 
 function getReincarnateTeaser() {
   const best = state.bestFloor;
+  const intercepts = state.runInterceptTotal || 0;
+  const perfects = state.runPerfectTotal || 0;
+  const hits = state.runHitTotal || 0;
+  const streak = state.bestRescueStreak || 0;
+  const ult = Math.round(state.ultimate || 0);
+  const floor = state.floor || 1;
+  const totalActs = intercepts + hits;
+
+  // 개인화된 아쉬움 기반 티저 — 이번 판 데이터로 구체적인 다음 목표 제시
+  if (intercepts === 0 && totalActs > 0) {
+    return `💡 다음 판: 빨간불에 막기를 한 번만 성공하면 반격이 3배 세져요!`;
+  }
+  if (hits > intercepts && totalActs >= 3) {
+    return `⚡ 막기 성공률 ${Math.round(intercepts / totalActs * 100)}% — 다음 판엔 좀 더 빨리 막으면 훨씬 멀리 갈 수 있어요!`;
+  }
+  if (perfects === 0 && intercepts >= 2) {
+    return `✨ 다음 판 도전: 빨간불 직전에 막으면 PERFECT! 반격 2배 + 공물 보너스`;
+  }
+  if (ult >= 60 && ult < 100) {
+    return `⚡ 궁극기 ${ult}% 남긴 채로 끝났어요. 다음엔 먼저 궁극기를 써보세요!`;
+  }
+  if (streak >= 5) {
+    return `🔥 ${streak}연속 달성! 다음 판에서 이 기록을 깨보세요`;
+  }
+  if (streak === 0 && intercepts >= 1) {
+    return `🔗 연속 막기를 이어가면 콤보 배율이 올라가 공물이 폭발해요!`;
+  }
+  // 층수 기반 폴백
   if (best < 5) return `🔓 5F 보스를 처치하면 궁극기 영상 파츠 선택 해금`;
   if (best < 10) return `🔓 10F 돌파 시 마왕님 칭호 "성장하는 마왕" 달성 가능`;
   if (best < 15) return `🔓 15F 이상이면 "공포의 마왕" 칭호 해금`;
@@ -2903,6 +2931,36 @@ function openReincarnate(forced = false) {
     });
   }
   renderUpgrades();
+  // 재도전 버튼 텍스트 — 상황에 맞게 개인화
+  if (el.restartRunBtn) {
+    const intercepts = state.runInterceptTotal || 0;
+    const hits = state.runHitTotal || 0;
+    const bestFloorVal = state.bestFloor || 1;
+    const btnLabels = forced
+      ? intercepts === 0
+        ? "다시 해보기! (이번엔 막기를 써봐요)"
+        : hits > intercepts
+          ? `다시 해보기! (${state.run + 1}판)`
+          : `${state.run + 1}판 시작 — 설욕!`
+      : bestFloorVal >= 25
+        ? `${state.run + 1}판 — 30층 도전!`
+        : bestFloorVal >= 15
+          ? `${state.run + 1}판 — ${Math.ceil(bestFloorVal / 5) * 5 + 5}F 목표!`
+          : `${state.run + 1}판 시작`;
+    el.restartRunBtn.textContent = btnLabels;
+  }
+  // "계속 버티기" 버튼 — 강화 살 수 있으면 강조
+  if (el.closeReincarnateBtn && !forced) {
+    const totalShardsNow = state.shards + (forced ? 0 : gain);
+    const canBuyPermanent = upgradeDefs.some(u => {
+      const lv = state.permanent[u.id] || 0;
+      const cost = Math.round(u.baseCost * Math.pow(1.42, lv));
+      return totalShardsNow >= cost;
+    });
+    el.closeReincarnateBtn.textContent = canBuyPermanent
+      ? "💠 강화하고 계속!"
+      : "계속 버티기";
+  }
   el.reincarnateModal.classList.remove("hidden");
 }
 

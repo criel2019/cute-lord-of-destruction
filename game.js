@@ -5290,19 +5290,6 @@ document.addEventListener("keydown", () => startBgm(), { once: true });
 startMurmurLoop();
 requestAnimationFrame(update);
 
-// 모바일/태블릿 전투 오버레이 클린업 — JS inline style로 확실히 숨김
-if (isMobile) {
-  const hideSelectors = [
-    "#timingCall", "#comboText", "#autoPowerText",
-    "#enemyAttackStat", "#clickPowerText", "#prepText",
-    ".battle-readout", ".stage-meters", ".command-station",
-  ];
-  hideSelectors.forEach(sel => {
-    document.querySelectorAll(sel).forEach(node => {
-      node.style.cssText = "display:none!important";
-    });
-  });
-}
 
 // 탭 숨김/복귀 시 방치 보상 표시
 let _hiddenAt = null;

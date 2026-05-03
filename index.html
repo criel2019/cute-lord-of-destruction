@@ -83,8 +83,8 @@
             </div>
           </div>
 
-          <!-- HP/위협 바 — main-stage 안 오버레이 -->
-          <div class="stage-meters">
+          <!-- HP/위협 바 — main-stage 안 오버레이 (데스크탑만 표시) -->
+          <div class="stage-meters" style="display:none">
             <div class="stage-meter stage-meter--threat">
               <div class="meter threat-meter" aria-label="적 공격 예고">
                 <span id="threatBar"></span>
@@ -103,7 +103,7 @@
               <span class="meter-label-inline" id="breakText">100%</span>
             </div>
           </div>
-            <div class="battle-readout">
+            <div class="battle-readout" aria-hidden="true" style="display:none">
               <span id="timingCall">대기 중</span>
               <strong id="comboText">기력 0%</strong>
             </div>
@@ -115,13 +115,13 @@
             <div class="arena-combat">
               <div class="combatant enemy-side threat-card">
                 <img src="assets/enemy_clicker_knight_clean.png" alt="" class="arena-enemy" id="arenaEnemy" />
-                <strong class="combatant-stat" id="enemyAttackStat">공격 준비 중</strong>
+                <strong class="combatant-stat" id="enemyAttackStat" style="display:none"></strong>
               </div>
               <div class="combatant demon-side throne-side">
                 <img src="assets/demon_state_idle.png" alt="귀여운 마왕님" class="main-character" id="mainCharacter" />
-                <strong class="combatant-stat" id="autoPowerText">자동 12/s</strong>
+                <strong class="combatant-stat" id="autoPowerText" style="display:none"></strong>
               </div>
-              <div class="arena-core command-station">
+              <div class="arena-core command-station" style="display:none">
                 <span class="protect-sigil">!</span>
                 <span class="station-label">보좌관 대기</span>
                 <div class="prep-gauge" aria-label="기력">

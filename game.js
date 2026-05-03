@@ -3557,16 +3557,24 @@ function showFloorClearBurst(floor) {
 
 function showClearGrade(grade, color, interceptRate, interceptCount) {
   const pct = Math.round(interceptRate * 100);
+  const gradeLabels = { S: "완벽 수비!", A: "훌륭한 막기!", B: "괜찮아요!", C: "다음엔 더!" };
+  const gradeLabel = gradeLabels[grade] || "";
   const wrapper = document.createElement("div");
-  wrapper.className = "grade-popup";
+  wrapper.className = `grade-popup grade-popup--${grade.toLowerCase()}`;
   wrapper.innerHTML = `
     <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
       <span class="grade-popup-text" style="color:${color};text-shadow:0 0 24px ${color}88,0 2px 0 rgba(44,25,48,0.5)">${grade}</span>
-      <span style="font-size:1rem;font-weight:700;color:rgba(255,255,255,0.85);letter-spacing:0.06em;">가로채기 ${interceptCount}회 · ${pct}% 성공</span>
+      <span style="font-size:0.95rem;font-weight:800;color:${color};opacity:0.9;letter-spacing:0.04em;">${gradeLabel}</span>
+      <span style="font-size:0.85rem;font-weight:700;color:rgba(255,255,255,0.75);letter-spacing:0.06em;">가로채기 ${interceptCount}회 · ${pct}% 성공</span>
     </div>
   `;
   document.body.appendChild(wrapper);
-  window.setTimeout(() => wrapper.remove(), 1400);
+  const duration = grade === "S" ? 1900 : grade === "A" ? 1650 : 1400;
+  if (grade === "S") {
+    spawnParticles(28);
+    flashScreen("gold", 0.2);
+  }
+  window.setTimeout(() => wrapper.remove(), duration);
 }
 
 function showEndingSequence(runCount) {

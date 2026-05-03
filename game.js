@@ -2399,7 +2399,17 @@ function buyRunUpgrade(id) {
   playSfx("upgrade");
   setPose("proud", 0.7, "강화");
   triggerPulse(id === "guard" ? "brace" : "assist", 0.42);
-  setDialogue(`${upgrade.name}? 흠, 짐의 위엄에 걸맞은 공물이니라.`, "허세");
+  const isFirstEverUpgrade = Object.values(state.runUpgrades).every(v => v <= 1) && state.runUpgrades[id] === 1;
+  if (isFirstEverUpgrade) {
+    setDialogue("흐흥! 공물로 강화라... 짐의 보좌관들이 쓸만해지는군. 아니, 원래부터 짐 덕분이니라!", "허세");
+    window.setTimeout(() => showToast("💡 강화할수록 자동으로 더 강해집니다!"), 600);
+  } else {
+    setDialogue(randomPick([
+      `${upgrade.name}? 흠, 짐의 위엄에 걸맞은 공물이니라.`,
+      `좋다. 보좌관이 조금 쓸만해졌느니라.`,
+      `이 정도 강화는 짐이 원래 계획한 것이니라.`,
+    ]), "허세");
+  }
   showToast(`${upgrade.name} Lv.${state.runUpgrades[id]} 강화!`);
   if (id === "auto" || id === "click") {
     const pct = Math.round((dpsAfter / dpsBefore - 1) * 100);

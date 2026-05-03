@@ -1754,6 +1754,30 @@ function defeatEnemy() {
   if (state.bestFloor > prevBest && state.run > 1) {
     window.setTimeout(() => showToast(`신기록! ${state.bestFloor}F — 지난 판 최고보다 ${state.bestFloor - prevBest}층 앞섬`), 400);
   }
+
+  // 보스 처치 후 다음 목표 예고 — "다음 보스는 여기야" 당근 제시
+  if (defeatedBoss && state.floor <= 30) {
+    const nextBossFloorNum = Math.ceil(state.floor / 5) * 5;
+    if (nextBossFloorNum <= 30) {
+      const nextBossPreview = makeEnemyPreview(nextBossFloorNum);
+      const floorsAway = nextBossFloorNum - state.floor;
+      const bossRewardHints = {
+        5:  "궁극기 파츠 파편 획득",
+        10: "궁극기 파츠 파편 + 특성 보상",
+        15: "희귀 파츠 파편 + 영구 성장",
+        20: "전설 파츠 + 심연 특성",
+        25: "신화 파츠 + 마왕 칭호 강화",
+        30: "대단원! 전 파츠 + 최종 엔딩",
+      };
+      const rewardHint = bossRewardHints[nextBossFloorNum] || "파츠 파편 + 특성";
+      const label = nextBossPreview ? nextBossPreview.name : `${nextBossFloorNum}F 보스`;
+      // 첫 보스 처치 시 공유 배너와 겹치지 않도록 지연
+      const teaserDelay = (!state.firstBossDefeated && oldFloor <= 5) ? 3500 : 2200;
+      window.setTimeout(() => {
+        showNextBossTeaser(nextBossFloorNum, label, floorsAway, rewardHint);
+      }, teaserDelay);
+    }
+  }
   state.dignity = clamp(state.dignity + (defeatedBoss ? 18 : 7), 0, stats.maxDignity);
   state.ultimate = clamp(state.ultimate + (defeatedBoss ? 24 : 9), 0, 100);
   gainTributes((defeatedBoss ? 18 : 6) * Math.max(1, oldFloor) * stats.rewardMult, "kill");
@@ -3532,6 +3556,26 @@ function showBossTitleOverlay(bossName, bossIntent) {
   `;
   document.body.appendChild(overlay);
   window.setTimeout(() => overlay.remove(), 2300);
+}
+
+function showNextBossTeaser(bossFloor, bossName, floorsAway, rewardHint) {
+  const existing = document.querySelector(".next-boss-teaser");
+  if (existing) existing.remove();
+  const card = document.createElement("div");
+  card.className = "next-boss-teaser";
+  const awayText = floorsAway <= 0 ? "바로 다음 층!" : `${floorsAway}층 후 등장`;
+  card.innerHTML = `
+    <span class="nbt-kicker">다음 목표</span>
+    <strong class="nbt-floor">${bossFloor}F 보스</strong>
+    <span class="nbt-name">${bossName}</span>
+    <span class="nbt-away">${awayText}</span>
+    <em class="nbt-reward">▶ ${rewardHint}</em>
+  `;
+  document.body.appendChild(card);
+  window.setTimeout(() => {
+    card.classList.add("nbt-exit");
+    window.setTimeout(() => card.remove(), 400);
+  }, 3800);
 }
 
 function showEnemyNameBadge(name, label) {

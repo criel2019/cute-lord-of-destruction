@@ -8176,3 +8176,64 @@ h1 {
   from { opacity: 1; transform: translateX(-50%) translateY(0); }
   to   { opacity: 0; transform: translateX(-50%) translateY(16px); }
 }
+
+/* 다음 보스 예고 카드 */
+.next-boss-teaser {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 180;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 16px 24px 14px;
+  background: linear-gradient(160deg, rgba(12,6,22,0.96), rgba(60,20,80,0.96));
+  border: 1px solid rgba(200,140,255,0.45);
+  border-radius: 18px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.6), 0 0 24px rgba(140,80,255,0.22);
+  animation: nbtSlideIn 420ms cubic-bezier(0.16,1,0.3,1) both;
+  pointer-events: none;
+  text-align: center;
+}
+.next-boss-teaser.nbt-exit {
+  animation: nbtFadeOut 400ms ease both;
+}
+.nbt-kicker {
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(200,140,255,0.7);
+  font-weight: 700;
+}
+.nbt-floor {
+  font-size: 20px;
+  font-weight: 900;
+  color: #c88cff;
+  line-height: 1.1;
+}
+.nbt-name {
+  font-size: 13px;
+  color: rgba(255,255,255,0.85);
+  font-weight: 600;
+}
+.nbt-away {
+  font-size: 11px;
+  color: rgba(255,220,80,0.75);
+  margin-top: 2px;
+}
+.nbt-reward {
+  font-size: 11px;
+  color: rgba(134,216,199,0.9);
+  margin-top: 4px;
+  font-style: normal;
+}
+@keyframes nbtSlideIn {
+  from { opacity: 0; transform: translate(-50%, calc(-50% + 16px)) scale(0.92); }
+  to   { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+@keyframes nbtFadeOut {
+  from { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  to   { opacity: 0; transform: translate(-50%, calc(-50% - 10px)) scale(0.95); }
+}

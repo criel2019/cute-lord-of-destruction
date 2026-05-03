@@ -1128,7 +1128,6 @@ h1 {
 /* 보스 이미지는 검은 배경 → screen 블렌드로 제거 */
 .stage-panel.is-boss .arena-enemy {
   mix-blend-mode: screen;
-  filter: drop-shadow(0 0 18px rgba(255, 180, 255, 0.5));
 }
 
 /* 층 구간별 적 이미지 색조 변화 — 이미지 교체 없이 분위기 전환 */

@@ -834,6 +834,7 @@ const defaultState = () => ({
   _cutsceneAutoResolve: null,
   _firstPerfectSeen: false,
   _idleDialogueTimer: 4.5,
+  seenEnemyKinds: [],
 });
 
 let state = loadState();
@@ -1869,10 +1870,27 @@ function enemyHits() {
   state.rageTimer = 3.0;
   el.stagePanel.classList.add("rage-mode");
   const dignityAfterHit = state.dignity / stats.maxDignity;
-  if (dignityAfterHit <= 0.2) {
+  if (dignityAfterHit <= 0.15) {
     showToast("⚠️ 체면 위기! 지금 당장 막기로 기력 쌓고 다음 공격을 막으세요!");
-  } else if (dignityAfterHit <= 0.4) {
+    // 극한 위기 — 마왕이 절박하게 울부짖음
+    window.setTimeout(() => {
+      setDialogue(randomPick([
+        "흑흑흑... 보, 보좌관들! 지금 당장 막아라!!! 짐이 부탁한다!!!",
+        "이, 이건 아니다...!!! 보좌관아! 다음 공격만은 꼭 막아주거라! 명령이 아니라 간청이니라!!!",
+        "으으으... 짐이 쓰러지면... 안 되는데...! 보좌관아! 막아라!!!",
+      ]), "울먹임");
+      state._idleDialogueTimer = 2.5;
+    }, 700);
+  } else if (dignityAfterHit <= 0.3) {
     showToast("체면이 위험해요! 막기로 기력 쌓고 다음 공격을 반드시 막으세요");
+    window.setTimeout(() => {
+      setDialogue(randomPick([
+        "흑... 체면이 많이 깎였다. 보좌관들... 이번엔 꼭 막아주거라. 짐이 거의 다 왔다.",
+        "으으... 살짝 위험하다! 보좌관아! 다음 공격은 반드시 막거라! 명령이니라!",
+        "아직 괜찮다! 짐은! 그렇지만... 보좌관들아 조금만 더 힘내거라! 짐도 응원한다!",
+      ]), "울먹임");
+      state._idleDialogueTimer = 3.0;
+    }, 700);
   } else {
     showToast("전략적 피격! 3초간 자동공격 +80% — 공물 강화 탭을 확인하세요");
   }
@@ -2276,6 +2294,32 @@ function defeatEnemy() {
           el.stagePanel.classList.add("elite-enemy");
         } else {
           el.stagePanel.classList.remove("elite-enemy");
+        }
+        // 새 적 종류 첫 만남 — 마왕 반응 대사
+        const kind = state.enemy?.kind;
+        if (kind && !state.seenEnemyKinds.includes(kind)) {
+          state.seenEnemyKinds.push(kind);
+          const firstMeetLines = {
+            golem: [
+              { mood: "울먹임", text: `저, 저게 골렘이냐...?! 짐은 무섭지 않다. 절대로! 보좌관들아 먼저 가거라!` },
+              { mood: "허세", text: `흠! 골렘이구나. 짐이 원래 골렘 같은 건 손 하나로 처리하는데... 이번엔 보좌관들이 해봐라.` },
+            ],
+            dragon: [
+              { mood: "울먹임", text: `으... 드, 드래곤이다!! 잔소리 잘 하겠지만... 짐은 더 잘하니라! 보좌관 나서라!` },
+              { mood: "허세", text: `용?! 이건 좀 특별한 경험이구나. 물론 짐은 처음 봐도 두렵지 않으니라. (두렵다)` },
+            ],
+            fairy: [
+              { mood: "위엄", text: `요정이 감히 짐에게 덤비다니! 귀엽지만... 보좌관아, 봐줄 것 없다. 처리해라.` },
+              { mood: "허세", text: `오, 요정이구나. 짐은 원래 요정과는 친하다. 하지만 저건 적이니까 혼내줘야겠느니라!` },
+            ],
+          };
+          const lines = firstMeetLines[kind];
+          if (lines) {
+            window.setTimeout(() => {
+              const line = randomPick(lines);
+              setDialogue(line.text, line.mood);
+            }, 500);
+          }
         }
       }, 150);
       // 높은 층에서 적들이 마왕을 알아보고 두려워하는 반응

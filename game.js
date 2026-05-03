@@ -4443,6 +4443,8 @@ function showClearGrade(grade, color, interceptRate, interceptCount) {
       "훌륭하다! 거의 완벽이었느니라. 조금 더 하면 S도 될 것이니라!",
       "A급! 짐의 지시가 거의 완벽했느니라. 다음엔 전부 가로채리라!",
     ]), "허세"), 300);
+  } else if (grade === "C") {
+    window.setTimeout(() => showToast("💡 S등급 팁: 기력 70%+ 쌓은 후 빨간불에 막기!"), 500);
   }
   window.setTimeout(() => wrapper.remove(), duration);
 }

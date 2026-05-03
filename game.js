@@ -1268,8 +1268,9 @@ function autoAttack(dt) {
     // 자동 공격 강도에 따른 파티클 크기/색 변화
     const autoLevel = state.runUpgrades?.auto || 0;
     const isRage = state.rageTimer > 0;
-    const particleCount = isRage ? 2 : autoLevel >= 4 ? 2 : 1;
-    const baseSize = isRage ? 10 : 4 + Math.min(6, autoLevel * 1.2);
+    // 레벨 0도 2개로 — "뭔가 일어나고 있다" 느낌 확보
+    const particleCount = isRage ? 3 : autoLevel >= 4 ? 3 : autoLevel >= 1 ? 2 : 2;
+    const baseSize = isRage ? 10 : 6 + Math.min(6, autoLevel * 1.2);
     const colors = isRage
       ? ["#f09abb", "#ff6b9d", "#f7b731"]
       : autoLevel >= 3
@@ -1288,21 +1289,22 @@ function autoAttack(dt) {
       el.particleLayer.appendChild(p);
       window.setTimeout(() => p.remove(), isRage ? 650 : 500);
     }
-    // 적 이미지 히트 플래시 (강화 레벨이 높을수록 더 자주)
-    const flashChance = 0.3 + Math.min(0.5, autoLevel * 0.1);
+    // 적 이미지 히트 플래시 (레벨 0도 40% 확률 — 항상 뭔가 때리고 있다는 느낌)
+    const flashChance = isRage ? 0.85 : 0.4 + Math.min(0.45, autoLevel * 0.1);
     if (el.arenaEnemy && Math.random() < flashChance) {
       el.arenaEnemy.classList.add("auto-hit-flash");
       window.setTimeout(() => el.arenaEnemy.classList.remove("auto-hit-flash"), isRage ? 180 : 120);
     }
-    // 자동공격 데미지 숫자 — 항상 표시 (rage 시 더 자주)
-    const showAutoDmg = Math.random() < (isRage ? 0.7 : autoLevel >= 3 ? 0.45 : 0.25);
+    // 자동공격 데미지 숫자 — 레벨 0도 45% 확률로 표시
+    const showAutoDmg = Math.random() < (isRage ? 0.8 : autoLevel >= 3 ? 0.55 : 0.45);
     if (showAutoDmg && el.damageLayer) {
       const stats2 = getStats();
       const dmgVal = Math.round(stats2.autoDamage * (isRage ? 1.8 : 1));
       const pop = document.createElement("span");
       pop.className = `damage-pop auto-damage-pop${isRage ? " rage-pop" : ""}`;
       pop.textContent = formatNumber(dmgVal);
-      pop.style.setProperty("--dx", `${Math.round(-140 + (Math.random() - 0.5) * 60)}px`);
+      // 적 이미지가 왼편에 있으므로 -100~-160px 범위로 적 위에 표시
+      pop.style.setProperty("--dx", `${Math.round(-130 + (Math.random() - 0.5) * 50)}px`);
       el.damageLayer.appendChild(pop);
       window.setTimeout(() => pop.remove(), 580);
     }

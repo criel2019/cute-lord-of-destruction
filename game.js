@@ -3754,18 +3754,19 @@ function render() {
     : (heroSprites[state.pose] || heroSprites.idle);
   if (el.mainCharacter.getAttribute("src") !== heroImage) el.mainCharacter.src = heroImage;
 
-  // 하단 탭 패널 잠금 상태 반영
-  const bottomPanels = document.querySelector(".bottom-panels");
-  if (bottomPanels) {
-    const isLocked = !state.sideUnlocked && state.run <= 1 && state.floor < 2;
-    bottomPanels.classList.toggle("side-locked", isLocked);
-  }
-
   // 신규 유저 command-bar 단순화 — 첫 판 초반은 막기 버튼만 강조
   const isEarlyNewbie = state.run <= 1 && state.floor <= 3 && !state.firstBlockSeen;
   const commandBar = document.querySelector(".command-bar");
   if (commandBar) {
     commandBar.classList.toggle("newbie-focus", isEarlyNewbie);
+  }
+
+  // 하단 탭 패널 잠금 상태 반영
+  const bottomPanels = document.querySelector(".bottom-panels");
+  if (bottomPanels) {
+    const isLocked = !state.sideUnlocked && state.run <= 1 && state.floor < 2;
+    bottomPanels.classList.toggle("side-locked", isLocked);
+    bottomPanels.classList.toggle("newbie-dimmed", isEarlyNewbie);
   }
   if (el.reincarnateBtn) {
     const dignityFull = state.dignity >= getStats().maxDignity * 0.95;

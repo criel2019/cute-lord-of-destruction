@@ -8514,6 +8514,16 @@ h1 {
   transition: opacity 0.3s, flex 0.3s;
 }
 
+/* 첫 막기 전 — 탭 패널 흐릿하게 (전투에 집중 유도) */
+.bottom-panels.newbie-dimmed {
+  opacity: 0.3;
+  pointer-events: none;
+  filter: blur(1.5px);
+}
+.bottom-panels {
+  transition: opacity 0.5s ease, filter 0.5s ease;
+}
+
 /* 빠른 탭 콤보 팝업 */
 .crit-pop {
   position: absolute;

@@ -7337,6 +7337,17 @@ h1 {
   text-align: center;
   font-style: italic;
 }
+.boss-report-next-zone {
+  font-size: 11px;
+  color: rgba(134, 216, 199, 0.9);
+  background: rgba(134, 216, 199, 0.08);
+  border: 1px solid rgba(134, 216, 199, 0.2);
+  border-radius: 6px;
+  padding: 6px 10px;
+  margin: 0 0 8px;
+  text-align: left;
+  line-height: 1.4;
+}
 .boss-report-close {
   display: block;
   text-align: center;

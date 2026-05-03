@@ -1668,7 +1668,15 @@ function defeatEnemy() {
   const dpsNow = Math.round(stats.autoDamage * stats.autoSpeed * stats.autoTempo);
   const counterNow = Math.round(stats.counterDamage);
   if (!defeatedBoss && oldFloor % 3 === 0 && oldFloor >= 3) {
-    window.setTimeout(() => showToast(`현재 전투력 — 자동 ${formatNumber(dpsNow)}/s · 반격 ${formatNumber(counterNow)}`), 250);
+    // 초반 전투력 스냅샷 저장 (1판 3층 기준)
+    if (!state._baseDps && state.run <= 1 && oldFloor === 3) {
+      state._baseDps = dpsNow;
+      state._baseCounter = counterNow;
+    }
+    const growthLine = state._baseDps && dpsNow > state._baseDps
+      ? ` (시작 대비 x${(dpsNow / state._baseDps).toFixed(1)})`
+      : "";
+    window.setTimeout(() => showToast(`전투력 — 자동 ${formatNumber(dpsNow)}/s · 반격 ${formatNumber(counterNow)}${growthLine}`), 250);
   }
 
   // 구간 돌입 시 분위기 전환 알림
@@ -2107,6 +2115,21 @@ function chooseTrait(id) {
     if (t) tagCounts[t.tag] = (tagCounts[t.tag] || 0) + 1;
   });
   state.activeBuildTag = Object.entries(tagCounts).sort((a,b) => b[1]-a[1])[0]?.[0] || "";
+  // 특성 선택 후 빌드 방향 요약 — "내가 뭘 만들고 있는지" 즉시 피드백
+  const buildSummaries = {
+    "방치": "방치 빌드 — 탭 안 해도 적이 녹아요",
+    "속도": "속도 빌드 — 자동 공격이 빠르게 쌓여요",
+    "생존": "생존 빌드 — 맞아도 버티고 회복해요",
+    "반격": "반격 빌드 — 타이밍 맞추면 3배 폭발!",
+    "치명": "치명타 빌드 — 크리 터지면 대폭발이에요",
+    "보스": "보스 특화 — 보스전에서 피해 2배!",
+    "궁극기": "궁극기 빌드 — 궁극기로 올인!",
+    "계승": "눈덩이 빌드 — 층 쌓을수록 보상 폭발",
+  };
+  if (state.activeBuildTag && state.traits.length >= 2) {
+    const summary = buildSummaries[state.activeBuildTag];
+    if (summary) window.setTimeout(() => showToast(`빌드 방향: ${summary}`), 600);
+  }
   render();
 }
 
@@ -2119,6 +2142,32 @@ function pickParts(count) {
     .sort((a, b) => b.score - a.score)
     .slice(0, count)
     .map((entry) => entry.part);
+}
+
+function getPartEffectPreview(partId, existingLevel) {
+  const part = partDefs[partId];
+  if (!part) return "";
+  const scale = 1 + existingLevel * 0.5;
+  const effects = part.effect;
+  const labels = {
+    guard: "막기 보너스",
+    dignity: "체면 회복",
+    charge: "궁극기 충전",
+    assist: "공물 바치기",
+    timing: "타이밍 윈도우",
+    ultimate: "궁극기 위력",
+    break: "브레이크 속도",
+    boss: "보스 피해",
+    crit: "치명타 확률",
+    reward: "보상 배율",
+  };
+  const parts = Object.entries(effects)
+    .map(([key, val]) => {
+      const pct = Math.round(val * scale * 100);
+      return `${labels[key] || key} +${pct}%`;
+    })
+    .slice(0, 2);
+  return parts.join(" · ");
 }
 
 function openPartChoice(reason, nextTraitReason = "") {
@@ -2141,13 +2190,15 @@ function openPartChoice(reason, nextTraitReason = "") {
     const partSynergyBadge = alreadyEquipped
       ? `<span class="synergy-badge synergy-match">업그레이드</span>`
       : hasAttrSynergy ? `<span class="synergy-badge synergy-good">${part.attr} 시너지</span>` : "";
+    const effectPreview = getPartEffectPreview(part.id, level);
     button.innerHTML = `
       <img class="choice-icon" src="${part.image}" alt="" />
       <span class="rarity-pill">${level === 0 ? "NEW" : `Lv.${level + 1}`}</span>
       ${partSynergyBadge}
       <strong>${part.name}</strong>
       <p>${part.desc}</p>
-      <em class="claim-line">컷 카드 캡션: ${part.caption}</em>
+      ${effectPreview ? `<span class="trait-stat-preview">${effectPreview}</span>` : ""}
+      <em class="claim-line">${part.caption}</em>
       <span class="card-tag">${part.role} · ${part.attr}</span>
     `;
     button.addEventListener("click", () => choosePart(part.id));
@@ -3553,6 +3604,17 @@ function showBossReport(floorNum, shardGain) {
     C: "흠... 짐이 몇 번 당한 것 같으니라."
   }[grade];
 
+  const nextZonePreviews = {
+    5:  "6F부터: 적이 강해집니다. 특성 시너지를 쌓기 시작하세요!",
+    10: "11F부터: 엘리트 적 등장! 브레이크 × 기력 콤보가 핵심입니다.",
+    15: "16F부터: 심연 구간 — 특성 2개 이상 시너지가 진가를 발휘합니다.",
+    20: "21F부터: 전설 구간 — 궁극기 타이밍이 승부를 가릅니다.",
+    25: "26F부터: 신화 영역 — 30F까지 단 5층! 지금 빌드로 끝냅니다.",
+  };
+  const nextZoneLine = nextZonePreviews[floorNum]
+    ? `<p class="boss-report-next-zone">▶ ${nextZonePreviews[floorNum]}</p>`
+    : "";
+
   const report = document.createElement("div");
   report.className = "boss-report-card";
   report.innerHTML = `
@@ -3569,6 +3631,7 @@ function showBossReport(floorNum, shardGain) {
       <div class="boss-report-row"><span>파편 획득</span><strong>+${shardGain}</strong></div>
     </div>
     <p class="boss-report-comment">${gradeComment}</p>
+    ${nextZoneLine}
     <span class="boss-report-close">탭하여 닫기</span>
   `;
   document.body.appendChild(report);

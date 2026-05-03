@@ -2569,6 +2569,16 @@ function openReincarnate(forced = false) {
     state.shards += gain;
     state.reincarnateRewardClaimed = true;
   }
+  // 첫 강제 패배 시 첫 영구 강화를 경험하게 보너스 파편 증정 (1회)
+  const isFirstForcedDeath = forced && state.run <= 1 && !state._firstDeathBonus;
+  if (isFirstForcedDeath && state.shards < 7) {
+    const bonus = 7 - state.shards;
+    state.shards += bonus;
+    state._firstDeathBonus = true;
+    window.setTimeout(() => {
+      showToast(`💠 첫 도전 기념! 파편 +${bonus}개 — 영구 강화를 체험해보세요!`);
+    }, 800);
+  }
   const carry = getCarryTraitId();
   const carryName = traitDefs.find((trait) => trait.id === carry)?.name;
   const teaser = getReincarnateTeaser();
@@ -2645,8 +2655,8 @@ function openReincarnate(forced = false) {
       : `제 ${state.run}판 환생 준비`;
   }
   // 첫 패배 시 "괜찮아요" 안내 배너
-  const isFirstForcedDeath = forced && state.run <= 1 && !state._firstDeathSeen;
-  if (isFirstForcedDeath) {
+  const showFirstDeathBanner = forced && state.run <= 1 && !state._firstDeathSeen;
+  if (showFirstDeathBanner) {
     state._firstDeathSeen = true;
     const firstDeathBanner = document.createElement("div");
     firstDeathBanner.className = "first-death-banner";

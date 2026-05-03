@@ -7352,6 +7352,35 @@ h1 {
   50%       { box-shadow: 0 0 0 4px rgba(255, 220, 80, 0.18); }
 }
 
+/* 스트릭 끊김 팝업 */
+.streak-break-popup {
+  position: absolute;
+  top: 38%;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 5px;
+  align-items: baseline;
+  pointer-events: none;
+  z-index: 80;
+  animation: sbIn 0.9s ease both;
+}
+.sb-num {
+  font-size: 1.1rem;
+  font-weight: 900;
+  color: #ff7070;
+}
+.sb-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: rgba(255, 112, 112, 0.8);
+}
+@keyframes sbIn {
+  0%   { opacity: 1; transform: translateX(-50%) translateY(0); }
+  60%  { opacity: 1; transform: translateX(-50%) translateY(-14px); }
+  100% { opacity: 0; transform: translateX(-50%) translateY(-22px); }
+}
+
 /* 환생 파편 힌트 — 구매 가능 강조 */
 .reinc-shard-hint.buyable {
   background: rgba(255,229,102,0.18) !important;

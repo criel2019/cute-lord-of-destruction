@@ -1870,7 +1870,17 @@ function enemyHits() {
   el.stagePanel.classList.add("hit-flash");
   window.setTimeout(() => el.stagePanel.classList.remove("hit-flash"), 420);
   state.enemy.attackTimer = state.enemy.attackMax + (state.enemy.isBoss ? 2.2 : 1.65);
+  const brokenStreak = state.rescueStreak || 0;
   state.rescueStreak = 0;
+  if (brokenStreak >= 3) {
+    window.setTimeout(() => {
+      const streakPopup = document.createElement("div");
+      streakPopup.className = "streak-break-popup";
+      streakPopup.innerHTML = `<span class="sb-num">${brokenStreak}연속</span><span class="sb-label">끊김</span>`;
+      el.stagePanel?.appendChild(streakPopup);
+      window.setTimeout(() => streakPopup.remove(), 900);
+    }, 120);
+  }
   state.prep = Math.max(0, Math.floor((state.prep || 0) * 0.35));
   state.lastTimingGrade = "피격";
   setPose("hit", 0.9, "피격");

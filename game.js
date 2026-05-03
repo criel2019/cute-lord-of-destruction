@@ -1289,6 +1289,8 @@ function triggerPulse(kind, duration = 0.36) {
 }
 
 function showCreditCut(kind, truth, claim, duration = 1.25) {
+  // 직전 creditCut이 아직 표시 중이면 rescue/streak 우선순위 없을 때 스킵
+  if (state.creditTimer > 0.3 && kind === "hit") return;
   state.creditKind = kind;
   state.creditTruth = truth;
   state.creditClaim = claim;
@@ -1655,7 +1657,7 @@ function rescueAction() {
       spawnParticles(40);
       showToast(`🎉 ${state.rescueStreak}연속 달성! 체면 +${Math.round(milestoneBonus)} 보너스!`);
     }
-    if (state.enemy === targetEnemy && state.rescueStreak > 1 && state.rescueStreak % 3 === 0) {
+    if (state.enemy === targetEnemy && state.rescueStreak > 1 && state.rescueStreak % 5 === 0) {
       const streakBonus = (stats.counterDamage * 0.72 + state.floor * 8) * comboMult * prepMult;
       state.ultimate = clamp(state.ultimate + 9 * stats.chargeGain, 0, 100);
       gainTributes((7 + state.floor * 1.8) * stats.rewardMult * comboMult, "rescue");
@@ -2104,17 +2106,19 @@ function defeatEnemy() {
     "발표: 짐의 절초식이 통했느니라!",
     "발표: 짐이 계획한 대로 완벽한 격파!",
   ];
-  showCreditCut(
-    "streak",
-    defeatedBoss ? randomPick(bossTruths) : randomPick(mobTruths),
-    defeatedBoss ? randomPick(bossClaims) : randomPick(mobClaims),
-    defeatedBoss ? 1.8 : mobCreditDur,
-  );
+  if (defeatedBoss) {
+    showCreditCut(
+      "streak",
+      randomPick(bossTruths),
+      randomPick(bossClaims),
+      1.8,
+    );
+  }
 
   // 층 클리어 시 현재 전투력 토스트 — "나는 강해지고 있다" 피드백
   const dpsNow = Math.round(stats.autoDamage * stats.autoSpeed * stats.autoTempo);
   const counterNow = Math.round(stats.counterDamage);
-  if (!defeatedBoss && oldFloor % 3 === 0 && oldFloor >= 3) {
+  if (!defeatedBoss && oldFloor % 5 === 0 && oldFloor >= 5) {
     // 초반 전투력 스냅샷 저장 (1판 3층 기준)
     if (!state._baseDps && state.run <= 1 && oldFloor === 3) {
       state._baseDps = dpsNow;
@@ -4285,10 +4289,13 @@ function spawnParticles(count) {
 function showToast(message) {
   // 신규 유저 (처음 3분 / 3층 이하) — 동시 최대 1개로 제한
   const isNewbie = (state.floor <= 3 && state.run <= 1) || (!state.firstBlockSeen);
-  const maxToasts = isNewbie ? 1 : 3;
+  const maxToasts = isNewbie ? 1 : 2;
   while (el.toastStack.children.length >= maxToasts) {
     el.toastStack.firstChild?.remove();
   }
+  // 직전 토스트와 동일 메시지 스팸 방지
+  const lastToast = el.toastStack.lastChild;
+  if (lastToast && lastToast.textContent === message) return;
   const toast = document.createElement("div");
   toast.className = "toast";
   toast.textContent = message;
@@ -4296,8 +4303,8 @@ function showToast(message) {
   window.setTimeout(() => {
     toast.style.opacity = "0";
     toast.style.transform = "translateY(8px)";
-  }, 1800);
-  window.setTimeout(() => toast.remove(), 2200);
+  }, 1600);
+  window.setTimeout(() => toast.remove(), 1950);
 }
 
 function showGradePopup(timingKey) {

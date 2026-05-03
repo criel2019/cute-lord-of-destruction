@@ -3614,11 +3614,7 @@ h1 {
   }
 
   .battle-readout {
-    top: auto;
-    bottom: 12px;
-    left: 8px;
-    right: 8px;
-    justify-content: flex-start;
+    display: none;
   }
 
   .boss-alert {
@@ -3627,19 +3623,6 @@ h1 {
     padding: 8px 10px;
     font-size: 13px;
     line-height: 1.25;
-  }
-
-  .battle-readout span {
-    min-height: 27px;
-    max-width: 80%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    padding: 6px 10px;
-    font-size: 11px;
-  }
-
-  .battle-readout strong {
-    display: none;
   }
 
   .throne-side {
@@ -5527,24 +5510,41 @@ h1 {
 
 @media (max-width: 760px) {
   .credit-cut {
-    bottom: 50%;
-    transform: translateX(-50%) translateY(50%);
+    bottom: auto;
+    top: 60px;
+    transform: translateX(-50%);
     width: calc(100% - 20px);
-    padding: 10px 11px 12px;
+    padding: 8px 11px 10px;
+    pointer-events: none;
+    opacity: 0.92;
+  }
+
+  /* 피격 크레딧은 그대로 상단 유지 */
+  .credit-cut.credit-hit {
+    top: 56px;
+    transform: translateX(-50%);
   }
 
   .credit-cut span {
-    font-size: 12px;
+    font-size: 11px;
     letter-spacing: 0.04em;
   }
 
   .credit-cut strong {
-    font-size: 20px;
+    font-size: 17px;
   }
 
   .choice-card .claim-line {
     padding: 7px;
     font-size: 11px;
+  }
+}
+
+@media (max-width: 760px) {
+  .upgrade-power-surge {
+    top: 12%;
+    font-size: 11px;
+    padding: 5px 13px;
   }
 }
 

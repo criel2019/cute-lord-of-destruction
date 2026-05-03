@@ -2239,6 +2239,20 @@ function resolveUltimate(crisisBonus) {
       state.enemy.breakGauge = clamp(state.enemy.breakGauge - 70 * stats.breakPower, 0, 100);
     }
   }
+  // 궁극기 사용 후 creditCut — 핵심 유머: 보좌관들이 다 했는데 마왕이 자기 절초식이라고 함
+  const ultimateTruths = [
+    "실제: 보좌관들이 합동 필살기 시전",
+    "실제: 평소에 갈고 닦은 보좌관들의 실력",
+    "실제: 보좌관이 다 함. 마왕님은 포즈만",
+    "실제: 보좌관이 3초 동안 목숨 걸고 처리",
+  ];
+  const ultimateClaims = [
+    "발표: 짐의 절초식이 드디어 발동되었느니라!!",
+    "발표: 짐이 원래 이 기술을 아꼈던 것이니라!",
+    "발표: 이것이 바로 짐의 파멸 군주 비전이니라!!",
+    "발표: 짐의 위엄이 폭발하는 순간이니라!!",
+  ];
+  showCreditCut("rescue", randomPick(ultimateTruths), randomPick(ultimateClaims), 2.0);
   el.cutscene.classList.add("hidden");
   state.cutscenePlaying = false;
   const pendingPart = state.pendingPartChoice;

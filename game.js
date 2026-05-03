@@ -2160,9 +2160,15 @@ function defeatEnemy() {
   // 첫 판 첫 번째 적 처치
   if (!state.firstFloorCleared && !defeatedBoss && state.floor >= 2 && state.run <= 1) {
     state.firstFloorCleared = true;
+    const usedBlock = state.firstBlockSeen;
     window.setTimeout(() => {
       spawnParticles(48);
-      setDialogue("보았느냐! 짐의 보좌관이... 아니, 짐의 위엄이 이겼다!", "허세");
+      if (usedBlock) {
+        setDialogue("보았느냐! 짐의 보좌관이... 아니, 짐의 위엄이 이겼다! 막기를 쓰면 반격이 강해지니라!", "허세");
+      } else {
+        setDialogue("흠... 자동으로 이겼지만 — 기력을 쌓고 막기를 쓰면 훨씬 강한 반격이 나가느니라!", "명령");
+        window.setTimeout(() => showToast("💡 탭해서 기력 충전 → 빨간불에 막기 = 강력한 반격!"), 600);
+      }
     }, delay + 100);
   }
   // 다음 층 적 예고 오버레이 — 층 전환 직전 0.8초

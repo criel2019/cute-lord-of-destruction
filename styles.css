@@ -1384,11 +1384,13 @@ h1 {
 }
 
 .damage-pop.tribute-pop {
-  left: 66%;
-  top: 35%;
-  font-size: clamp(15px, 1.4vw, 19px);
+  left: 62%;
+  top: 32%;
+  font-size: clamp(17px, 2vw, 22px);
   color: #fff3ad;
-  text-shadow: 0 2px 0 #6c3a68, 0 0 14px rgba(255, 238, 157, 0.62);
+  -webkit-text-fill-color: initial;
+  text-shadow: 0 2px 0 #6c3a68, 0 0 16px rgba(255, 238, 157, 0.75);
+  filter: none;
 }
 
 .damage-pop.prep-pop {
@@ -1676,7 +1678,7 @@ h1 {
 
 .command-bar {
   display: grid;
-  grid-template-columns: 3fr 1.4fr 0.55fr 0.55fr;
+  grid-template-columns: 3fr 1.5fr 0.85fr 0.75fr;
   gap: 6px;
   padding: 8px 10px;
   background: var(--hud-bg);

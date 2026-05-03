@@ -4346,8 +4346,8 @@ function playIntro() {
   }
 
   const lines = [
-    { mood: "울먹임", text: "...흥. 저, 저게 또 짐을 혼내러 왔구나! 보좌관들, 막아줘... 아니, 짐이 지시할 것이니라!", delay: 0 },
-    { mood: "명령", text: "빨간 불 → 누르면 된다! 탭할수록 반격이 강해지니라. 물론 짐이 시킨 것이니라!", delay: 1700 },
+    { mood: "울먹임", text: "...흥. 저, 저게 또 짐을 혼내러 왔구나! 보좌관들, 준비해— 아니! 짐이 지시하는 것이니라!", delay: 0 },
+    { mood: "허세", text: "빨간 빛이 번쩍이면... 그때 짐이 직접 막— 아니, 보좌관에게 막으라 명 할 것이니라! 물론 짐이 하고 싶어서가 아니라 전략이니라!", delay: 1600 },
   ];
 
   const introTimers = [];
@@ -4390,8 +4390,10 @@ function playIntro() {
       };
       mainStage.addEventListener("click", removeTapHint, { once: true });
     }
-    // creditCut(2.6s) 끝난 뒤 인포카드 표시 — 동시 오버레이 방지
-    window.setTimeout(() => showLoopInfoCard(), 3000);
+    // creditCut(2.6s) 끝난 뒤 인포카드 표시 — 첫 막기 성공 전에만 (이미 알고 있으면 불필요)
+    window.setTimeout(() => {
+      if (!state.firstBlockSeen) showLoopInfoCard();
+    }, 3000);
   };
 
   // 클릭 시 인트로 즉시 종료 (클릭이 막기 역할도 함)
@@ -4415,13 +4417,13 @@ function showLoopInfoCard() {
   card.className = "loop-info-card";
   card.innerHTML = `
     <div class="loop-info-row">
-      <span class="loop-step">① 탭 → 기력 충전</span>
+      <span class="loop-step">탭 → 기력 ↑</span>
       <span class="loop-arrow">→</span>
-      <span class="loop-step">② 빨간 불 시 막기</span>
+      <span class="loop-step">빨간 불 = 막기!</span>
       <span class="loop-arrow">→</span>
-      <span class="loop-step highlight">💥 보좌관이 반격!</span>
+      <span class="loop-step highlight">보좌관이 반격 💥</span>
     </div>
-    <span class="loop-info-sub">실제: 보좌관이 다 함 / 발표: 짐의 위엄이 막았느니라!</span>
+    <span class="loop-info-sub">실제: 보좌관이 다 함 &nbsp;/&nbsp; 발표: 짐의 위엄이니라! 👑</span>
   `;
   document.body.appendChild(card);
   window.setTimeout(() => {

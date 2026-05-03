@@ -3657,10 +3657,10 @@ h1 {
   }
 
   .threat-card {
-    left: 3%;
-    bottom: 5%;
-    width: 38%;
-    height: 32%;
+    left: 2%;
+    bottom: 8%;
+    width: 40%;
+    height: 38%;
     padding: 4px 3px;
     background: transparent;
     box-shadow: none;
@@ -3668,8 +3668,8 @@ h1 {
   }
 
   .arena-enemy {
-    width: min(112%, 170px);
-    max-height: 145px;
+    width: min(112%, 190px);
+    max-height: 165px;
   }
 
   .command-station {
@@ -3707,8 +3707,8 @@ h1 {
 
   .threat-lane {
     left: 8%;
-    right: 49%;
-    top: 82%;
+    right: 20%;
+    top: 80%;
     height: 44px;
   }
 

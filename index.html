@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>귀염뽀짝 파멸의 군주</title>
+    <meta name="description" content="허세 마왕님이 사실은 보좌관들이 다 해주는데 본인이 한 척하는 클리커 RPG. 30층 마왕성을 정복하세요!" />
+    <meta property="og:title" content="귀염뽀짝 파멸의 군주" />
+    <meta property="og:description" content="허세 마왕님의 생존 일지 — 적이 공격할 때 막기 버튼 하나로 30층을 돌파하라!" />
+    <meta property="og:image" content="assets/mainchar_proud_clean.png" />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="귀염뽀짝 파멸의 군주" />
+    <meta name="twitter:description" content="허세 마왕님의 생존 일지 — 적이 공격할 때 막기 버튼 하나로 30층을 돌파하라!" />
+    <meta name="twitter:image" content="assets/mainchar_proud_clean.png" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+
+      <!-- 최상단 얇은 상태 바 -->
+      <header class="top-hud">
+        <div class="hud-left">
+          <div class="brand-mark">破</div>
+          <div class="demon-info">
+            <h1>귀염뽀짝 파멸의 군주</h1>
+            <span class="demon-title" id="demonTitle">허약한 마왕</span>
+          </div>
+        </div>
+        <div class="hud-right">
+          <div class="hud-stat">
+            <span class="hud-label">판</span>
+            <strong id="runText">1</strong>
+          </div>
+          <div class="hud-stat">
+            <span class="hud-label">층</span>
+            <strong id="floorText">1F</strong>
+          </div>
+          <div class="hud-stat hud-stat--best">
+            <span class="hud-label">최고</span>
+            <strong id="bestFloorText">1F</strong>
+          </div>
+          <div class="hud-stat hud-stat--tribute">
+            <span class="hud-label">🔸</span>
+            <strong id="tributeText">0</strong>
+          </div>
+          <div class="hud-stat hud-stat--shard">
+            <span class="hud-label">💠</span>
+            <strong id="shardText">0</strong>
+          </div>
+          <div class="hud-stat hud-stat--streak hidden-streak" id="streakChip">
+            <span class="hud-label">🔥</span>
+            <strong id="streakText">0</strong>
+          </div>
+        </div>
+      </header>
+
+      <!-- 전체 플레이 영역 -->
+      <main class="play-layout">
+
+        <!-- 전투 스테이지 (메인 영역) -->
+        <section class="stage-panel" id="stagePanel">
+          <div class="boss-alert" id="bossAlert">공격이 들어옵니다! 지금 막으세요!</div>
+
+          <!-- 적 이름 + 라벨 + 공격 의도 (스테이지 상단 오버레이) -->
+          <div class="enemy-header">
+            <div class="enemy-title-group">
+              <span class="enemy-label" id="enemyLabel">일반 몬스터</span>
+              <h2 id="enemyName">솜사탕 기사</h2>
+            </div>
+            <div class="enemy-intent-badge" id="enemyIntentBadge">
+              <span class="intent-arrow">→</span>
+              <span class="intent-text" id="enemyIntentText">마왕님을 노리는 중</span>
+              <span class="intent-timer" id="castText">3.8초</span>
+            </div>
+          </div>
+
+          <!-- HP/위협/궁극기 — 스테이지 상단 오버레이 바 -->
+          <div class="stage-meters">
+            <div class="stage-meter stage-meter--threat">
+              <div class="meter threat-meter" aria-label="적 공격 예고">
+                <span id="threatBar"></span>
+              </div>
+            </div>
+            <div class="stage-meter stage-meter--hp">
+              <div class="meter hp-meter" aria-label="적 체력">
+                <span id="enemyHpBar"></span>
+              </div>
+              <span class="meter-label-inline" id="enemyHpText">0/0</span>
+            </div>
+            <div class="stage-meter stage-meter--break boss-only">
+              <div class="meter break-meter" aria-label="브레이크">
+                <span id="breakBar"></span>
+              </div>
+              <span class="meter-label-inline" id="breakText">100%</span>
+            </div>
+          </div>
+
+          <!-- 전투 메인 버튼 -->
+          <button class="main-stage" id="stageTap" type="button" aria-label="막기">
+            <div class="battle-readout">
+              <span id="timingCall">대기 중</span>
+              <strong id="comboText">기력 0%</strong>
+            </div>
+            <div class="threat-lane" aria-hidden="true">
+              <span class="lane-beam"></span>
+              <span class="timing-zone"></span>
+              <span class="attack-orb"></span>
+            </div>
+            <div class="arena-combat">
+              <div class="combatant enemy-side threat-card">
+                <img src="assets/enemy_clicker_knight_clean.png" alt="" class="arena-enemy" id="arenaEnemy" />
+                <strong class="combatant-stat" id="enemyAttackStat">공격 준비 중</strong>
+              </div>
+              <div class="combatant demon-side throne-side">
+                <img src="assets/mainchar_hit_proud_clean.png" alt="귀여운 마왕님" class="main-character" id="mainCharacter" />
+                <strong class="combatant-stat" id="autoPowerText">자동 12/s</strong>
+              </div>
+              <div class="arena-core command-station">
+                <span class="protect-sigil">!</span>
+                <span class="station-label">보좌관 대기</span>
+                <div class="prep-gauge" aria-label="기력">
+                  <strong id="prepText">기력 0%</strong>
+                  <i id="prepBar"></i>
+                </div>
+                <strong id="clickPowerText" class="click-power-inline">반격 x1.00</strong>
+              </div>
+            </div>
+            <img src="assets/scene_rescue.png" alt="" class="scene-overlay hidden" id="sceneOverlay" />
+            <div class="credit-cut hidden" id="creditCut" aria-live="polite">
+              <span id="creditTruth">실제: 보좌관이 막음</span>
+              <strong id="creditClaim">발표: 짐의 위엄이 막았다!</strong>
+            </div>
+            <span class="impact-vfx" aria-hidden="true"></span>
+            <span class="counter-vfx" aria-hidden="true"></span>
+            <span id="damageLayer" class="damage-layer" aria-hidden="true"></span>
+            <span id="particleLayer" class="particle-layer" aria-hidden="true"></span>
+          </button>
+
+          <!-- 체면/궁극기 — 스테이지 하단 오버레이 바 -->
+          <div class="stage-bottom-meters">
+            <div class="sbm-row">
+              <span class="sbm-icon">♥</span>
+              <div class="meter dignity-meter" aria-label="마왕 체면">
+                <span id="heroHpBar"></span>
+              </div>
+              <span class="sbm-value" id="heroHpText">100/100</span>
+              <span class="sbm-label" id="dignityText">100%</span>
+            </div>
+            <div class="sbm-row">
+              <span class="sbm-icon">✦</span>
+              <div class="meter ultimate-meter" aria-label="궁극기 충전">
+                <span id="ultimateBar"></span>
+              </div>
+              <span class="sbm-value" id="ultimateInlineText">0%</span>
+              <span class="sbm-label" id="ultimateText">궁극기</span>
+            </div>
+          </div>
+
+          <!-- 마왕 대사 -->
+          <div class="dialogue-box">
+            <span id="moodText">울먹임</span>
+            <strong id="dialogueText">흥... 짐은 하나도 무섭지 않으니라.</strong>
+          </div>
+
+          <!-- 다음 목표 (접힌 형태) -->
+          <div class="stage-reward-strip" aria-live="polite">
+            <div class="stage-reward-copy">
+              <span>▶</span>
+              <strong id="stageRewardText">5F 보스 처치로 궁극기 영상 파츠 획득</strong>
+              <div class="stage-milestone-row" id="stageMilestones" aria-hidden="true"></div>
+            </div>
+            <div class="stage-reward-deck" id="stageRewardDeck" aria-hidden="true"></div>
+          </div>
+
+          <!-- 액션 버튼 -->
+          <div class="command-bar">
+            <button class="command-btn rescue primary" id="tapBtn" type="button">
+              <span class="btn-icon">!</span>
+              <span id="tapLabel">막기</span>
+            </button>
+            <button class="command-btn" id="ultimateBtn" type="button">
+              <span class="btn-icon">✦</span>
+              <span id="ultimateBtnLabel">궁극기</span>
+            </button>
+            <button class="command-btn" id="reincarnateBtn" type="button">
+              <span class="btn-icon">↻</span>
+              <span>환생</span>
+            </button>
+            <button class="command-btn ghost" id="saveBtn" type="button">
+              <span class="btn-icon">✓</span>
+              <span>저장</span>
+            </button>
+          </div>
+        </section>
+
+        <!-- 하단 탭 패널 -->
+        <div class="bottom-panels">
+          <div class="tab-bar">
+            <button class="tab-btn active" data-tab="upgrade" type="button">강화</button>
+            <button class="tab-btn" data-tab="build" type="button">빌드</button>
+            <button class="tab-btn" data-tab="parts" type="button">파츠</button>
+          </div>
+
+          <div class="tab-content" id="tabUpgrade">
+            <div class="tab-header">
+              <span>공물 강화</span>
+              <strong id="dpsText">구매 가능</strong>
+            </div>
+            <div class="objective-card" id="objectiveText">
+              기력을 쌓은 뒤 적 공격이 들어오는 순간 막으세요.
+            </div>
+            <div class="run-upgrade-grid" id="runUpgradeGrid"></div>
+          </div>
+
+          <div class="tab-content hidden" id="tabBuild">
+            <div class="tab-header">
+              <span>이번 판 특성</span>
+              <strong>빌드</strong>
+            </div>
+            <div id="traitList" class="trait-list" aria-live="polite"></div>
+          </div>
+
+          <div class="tab-content hidden" id="tabParts">
+            <div class="tab-header">
+              <span>궁극기 파츠</span>
+              <strong>기억의 극장</strong>
+            </div>
+            <div id="partSlots" class="part-slots"></div>
+            <div class="memory-box">
+              <span>수집 현황</span>
+              <strong id="memoryText">3개 장착됨</strong>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- 특성 선택 모달 -->
+    <div class="choice-modal hidden" id="choiceModal" role="dialog" aria-modal="true" aria-labelledby="choiceTitle">
+      <div class="modal-panel">
+        <span class="kicker">특성 선택</span>
+        <h2 id="choiceTitle">특성을 골라 마왕님을 강화하세요</h2>
+        <p id="choiceReason">보상 특성 하나를 장착합니다.</p>
+        <div class="choice-grid" id="choiceGrid"></div>
+      </div>
+    </div>
+
+    <!-- 파츠 선택 모달 -->
+    <div class="choice-modal hidden" id="partModal" role="dialog" aria-modal="true" aria-labelledby="partTitle">
+      <div class="modal-panel">
+        <span class="kicker">기억의 극장</span>
+        <h2 id="partTitle">궁극기 영상 파츠를 고르세요</h2>
+        <p id="partReason">고른 파츠는 궁극기 연출에 반영됩니다.</p>
+        <div class="choice-grid" id="partGrid"></div>
+      </div>
+    </div>
+
+    <!-- 환생 모달 -->
+    <div class="reincarnate-modal hidden" id="reincarnateModal" role="dialog" aria-modal="true" aria-labelledby="reincarnateTitle">
+      <div class="modal-panel upgrade-panel">
+        <span class="kicker">마왕의 그릇</span>
+        <h2 id="reincarnateTitle">환생 성장</h2>
+        <p id="reincarnateSummary">마왕님이 잠깐 쓰러졌습니다.</p>
+        <div class="upgrade-grid" id="upgradeGrid"></div>
+        <div class="modal-actions">
+          <button class="command-btn primary" id="restartRunBtn" type="button">다음 판 시작</button>
+          <button class="command-btn ghost" id="closeReincarnateBtn" type="button">계속 버티기</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 궁극기 컷씬 -->
+    <div class="cutscene hidden" id="cutscene" aria-hidden="true">
+      <div class="cutscene-stage">
+        <img src="assets/mainchar_proud_clean.png" alt="" class="cutscene-character" />
+        <div class="cutscene-card" id="cutsceneCard">
+          <span id="cutsceneRole">도입</span>
+          <strong id="cutsceneTitle">마왕의 허세</strong>
+          <em id="cutsceneCaption">흐흥, 짐이 원래 하려던 일이니라!</em>
+        </div>
+        <div class="cutscene-skip-hint hidden" id="cutsceneSkipHint">탭하여 스킵 ▶</div>
+      </div>
+    </div>
+
+    <div class="toast-stack" id="toastStack" aria-live="polite"></div>
+
+    <script src="game.js"></script>
+  </body>
+</html>

@@ -2820,9 +2820,9 @@ function render() {
     : phase.aiming ? "⏱ 막을 준비!"
     : dignityCritical ? "🚨 위기! 막아!"
     : enemyLowHp ? "💥 마무리!"
-    : prepRate < 30 ? "탭 → 기력 충전"
-    : prepRate < 70 ? `기력 ${Math.round(prepRate)}% 충전 중`
-    : "기력 MAX — 막기 준비!";
+    : prepRate < 30 ? "탭 — 보좌관 준비!"
+    : prepRate < 70 ? `보좌관 출동 준비 ${Math.round(prepRate)}%`
+    : "보좌관 대기 완료 — 기다리는 중!";
   if (el.enemyAttackStat) {
     el.enemyAttackStat.textContent = dangerReady
       ? "⚡ 막기!"

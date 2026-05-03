@@ -4984,7 +4984,7 @@ if (!state.introSeen) {
     splash.className = "game-splash";
     splash.innerHTML = `
       <div class="splash-inner">
-        <img src="assets/mainchar_proud_clean.png" alt="마왕님" class="splash-char" />
+        <img src="assets/mainchar_proud_clean.png" alt="마왕님" class="splash-char splash-char--bounce" />
         <div class="splash-title">귀염뽀짝 파멸의 군주</div>
         <div class="splash-credit-preview">
           <div class="splash-credit-row">
@@ -4997,8 +4997,8 @@ if (!state.introSeen) {
             <span class="splash-credit-text">짐의 위엄이 막았다!</span>
           </div>
         </div>
-        <div class="splash-tagline">보좌관들이 다 하는데 본인이 한 척하는 클리커 RPG</div>
-        <div class="splash-hint">탭해서 시작 ▶</div>
+        <div class="splash-tagline">허세 마왕님이 아무것도 안 하는데 다 한 척하는 RPG</div>
+        <div class="splash-hint splash-hint--pulse">탭해서 막아라! ▶</div>
       </div>
     `;
     document.body.appendChild(splash);
@@ -5012,7 +5012,7 @@ if (!state.introSeen) {
       splash.removeEventListener("click", dismiss);
     };
     splash.addEventListener("click", dismiss);
-    window.setTimeout(dismiss, 3500);
+    window.setTimeout(dismiss, 2800);
   })();
 } else if (state.enemy) {
   // 2판+ 첫 로드 시 — 적 이름 + 마왕 복귀 브리핑

@@ -8440,6 +8440,22 @@ h1 {
   0%, 100% { opacity: 0.5; }
   50%       { opacity: 1; }
 }
+.splash-hint--pulse {
+  color: #f09abb;
+  font-size: 15px;
+  animation: splashHintPulse 0.9s ease-in-out infinite;
+}
+@keyframes splashHintPulse {
+  0%, 100% { opacity: 0.7; transform: scale(1); }
+  50%       { opacity: 1;   transform: scale(1.06); }
+}
+.splash-char--bounce {
+  animation: splashCharBounce 1.6s ease-in-out infinite;
+}
+@keyframes splashCharBounce {
+  0%, 100% { transform: translateY(0) rotate(-2deg); }
+  50%       { transform: translateY(-10px) rotate(2deg); }
+}
 
 /* 루프 24 — 게임 내 공유 배너 */
 .ingame-share-banner {

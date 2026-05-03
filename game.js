@@ -3978,6 +3978,10 @@ function render() {
   }
   const canBuyUpgrade = canAffordUpgrade;
   const recRunUpgrade = canBuyUpgrade ? runUpgradeDefs.find(u => u.id === getRecommendedRunUpgrade()) : null;
+  const objCard = el.objectiveText.closest(".objective-card") || el.objectiveText.parentElement;
+  if (objCard) {
+    objCard.classList.toggle("can-buy", canBuyUpgrade && !dangerReady && !dignityCritical);
+  }
   el.objectiveText.textContent = dangerReady
     ? `⚡ 막기! 기력 ${Math.round(prepRate)}% → x${prepMult.toFixed(2)} 반격`
     : phase.aiming

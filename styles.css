@@ -7340,6 +7340,18 @@ h1 {
   padding: 9px 12px;
 }
 
+/* 오브젝티브 카드 — 강화 구매 가능 강조 */
+.objective-card.can-buy {
+  background: rgba(255, 220, 80, 0.13) !important;
+  border-color: rgba(255, 220, 80, 0.5) !important;
+  color: #f0d060 !important;
+  animation: objBuyPulse 1.6s ease-in-out infinite;
+}
+@keyframes objBuyPulse {
+  0%, 100% { box-shadow: none; }
+  50%       { box-shadow: 0 0 0 4px rgba(255, 220, 80, 0.18); }
+}
+
 /* 환생 파편 힌트 — 구매 가능 강조 */
 .reinc-shard-hint.buyable {
   background: rgba(255,229,102,0.18) !important;

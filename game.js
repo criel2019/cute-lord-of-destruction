@@ -3534,6 +3534,7 @@ function renderTraits() {
   el.traitList.innerHTML = statSummaryHtml + buildSummaryHtml + ids
     .map((id) => {
       const trait = traitDefs.find((item) => item.id === id);
+      const statLine = getTraitStatPreview(id);
       return `
         <div class="trait-card">
           <img class="trait-icon" src="${trait.image}" alt="" />
@@ -3541,6 +3542,7 @@ function renderTraits() {
             <div class="trait-meta"><span>${trait.rarity}급</span><span>x${stacks[id]}</span></div>
             <strong>${trait.name}</strong>
             <p>${trait.desc}</p>
+            ${statLine ? `<span class="trait-stat-preview">${statLine}</span>` : ""}
           </div>
         </div>
       `;

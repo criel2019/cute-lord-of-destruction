@@ -7852,3 +7852,65 @@ h1 {
   animation: synergyBadgePulse 2.5s ease-in-out infinite;
   white-space: nowrap;
 }
+
+/* ── 게임 스플래시 화면 ── */
+.game-splash {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: radial-gradient(ellipse at 50% 40%, rgba(108,58,104,0.5) 0%, rgba(14,10,18,0.97) 65%),
+              rgba(14,10,18,0.98);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  animation: splashIn 0.4s ease both;
+}
+.game-splash.splash-exit {
+  animation: splashOut 0.38s ease forwards;
+}
+@keyframes splashIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes splashOut {
+  to { opacity: 0; transform: scale(1.04); }
+}
+.splash-inner {
+  text-align: center;
+  padding: 32px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+.splash-title {
+  font-size: clamp(1.8rem, 6vw, 3rem);
+  font-weight: 1000;
+  color: #f3c55f;
+  text-shadow: 0 0 32px rgba(243,197,95,0.8), 0 0 60px rgba(243,197,95,0.3);
+  letter-spacing: -0.01em;
+  animation: splashTitleGlow 2s ease-in-out infinite;
+}
+@keyframes splashTitleGlow {
+  0%, 100% { text-shadow: 0 0 28px rgba(243,197,95,0.7), 0 0 55px rgba(243,197,95,0.25); }
+  50%       { text-shadow: 0 0 40px rgba(243,197,95,1),   0 0 80px rgba(243,197,95,0.45); }
+}
+.splash-tagline {
+  font-size: clamp(0.95rem, 3vw, 1.15rem);
+  color: rgba(232,216,240,0.82);
+  font-weight: 600;
+  line-height: 1.6;
+  max-width: 340px;
+}
+.splash-hint {
+  margin-top: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  color: rgba(134,216,199,0.7);
+  animation: splashHintBlink 1.4s ease-in-out infinite;
+}
+@keyframes splashHintBlink {
+  0%, 100% { opacity: 0.5; }
+  50%       { opacity: 1; }
+}

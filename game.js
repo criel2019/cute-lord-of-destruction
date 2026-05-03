@@ -3519,6 +3519,13 @@ function playIntro() {
     if (state.enemy && state.floor === 1 && state.run <= 1) {
       state.enemy.attackTimer = 3.2;
     }
+    // 인트로 종료 시 게임의 핵심 유머 — creditCut을 미리 한번 맛보기
+    showCreditCut(
+      "rescue",
+      "실제: 보좌관이 지금도 막고 있음",
+      "발표: 짐이 모두 계획한 것이니라!",
+      2.2,
+    );
     showToast("빨간 버튼으로 적의 공격을 가로채세요!");
     el.tapBtn.classList.add("intro-pulse");
     window.setTimeout(() => el.tapBtn.classList.remove("intro-pulse"), 3000);
@@ -3756,9 +3763,30 @@ ensureEnemy();
 state.dignity = clamp(state.dignity, 0, getStats().maxDignity);
 render();
 
-// 첫 실행 시 인트로 시퀀스 재생
+// 첫 실행 시 스플래시 → 인트로 시퀀스
 if (!state.introSeen) {
-  window.setTimeout(playIntro, 400);
+  (function showSplash() {
+    const splash = document.createElement("div");
+    splash.className = "game-splash";
+    splash.innerHTML = `
+      <div class="splash-inner">
+        <div class="splash-title">귀염뽀짝 파멸의 군주</div>
+        <div class="splash-tagline">허세 마왕님이 사실 아무것도 못 하는데<br/>보좌관들이 다 해주는 클리커 RPG</div>
+        <div class="splash-hint">탭해서 시작</div>
+      </div>
+    `;
+    document.body.appendChild(splash);
+    const dismiss = () => {
+      splash.classList.add("splash-exit");
+      window.setTimeout(() => {
+        splash.remove();
+        window.setTimeout(playIntro, 200);
+      }, 380);
+      splash.removeEventListener("click", dismiss);
+    };
+    splash.addEventListener("click", dismiss);
+    window.setTimeout(dismiss, 3500);
+  })();
 } else if (state.enemy) {
   // 2판+ 첫 로드 시 적 이름 표시
   window.setTimeout(() => showEnemyNameBadge(state.enemy.name, state.enemy.title), 600);

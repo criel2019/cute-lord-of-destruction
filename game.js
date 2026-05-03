@@ -4312,8 +4312,8 @@ function playIntro() {
   }
 
   const lines = [
-    { mood: "울먹임", text: "...흥. 저, 저게 또 짐을 혼내러 왔구나! 보좌관들, 대신 좀 막아줘... 아니, 짐이 막을 것이니라!", delay: 0 },
-    { mood: "명령", text: "빨간 불이 들어오면 누르면 된다! 기력이 높을수록 반격이 강해지니라! (짐은 지시만 하는 것이니라)", delay: 1600 },
+    { mood: "울먹임", text: "...흥. 저, 저게 또 짐을 혼내러 왔구나! 보좌관들, 막아줘... 아니, 짐이 지시할 것이니라!", delay: 0 },
+    { mood: "명령", text: "빨간 불 → 누르면 된다! 탭할수록 반격이 강해지니라. 물론 짐이 시킨 것이니라!", delay: 1700 },
   ];
 
   const introTimers = [];
@@ -4356,7 +4356,8 @@ function playIntro() {
       };
       mainStage.addEventListener("click", removeTapHint, { once: true });
     }
-    showLoopInfoCard();
+    // creditCut(2.6s) 끝난 뒤 인포카드 표시 — 동시 오버레이 방지
+    window.setTimeout(() => showLoopInfoCard(), 3000);
   };
 
   // 클릭 시 인트로 즉시 종료 (클릭이 막기 역할도 함)

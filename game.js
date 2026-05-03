@@ -2394,6 +2394,16 @@ function openChoice(reason) {
     button.addEventListener("click", () => chooseTrait(trait.id));
     el.choiceGrid.appendChild(button);
   });
+  // 카드 순차 등장 — 뽑기 기대감
+  el.choiceGrid.querySelectorAll(".choice-card").forEach((card, i) => {
+    card.style.opacity = "0";
+    card.style.transform = "translateY(16px) scale(0.94)";
+    window.setTimeout(() => {
+      card.style.transition = "opacity 0.28s ease, transform 0.28s cubic-bezier(0.34,1.56,0.64,1)";
+      card.style.opacity = "";
+      card.style.transform = "";
+    }, 80 + i * 120);
+  });
   // 첫 3회 특성 선택에서 선택 힌트 카드 표시
   const traitChoiceCount = (state.seenTraits || []).length;
   if (traitChoiceCount <= 2) {

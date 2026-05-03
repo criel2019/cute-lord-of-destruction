@@ -1358,7 +1358,11 @@ function rescueAction() {
         gainTributes((state._consecutivePerfect * 8 + state.floor * 5), "rescue");
         window.setTimeout(() => {
           setDialogue(`${state._consecutivePerfect}연속?! 흑흑... 짐이 원래 이런 마왕이었던 것이니라!! 감동이구나!!`, "각성");
-          showToast(`🌟 ${state._consecutivePerfect}연속 PERFECT!! 전설적인 타이밍 — 공물 보너스!`);
+          showInGameShareBanner(
+            `🌟 ${state._consecutivePerfect}연속 PERFECT!!`,
+            `${state.floor}F · 전설적인 타이밍`,
+            `👑 귀염뽀짝 파멸의 군주\n${state._consecutivePerfect}연속 PERFECT!! (${state.floor}층)\n실제: 보좌관이 막음 / 발표: 짐의 완벽한 지휘!\n▶ https://criel2019.github.io/cute-lord-of-destruction/`,
+          );
         }, 80);
       } else if (state._consecutivePerfect >= 3) {
         spawnParticles(48);
@@ -1908,8 +1912,12 @@ function defeatEnemy() {
         spawnParticles(60);
         flashScreen("gold", 0.7);
         window.setTimeout(() => {
-          showToast("🎉 첫 보스 처치! 마왕님 전설의 시작이니라! 파편으로 영구 강화 가능!");
           setDialogue("흑흑... 짐이... 짐이 진짜 마왕인 건가?! 아니, 원래 알고 있었느니라!!", "각성");
+          showInGameShareBanner(
+            "🎉 첫 보스 처치!",
+            `${oldFloor}F 보스 격파 — 마왕님 전설의 시작`,
+            `👑 귀염뽀짝 파멸의 군주\n${oldFloor}F 보스 처치!\n실제: 보좌관이 막음 / 발표: 짐의 위엄으로 이겼다!\n▶ https://criel2019.github.io/cute-lord-of-destruction/`,
+          );
         }, 300);
       }
       // 보스 처치 후 전황 보고서 (2초 지연)
@@ -3575,6 +3583,40 @@ function showClearGrade(grade, color, interceptRate, interceptCount) {
     flashScreen("gold", 0.2);
   }
   window.setTimeout(() => wrapper.remove(), duration);
+}
+
+function showInGameShareBanner(title, subtitle, shareText) {
+  const banner = document.createElement("div");
+  banner.className = "ingame-share-banner";
+  const canShare = !!navigator.share;
+  const btnLabel = canShare ? "📢 공유하기" : "📋 복사";
+  banner.innerHTML = `
+    <div class="isb-body">
+      <strong class="isb-title">${title}</strong>
+      <span class="isb-sub">${subtitle}</span>
+    </div>
+    <button class="isb-btn" type="button">${btnLabel}</button>
+    <button class="isb-close" type="button">✕</button>
+  `;
+  document.body.appendChild(banner);
+  const shareBtn = banner.querySelector(".isb-btn");
+  const closeBtn = banner.querySelector(".isb-close");
+  const dismiss = () => {
+    banner.classList.add("isb-exit");
+    window.setTimeout(() => banner.remove(), 350);
+  };
+  shareBtn.addEventListener("click", () => {
+    if (navigator.share) {
+      navigator.share({ text: shareText }).catch(() => {});
+    } else {
+      navigator.clipboard?.writeText(shareText).then(() => {
+        shareBtn.textContent = "✅ 복사됨!";
+        window.setTimeout(dismiss, 1200);
+      }).catch(() => { shareBtn.textContent = "직접 선택하세요"; });
+    }
+  });
+  closeBtn.addEventListener("click", dismiss);
+  window.setTimeout(dismiss, 7000);
 }
 
 function showEndingSequence(runCount) {

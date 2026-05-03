@@ -2067,6 +2067,20 @@ function defeatEnemy() {
       // HUD 최고 기록 강조 펄스
       el.bestFloorText?.closest(".hud-stat")?.classList.add("record-pulse");
       window.setTimeout(() => el.bestFloorText?.closest(".hud-stat")?.classList.remove("record-pulse"), 1800);
+      // 5층 단위 신기록 마일스톤에서 공유 배너
+      if (state.bestFloor % 5 === 0 && state.bestFloor >= 10) {
+        const milestoneLabels = {
+          10: "10층 돌파!", 15: "공포의 마왕 달성!", 20: "전설 시작!", 25: "25층 정복!", 30: "30층 완전 제패!"
+        };
+        const label = milestoneLabels[state.bestFloor] || `${state.bestFloor}층 신기록!`;
+        window.setTimeout(() => {
+          showInGameShareBanner(
+            `🏆 ${label}`,
+            `실제: 보좌관이 다 함 / 발표: 짐의 위엄으로 이겼다!`,
+            `👑 귀염뽀짝 파멸의 군주\n최고 ${state.bestFloor}F 달성!\n실제: 보좌관이 다 해줌\n발표: 짐이 원래 이 정도니라!\n▶ https://criel2019.github.io/cute-lord-of-destruction/`,
+          );
+        }, 1200);
+      }
     }, 400);
   }
 

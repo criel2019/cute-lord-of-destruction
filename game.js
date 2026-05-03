@@ -3351,19 +3351,32 @@ function renderRunUpgrades() {
       const affordable = state.tributes >= cost;
       const recommended = recommendedId === upgrade.id;
       let statPreview = "";
+      let nextStatPreview = "";
       if (upgrade.id === "click") {
-        statPreview = `반격 ${formatNumber(Math.round(currentStats.counterDamage))}/막기`;
+        const curVal = Math.round(currentStats.counterDamage);
+        const nextMult = (1 + (level + 1) * 0.32) / (1 + level * 0.32);
+        const nextVal = Math.round(curVal * nextMult);
+        const pct = Math.round((nextMult - 1) * 100);
+        statPreview = `반격 ${formatNumber(curVal)}/막기`;
+        nextStatPreview = `→ ${formatNumber(nextVal)} (+${pct}%)`;
       } else if (upgrade.id === "auto") {
         const dps = Math.round(currentStats.autoDamage * currentStats.autoSpeed);
+        const nextMult = (1 + (level + 1) * 0.38) / (1 + level * 0.38) * (1 + (level + 1) * 0.08) / (1 + level * 0.08 + 1.2);
+        const pct = Math.round(((1 + (level + 1) * 0.38) / Math.max(0.01, 1 + level * 0.38) - 1) * 100);
         statPreview = `자동 ${formatNumber(dps)}/s`;
+        nextStatPreview = pct > 0 ? `→ +${pct}%` : "";
       } else if (upgrade.id === "guard") {
         statPreview = `체면 ${formatNumber(Math.round(currentStats.maxDignity))} MAX`;
+        nextStatPreview = `→ +8%`;
       } else if (upgrade.id === "showoff") {
         statPreview = `궁극기 충전 x${currentStats.chargeGain.toFixed(2)}`;
+        nextStatPreview = `→ +8%`;
       } else if (upgrade.id === "crit") {
-        statPreview = `치명타 ${Math.round(currentStats.critChance * 100)}% · x${currentStats.critMult.toFixed(1)}`;
+        const curCrit = Math.round(currentStats.critChance * 100);
+        statPreview = `치명타 ${curCrit}% · x${currentStats.critMult.toFixed(1)}`;
+        nextStatPreview = `→ ${Math.min(75, curCrit + 5)}% · x${(currentStats.critMult + 0.25).toFixed(1)}`;
       }
-      const statLine = statPreview ? `<span class="upgrade-stat-preview">${statPreview} →</span>` : "";
+      const statLine = statPreview ? `<span class="upgrade-stat-preview">${statPreview} <span class="stat-next">${nextStatPreview}</span></span>` : "";
       const truthLine = upgrade.truth ? `<span class="upgrade-truth">${upgrade.truth}</span>` : "";
       return `
         <button class="run-upgrade${affordable ? " affordable" : ""}${recommended ? " recommended" : ""}" type="button" data-run-upgrade="${upgrade.id}" ${affordable ? "" : "disabled"}>

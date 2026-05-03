@@ -2075,6 +2075,12 @@ h1 {
   opacity: 0.85;
   letter-spacing: 0.02em;
 }
+.stat-next {
+  color: #f3c55f;
+  opacity: 0.75;
+  font-size: 9.5px;
+  font-weight: 600;
+}
 .upgrade-truth {
   font-size: 9px;
   color: rgba(255,255,255,0.38);

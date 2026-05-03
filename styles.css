@@ -5276,8 +5276,8 @@ h1 {
 .credit-cut {
   position: absolute;
   left: 50%;
-  bottom: 50%;
-  transform: translateX(-50%) translateY(50%);
+  bottom: 72px;
+  transform: translateX(-50%);
   z-index: 8;
   width: min(560px, calc(100% - 28px));
   padding: 12px 14px 15px;
@@ -5318,6 +5318,9 @@ h1 {
   background:
     linear-gradient(90deg, rgba(73, 31, 44, 0.94), rgba(137, 48, 67, 0.9)),
     rgba(73, 31, 44, 0.9);
+  bottom: auto;
+  top: 56px;
+  transform: translateX(-50%);
 }
 
 .credit-cut.credit-streak {
@@ -5352,22 +5355,22 @@ h1 {
 @keyframes creditCutPop {
   0% {
     opacity: 0;
-    transform: translateX(-50%) translateY(calc(50% + 20px)) scale(0.9);
+    transform: translateX(-50%) translateY(20px) scale(0.9);
   }
   10% {
     opacity: 1;
-    transform: translateX(-50%) translateY(50%) scale(1.05);
+    transform: translateX(-50%) translateY(-4px) scale(1.05);
   }
   18% {
-    transform: translateX(-50%) translateY(50%) scale(1);
+    transform: translateX(-50%) translateY(0px) scale(1);
   }
   75% {
     opacity: 1;
-    transform: translateX(-50%) translateY(50%) scale(1);
+    transform: translateX(-50%) translateY(0px) scale(1);
   }
   100% {
     opacity: 0;
-    transform: translateX(-50%) translateY(calc(50% - 12px)) scale(0.97);
+    transform: translateX(-50%) translateY(-12px) scale(0.97);
   }
 }
 

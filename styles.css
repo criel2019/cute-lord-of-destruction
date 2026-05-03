@@ -1947,7 +1947,7 @@ h1 {
   overflow: hidden;
   transition: max-height 250ms ease, opacity 200ms, filter 200ms;
   flex-shrink: 0;
-  max-height: 42vh;
+  max-height: 36vh;
 }
 
 /* ② aiming 시 탭 패널 줄어들기, danger 시 거의 숨김 */
@@ -2020,7 +2020,7 @@ h1 {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  max-height: calc(35dvh - 70px);
+  max-height: calc(30dvh - 60px);
   overflow-y: auto;
   color: var(--game-text);
 }
@@ -3594,7 +3594,7 @@ h1 {
   }
 
   .main-stage {
-    min-height: 458px;
+    min-height: 200px;
     border-radius: 9px;
   }
 
@@ -3625,16 +3625,16 @@ h1 {
 
   .throne-side {
     left: 50%;
-    bottom: 33%;
-    width: 74%;
-    height: 46%;
+    bottom: 28%;
+    width: 76%;
+    height: 52%;
   }
 
   .main-character {
     width: auto;
-    height: 106%;
-    max-width: 116%;
-    max-height: 280px;
+    height: 108%;
+    max-width: 118%;
+    max-height: 300px;
   }
 
   .threat-card {

@@ -8890,3 +8890,14 @@ h1 {
   from { opacity: 1; }
   to   { opacity: 0; transform: translateY(-20px); }
 }
+
+/* ── 모바일 전투 화면 클린업 ─────────────────────────────────────────────── */
+/* 캐릭터를 덮는 모든 오버레이 텍스트를 완전 제거 */
+@media (max-width: 760px) {
+  .battle-readout { display: none !important; }
+  .combatant-stat { display: none !important; }
+  .click-power-inline { display: none !important; }
+  .prep-gauge > strong { display: none !important; }
+  .arena-core .station-label { display: none !important; }
+  .command-station { display: none !important; }
+}

@@ -836,6 +836,7 @@ const defaultState = () => ({
   _idleDialogueTimer: 4.5,
   seenEnemyKinds: [],
   firstUltimateSeen: false,
+  firstUlt50Seen: false,
 });
 
 let state = loadState();
@@ -1366,6 +1367,10 @@ function dealEnemyDamage(amount, source = "auto", label = "") {
   }
   const prevUltimate = state.ultimate;
   state.ultimate = clamp(state.ultimate + (source === "auto" ? 1.5 : 6) * stats.chargeGain, 0, 100);
+  if (prevUltimate < 50 && state.ultimate >= 50 && !state.firstUlt50Seen) {
+    state.firstUlt50Seen = true;
+    window.setTimeout(() => showToast("✦ 궁극기 50%! 계속 막고 쌓으면 — 보스도 한 방에 날려요!"), 300);
+  }
   if (prevUltimate < 100 && state.ultimate >= 100) {
     if (!state.firstUltimateSeen) {
       state.firstUltimateSeen = true;

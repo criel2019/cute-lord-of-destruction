@@ -3781,7 +3781,7 @@ function render() {
   }
   el.threatBar.style.width = `${clamp(threatRate * 100, 0, 100)}%`;
   el.timingCall.textContent = dangerReady
-    ? impactSoon ? "맞기 직전!!" : "막기!"
+    ? impactSoon ? "맞기 직전!!" : state.ultimate >= 100 ? "✦ 궁극기 먼저! → 막기!" : "막기!"
     : phase.aiming
       ? "조준 중 — 막을 준비!"
       : dignityCritical
@@ -3830,7 +3830,7 @@ function render() {
   const enemyLowHp = state.enemy && state.enemy.hp / state.enemy.maxHp <= 0.25;
   const aimSecs = Math.max(0, state.enemy.attackTimer);
   el.tapLabel.textContent = dangerReady
-    ? nextStreakBonus ? "⚡ 연속 막기!" : "★ 지금 막아!"
+    ? state.ultimate >= 100 && !impactSoon ? "✦ 궁극기 먼저!" : nextStreakBonus ? "⚡ 연속 막기!" : "★ 지금 막아!"
     : phase.aiming ? (aimSecs <= 1.2 ? "⚠ 곧 온다! 준비!" : "⏱ 막을 준비!")
     : dignityCritical ? "🚨 위기! 막아!"
     : enemyLowHp ? "💥 마무리!"

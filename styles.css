@@ -86,7 +86,7 @@ button {
   position: sticky;
   top: 41px;
   z-index: 19;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .floor-progress-fill {
@@ -105,6 +105,36 @@ button {
 @keyframes floorBarBossPulse {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.55; }
+}
+
+.boss-distance-label {
+  position: absolute;
+  right: 6px;
+  top: 5px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: rgba(243, 197, 95, 0.72);
+  pointer-events: none;
+  white-space: nowrap;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.7);
+  z-index: 20;
+}
+.boss-distance-label.boss-lbl--imminent {
+  color: #f3c55f;
+  animation: bossLblPulse 1.1s ease-in-out infinite;
+}
+.boss-distance-label.boss-lbl--now {
+  color: #ff7070;
+  animation: bossLblPulse 0.8s ease-in-out infinite;
+}
+.boss-distance-label.boss-lbl--final {
+  color: #f3c55f;
+  font-size: 10px;
+}
+@keyframes bossLblPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
 }
 
 .hud-left {

@@ -3217,8 +3217,36 @@ function render() {
     const totalFloors = 30;
     const progress = Math.min(state.floor / totalFloors, 1);
     el.floorProgressBar.style.width = `${progress * 100}%`;
-    el.floorProgressBar.parentElement?.classList.toggle("floor-bar-boss", state.enemy?.isBoss);
+    const isCurrentBoss = state.enemy?.isBoss;
+    el.floorProgressBar.parentElement?.classList.toggle("floor-bar-boss", isCurrentBoss);
     el.floorProgressBar.title = `${state.floor}F / ${totalFloors}F`;
+    // "보스까지 N층" 라벨 — 항상 표시
+    const progressTrack = el.floorProgressBar.parentElement;
+    if (progressTrack) {
+      let bossLbl = progressTrack.querySelector(".boss-distance-label");
+      if (!bossLbl) {
+        bossLbl = document.createElement("span");
+        bossLbl.className = "boss-distance-label";
+        progressTrack.appendChild(bossLbl);
+      }
+      const nextBossFloor = Math.ceil(state.floor / 5) * 5;
+      const floorsLeft = nextBossFloor - state.floor;
+      const nextBossPreview = (!isCurrentBoss && nextBossFloor <= 30) ? makeEnemyPreview(nextBossFloor) : null;
+      const bossNameHint = nextBossPreview ? ` · ${nextBossPreview.name}` : "";
+      if (state.floor >= 30 || state.floor === totalFloors) {
+        bossLbl.textContent = "최종층!";
+        bossLbl.className = "boss-distance-label boss-lbl--final";
+      } else if (isCurrentBoss) {
+        bossLbl.textContent = `${state.floor}F 보스 전투 중!`;
+        bossLbl.className = "boss-distance-label boss-lbl--now";
+      } else if (floorsLeft <= 1) {
+        bossLbl.textContent = `다음 층: ${nextBossFloor}F 보스${bossNameHint}!`;
+        bossLbl.className = "boss-distance-label boss-lbl--imminent";
+      } else {
+        bossLbl.textContent = `보스까지 ${floorsLeft}층${bossNameHint}`;
+        bossLbl.className = "boss-distance-label";
+      }
+    }
   }
   updateDemonTitle();
   el.shardText.textContent = formatNumber(state.shards);

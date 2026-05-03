@@ -339,14 +339,14 @@ const cleanBossImages = {
 };
 
 const enemyTaunts = {
-  knight: ["이 약한 마왕아!", "막아볼 테냐?!", "핫! 각오해!"],
-  golem: ["우 두 두 두...", "피하지 마... 못하지!", "쿵!!!!"],
-  dragon: ["불꽃 잔소리 간다!", "뜨거워라~!", "나도 무는 거 알지?"],
-  fairy: ["이번엔 못 막아!", "헤헤, 어디 보자~", "변칙 공격이다!"],
-  angel: ["죄를 고하라!", "훈계 시간이다!", "하늘의 심판을!"],
-  bishop: ["질서를 따르거라!", "마왕 따위...", "무릎 꿇어라!"],
-  dragon_boss: ["별빛 박치기!", "으르렁...!", "용의 힘을 봐라!"],
-  golem_boss: ["꿀밤 간다!", "막을 수 있나?!", "성벽이 무너진다!"],
+  knight: ["이 약한 마왕아!", "막아볼 테냐?!", "핫! 각오해!", "방패 소용없다!", "이번엔 피하나 봐라!", "솜방망이가 세다고!"],
+  golem: ["우 두 두 두...", "피하지 마... 못하지!", "쿵!!!!", "묵직하게 간다!", "느리지만 아프다!", "무너진다~!"],
+  dragon: ["불꽃 잔소리 간다!", "뜨거워라~!", "나도 무는 거 알지?", "용이다! 용!", "마카롱 맛 화염이다!", "잔소리 충전 완료!"],
+  fairy: ["이번엔 못 막아!", "헤헤, 어디 보자~", "변칙 공격이다!", "타이밍 맞춰봐!", "빠르지?!", "요정이 무섭다!"],
+  angel: ["죄를 고하라!", "훈계 시간이다!", "하늘의 심판을!", "천사가 화났다!", "마왕 버르장머리...", "반성하거라!"],
+  bishop: ["질서를 따르거라!", "마왕 따위...", "무릎 꿇어라!", "사탕 주교를 우습게 봐?!", "설교 들어봐라!", "이단이구나!"],
+  dragon_boss: ["별빛 박치기!", "으르렁...!", "용의 힘을 봐라!", "혜성처럼 간다!", "막아봐라 마왕아!"],
+  golem_boss: ["꿀밤 간다!", "막을 수 있나?!", "성벽이 무너진다!", "크림 주먹이다!", "무거워!!"],
 };
 
 const idleDialogueLines = [
@@ -403,16 +403,36 @@ function getContextualIdleLine() {
     ]);
   }
   // 층수별 맥락
+  if (floor >= 26) {
+    return randomPick([
+      { mood: "위엄", text: "26층... 짐도 여기가 처음이니라. 아, 아니! 원래 알던 곳이니라!" },
+      { mood: "허세", text: "30층 보스... 짐이 직접 처리할 예정이니라. 보좌관들이 먼저 좀 정리해주면 된다." },
+      { mood: "울먹임", text: "흑... 이제 진짜 강한 것들만 남은 것 같다. 괜, 괜찮다. 보좌관이 있으니라." },
+      { mood: "명령", text: "30층까지 이 마왕을 따라온 자들이여! 잘 보거라 — 짐이 전부 해냈다!" },
+    ]);
+  }
   if (floor >= 20) {
     return randomPick([
       { mood: "위엄", text: "20층... 원래부터 짐이 여기 속한 존재이니라. 전설이라 불러라." },
       { mood: "허세", text: "이 층까지 온 마왕은 짐뿐일 것이니라. 물론 보좌관들 덕분은 아니니라." },
+      { mood: "명령", text: "20층 돌파! 당연히 짐이 계획한 것이니라. 우연이 아니니라!" },
+      { mood: "울먹임", text: "사실... 짐도 여기까지 올 줄은... 아니! 처음부터 알았느니라!" },
+    ]);
+  }
+  if (floor >= 15) {
+    return randomPick([
+      { mood: "허세", text: "15층이라니... 짐의 보좌관들이 꽤 쓸만하구나. 짐이 잘 훈련시킨 덕이니라." },
+      { mood: "위엄", text: "적들이 이제 제법 강하구나. 짐에겐 아직 아무것도 아니니라. (보좌관 파이팅)" },
+      { mood: "명령", text: "15층! 보좌관들아, 수고가 많다. 짐은 뒤에서 응원하고 있느니라!" },
+      { mood: "울먹임", text: "흑... 이 층 적들은 좀... 무서운 것 같기도 하다. 보좌관이 막아줄 것이니라." },
     ]);
   }
   if (floor >= 10) {
     return randomPick([
       { mood: "위엄", text: "10층이 넘었구나. 당연히 짐이 처음부터 계획한 것이니라." },
       { mood: "허세", text: "적들이 강해질수록 짐의 위엄도 커지느니라. 비례하느니라." },
+      { mood: "명령", text: "10층 돌파다! 보좌관들, 오늘은 특별히 포상을 줄 것이니라. (내일)" },
+      { mood: "울먹임", text: "적이 점점 강해지고 있다... 뭐, 보좌관들이 알아서 하겠지. 아마도." },
     ]);
   }
   // 기본: 일반 idle
@@ -1484,15 +1504,30 @@ function rescueAction() {
       state._consecutivePerfect = 0;
     }
     state.rageTimer = 0;
+    const _creditTruths_perfect = [
+      "실제: 보좌관이 0.1초 차이로 완벽히 막음",
+      "실제: 보좌관 3명이 동시에 달려들어 막음",
+      "실제: 보좌관이 타이밍 연습 3시간 만에 성공",
+      "실제: 보좌관이 죽기살기로 막음",
+    ];
+    const _creditTruths_normal = [
+      "실제: 보좌관이 막음",
+      "실제: 보좌관이 대신 맞을 뻔함",
+      "실제: 보좌관이 살짝 맞으면서 막음",
+      "실제: 보좌관이 눈 감고 막음 (운)",
+      "실제: 보좌관이 넘어지며 막음",
+      "실제: 보좌관이 비명 지르며 막음",
+    ];
     showCreditCut(
       "rescue",
-      isFirstBlock ? "실제: 보좌관이 목숨 걸고 막음" : (timing.key === "perfect" ? "실제: 보좌관이 완벽하게 막음" : "실제: 보좌관이 대신 맞을 뻔함"),
+      isFirstBlock ? "실제: 보좌관이 목숨 걸고 막음" : (timing.key === "perfect" ? randomPick(_creditTruths_perfect) : randomPick(_creditTruths_normal)),
       isFirstBlock ? "발표: 짐의 위엄이 공격을 막은 것이니라!" : (timing.key === "perfect"
         ? randomPick([
             "발표: 짐의 완전무결한 반응속도가 막은 것이니라!",
             "발표: 완벽? 당연하지. 짐은 항상 이 정도니라!",
             "발표: PERFECT는 짐한테 기본이니라!",
             "발표: 짐의 카리스마가 공격 자체를 녹였느니라!",
+            "발표: 짐이 일부러 완벽하게 막아준 것이니라!",
           ])
         : randomPick([
             "발표: 짐의 위엄이 공격을 지웠느니라!",
@@ -3947,10 +3982,24 @@ function showBlockBurst(timingKey) {
   if (!stage) return;
   const burst = document.createElement("div");
   burst.className = `block-burst block-burst--${timingKey}`;
-  const labelMap = { perfect: "PERFECT BLOCK!", great: "GREAT BLOCK!", guard: "BLOCK!", early: "BLOCK!" };
-  burst.textContent = labelMap[timingKey] || "BLOCK!";
+  const streak = state.rescueStreak || 0;
+  const floor = state.floor || 1;
+  // streak/층수에 따라 더 과한 문구
+  let label;
+  if (timingKey === "perfect") {
+    if (streak >= 7) label = randomPick(["PERFECT!! 전설이니라!", "신의 영역이니라!!", "짐이 원래 이래!!"]);
+    else if (streak >= 4) label = randomPick(["PERFECT!! 보좌관이 최고야!", "짐의 위엄이다!!", "이건 다 계획이니라!"]);
+    else label = randomPick(["PERFECT BLOCK!", "완벽하니라!", "예측했느니라!"]);
+  } else if (timingKey === "great") {
+    if (streak >= 3) label = randomPick(["GREAT!! 연속이니라!", "훌륭하다 보좌관!"]);
+    else label = randomPick(["GREAT BLOCK!", "잘 막았느니라!"]);
+  } else {
+    if (floor >= 15) label = randomPick(["BLOCK! 짐이 막— 아 보좌관이", "막았다! (보좌관이)", "어림없다!"]);
+    else label = randomPick(["BLOCK!", "막았느니라!", "통과 못 한다!"]);
+  }
+  burst.textContent = label;
   stage.appendChild(burst);
-  window.setTimeout(() => burst.remove(), 700);
+  window.setTimeout(() => burst.remove(), 750);
 }
 
 function showBossTitleOverlay(bossName, bossIntent, bossImage) {

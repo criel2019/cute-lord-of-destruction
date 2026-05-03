@@ -896,7 +896,8 @@ function ensureEnemy() {
     if (state.floor !== _lastEnemyFloor) {
       _lastEnemyFloor = state.floor;
       const flavor = floorFlavors[state.floor];
-      if (flavor && !state.enemy.isBoss) {
+      // 1~2층에선 튜토리얼 토스트가 많아 플레이버 토스트 생략
+      if (flavor && !state.enemy.isBoss && !(state.floor <= 2 && state.run <= 1)) {
         window.setTimeout(() => showToast(flavor), 300);
       }
     }
@@ -1322,7 +1323,9 @@ function rescueAction() {
         setDialogue("흐흥! 봤느냐! 짐의 보좌관이... 아니, 짐의 위엄으로 막은 것이니라!", "허세");
       }, 400);
       window.setTimeout(() => {
-        showToast("💡 아래 [강화] 탭에서 공물로 보좌관을 강화할 수 있습니다!");
+        if (!state.sideUnlocked) {
+          showToast("💡 적 처치 후 [강화] 탭에서 보좌관을 강화할 수 있습니다!");
+        }
       }, 2800);
     }
     state.floorInterceptCount = (state.floorInterceptCount || 0) + 1;
@@ -1711,10 +1714,8 @@ function defeatEnemy() {
     state.sideUnlocked = true;
     const recUpgrade = getRecommendedRunUpgrade();
     const recDef = runUpgradeDefs.find(u => u.id === recUpgrade);
-    showToast("오른쪽 패널 해금! 공물로 강화를 구매하세요!");
-    window.setTimeout(() => {
-      if (recDef) showToast(`추천 첫 구매: ${recDef.name} — ${recDef.desc}`);
-    }, 900);
+    const recHint = recDef ? ` 추천: ${recDef.name}` : "";
+    showToast(`강화 패널 해금! 공물로 강화하세요.${recHint}`);
     const bottomPanels2 = document.querySelector(".bottom-panels");
     if (bottomPanels2) {
       bottomPanels2.classList.add("side-unlocking");
@@ -1770,12 +1771,11 @@ function defeatEnemy() {
     }, defeatedBoss ? 3000 : 700);
   }
 
-  // 첫 판 첫 번째 적 처치 — 특별 축하 연출
+  // 첫 판 첫 번째 적 처치
   if (!state.firstFloorCleared && !defeatedBoss && state.floor >= 2 && state.run <= 1) {
     state.firstFloorCleared = true;
     window.setTimeout(() => {
       spawnParticles(48);
-      showToast("첫 번째 적 처치! 짐의 위엄이 드디어 증명되었느니라!");
       setDialogue("보았느냐! 짐의 보좌관이... 아니, 짐의 위엄이 이겼다!", "허세");
     }, delay + 100);
   }
@@ -1869,6 +1869,10 @@ function defeatEnemy() {
         bossTeaser.innerHTML = `<span>다음 보스</span><strong>${nextBossName}</strong><em>${nextBossData?.intent || ""}</em>`;
         el.stagePanel.appendChild(bossTeaser);
         window.setTimeout(() => bossTeaser.remove(), 3200);
+        // 보스 직전 — 강화 탭 자동 전환 (유저가 준비할 시간 확보)
+        if (state.sideUnlocked) {
+          window.setTimeout(() => switchTab("upgrade"), 600);
+        }
       }, 400);
     }
 

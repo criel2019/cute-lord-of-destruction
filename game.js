@@ -4374,6 +4374,40 @@ function showFloorEventBanner(ev) {
   banner.innerHTML = `<span class="feb-icon">${icon}</span><span class="feb-label">${ev.label}</span><span class="feb-desc">${ev.desc}</span>`;
   el.stagePanel.appendChild(banner);
   window.setTimeout(() => banner.remove(), 2600);
+  // 층 이벤트 마왕 반응 대사
+  const eventDialogues = {
+    tribute_up:  [
+      { mood: "허세", text: "흐흥! 공물 풍년이구나! 짐의 위엄이 대지를 기름지게 한 것이니라!" },
+      { mood: "명령", text: "공물이 쏟아진다! 보좌관들, 최대한 쓸어담아라! 짐이 명령하는 것이니라!" },
+    ],
+    hustle: [
+      { mood: "각성", text: "허세의 날이니라! 오늘만큼은 짐도... 진짜로 힘을 쓸 것이니라! (보좌관이 더 열심히 할 것이니라)" },
+      { mood: "허세", text: "가로채기 보상이 폭발한다! 이 층, 짐의 위엄이 절정에 달했느니라!" },
+    ],
+    fast_enemy: [
+      { mood: "울먹임", text: "적이 빠르게 달려온다... 조금 당황했느니라! 아니, 전혀 당황하지 않았느니라!" },
+      { mood: "긴장", text: "이 층은 적이 사납구나. 보좌관들! 집중해라! 짐은... 여기서 지켜볼 것이니라!" },
+    ],
+    prep_boost: [
+      { mood: "각성", text: "기력이 폭발하는 층이니라! 빠르게 쌓고 막기로 터트려라! 짐의 명령이다!" },
+      { mood: "허세", text: "오오! 기력이 두 배로 쌓인다! 이 기세라면... 짐도 한 번 직접 해볼 것 같으니라!" },
+    ],
+    dignity_up: [
+      { mood: "위엄", text: "왕의 위엄이 보호막이 되는 층이니라! 어떤 공격도 짐의 체면을 완전히 깎을 수 없느니라!" },
+      { mood: "허세", text: "피격 손실이 줄어들었다! 짐이 원래 이 정도 내구력이니라. 원래부터!" },
+    ],
+    auto_frenzy: [
+      { mood: "명령", text: "꼬물 부하들이 날뛰는 층이니라! 자동 공격이 폭발한다! 짐은 구경하겠느니라!" },
+      { mood: "허세", text: "이 층은 보좌관들이 미쳐 날뛰는구나. 물론 짐의 지시로 그런 것이니라!" },
+    ],
+  };
+  const lines = eventDialogues[ev.id];
+  if (lines) {
+    window.setTimeout(() => {
+      const line = randomPick(lines);
+      setDialogue(line.text, line.mood);
+    }, 400);
+  }
 }
 
 function showClearGrade(grade, color, interceptRate, interceptCount) {
@@ -4394,6 +4428,16 @@ function showClearGrade(grade, color, interceptRate, interceptCount) {
   if (grade === "S") {
     spawnParticles(28);
     flashScreen("gold", 0.2);
+    window.setTimeout(() => setDialogue(randomPick([
+      "완벽이니라!!! 이 층은 짐의 역대 최고 퍼포먼스였느니라! (보좌관이 다 함)",
+      "S급! 흐흥! 역시 짐의 지시가 완벽했기 때문이니라!!! 보좌관들도... 수고했다.",
+      "모두 가로채기 성공이니라! 짐은 처음부터 이렇게 될 줄 알았느니라!!!",
+    ]), "각성"), 300);
+  } else if (grade === "A") {
+    window.setTimeout(() => setDialogue(randomPick([
+      "훌륭하다! 거의 완벽이었느니라. 조금 더 하면 S도 될 것이니라!",
+      "A급! 짐의 지시가 거의 완벽했느니라. 다음엔 전부 가로채리라!",
+    ]), "허세"), 300);
   }
   window.setTimeout(() => wrapper.remove(), duration);
 }

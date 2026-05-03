@@ -930,10 +930,10 @@ const eliteNames = {
   fairy: "심술쟁이 훈계 요정",
 };
 const eliteTitles = {
-  knight: "엘리트",
-  golem: "엘리트",
-  dragon: "엘리트",
-  fairy: "엘리트",
+  knight: "⚔ 정예 기사",
+  golem: "💥 분노한 골렘",
+  dragon: "🔥 성체 드래곤",
+  fairy: "✨ 악독 요정",
 };
 
 function makeEnemyPreview(floor) {
@@ -1980,7 +1980,12 @@ function defeatEnemy() {
         "흐흥, 또 하나가 쓰러졌느니라. 보좌관들이 잘... 아니, 짐의 전략이 통한 것이니라.",
         "짐의 명령 한 마디면 충분하니라. (실제로는 여러 마디였지만 그건 디테일이니라)",
       ];
-  setDialogue(defeatedBoss ? randomPick(bossDefeatLines) : randomPick(mobDefeatLines), "허세");
+  const eliteDefeatLines = [
+    "정예라고? 짐 앞에선 다 거기서 거기니라. 보좌관들이 처리했지만... 짐의 명령이 있었느니라!",
+    "흐흥! 엘리트가 쓰러졌다! 역시 보좌관들이... 아니, 짐의 전략이 완벽했던 것이니라!",
+    "정예 적도 짐의 마왕성엔 어울리지 않느니라. 처리 완료. 공은 짐에게로.",
+  ];
+  setDialogue(defeatedBoss ? randomPick(bossDefeatLines) : (defeatedElite ? randomPick(eliteDefeatLines) : randomPick(mobDefeatLines)), "허세");
 
   // 보스 처치 후 챕터 엔딩 독백 — 마왕의 성장을 짧게 드러냄
   if (defeatedBoss) {

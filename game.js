@@ -3813,16 +3813,21 @@ function playIntro() {
     if (state.enemy && state.floor === 1 && state.run <= 1) {
       state.enemy.attackTimer = 3.2;
     }
-    // 인트로 종료 시 게임의 핵심 유머 — creditCut을 미리 한번 맛보기
+    // 인트로 종료 시 게임의 핵심 유머 — creditCut 맛보기 (적 공격 5초 유예)
+    if (state.enemy && state.floor === 1 && state.run <= 1) {
+      state.enemy.attackTimer = 5.5; // creditCut 읽을 여유 확보
+    }
     showCreditCut(
       "rescue",
       "실제: 보좌관이 지금도 막고 있음",
       "발표: 짐이 모두 계획한 것이니라!",
-      2.2,
+      2.6,
     );
-    showToast("빨간 버튼으로 적의 공격을 가로채세요!");
-    el.tapBtn.classList.add("intro-pulse");
-    window.setTimeout(() => el.tapBtn.classList.remove("intro-pulse"), 3000);
+    window.setTimeout(() => {
+      showToast("빨간 버튼으로 적의 공격을 가로채세요!");
+      el.tapBtn.classList.add("intro-pulse");
+      window.setTimeout(() => el.tapBtn.classList.remove("intro-pulse"), 3000);
+    }, 2700);
     // 첫 클릭 전 — 화면 전체 탭 힌트 라벨 표시
     const mainStage = el.stageTap;
     if (mainStage && !mainStage.querySelector(".tap-hint-label")) {

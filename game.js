@@ -2125,8 +2125,8 @@ function defeatEnemy() {
   state.floorEvent = rollFloorEvent(state.floor);
   if (state.floorEvent) {
     window.setTimeout(() => {
-      showToast(`✦ 층 이벤트: ${state.floorEvent.label} — ${state.floorEvent.desc}`);
-    }, defeatedBoss ? 3000 : 700);
+      showFloorEventBanner(state.floorEvent);
+    }, defeatedBoss ? 2800 : 600);
   }
 
   // 첫 판 첫 번째 적 처치
@@ -4127,6 +4127,17 @@ function showFloorClearBurst(floor) {
     burst.remove();
     el.stagePanel.classList.remove("floor-clear-flash");
   }, 900);
+}
+
+function showFloorEventBanner(ev) {
+  if (!ev) return;
+  const banner = document.createElement("div");
+  banner.className = "floor-event-banner";
+  const iconMap = { tribute_up: "🔸", hustle: "👑", fast_enemy: "⚡", prep_boost: "💥", dignity_up: "♥", auto_frenzy: "🌀" };
+  const icon = iconMap[ev.id] || "✦";
+  banner.innerHTML = `<span class="feb-icon">${icon}</span><span class="feb-label">${ev.label}</span><span class="feb-desc">${ev.desc}</span>`;
+  el.stagePanel.appendChild(banner);
+  window.setTimeout(() => banner.remove(), 2600);
 }
 
 function showClearGrade(grade, color, interceptRate, interceptCount) {

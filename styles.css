@@ -8081,6 +8081,42 @@ h1 {
   50% { transform: scale(1.5); }
 }
 
+/* ── 층 이벤트 배너 ── */
+.floor-event-banner {
+  position: absolute;
+  bottom: 22%;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(14, 10, 18, 0.88);
+  border: 2px solid rgba(168, 240, 224, 0.6);
+  border-radius: 12px;
+  padding: 10px 20px;
+  z-index: 30;
+  pointer-events: none;
+  white-space: nowrap;
+  animation: floorEventBannerAnim 2.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.feb-icon { font-size: 20px; }
+.feb-label {
+  font-size: 14px;
+  font-weight: 900;
+  color: var(--mint);
+}
+.feb-desc {
+  font-size: 11px;
+  color: rgba(168, 240, 224, 0.75);
+}
+@keyframes floorEventBannerAnim {
+  0%   { opacity: 0; transform: translateX(-50%) translateY(16px) scale(0.9); }
+  12%  { opacity: 1; transform: translateX(-50%) translateY(-4px) scale(1.04); }
+  25%  { transform: translateX(-50%) translateY(0) scale(1); }
+  75%  { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+  100% { opacity: 0; transform: translateX(-50%) translateY(-12px) scale(0.95); }
+}
+
 /* ── 층 클리어 "NF 돌파!" 버스트 ── */
 .floor-clear-burst {
   position: absolute;

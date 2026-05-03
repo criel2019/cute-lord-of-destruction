@@ -4328,9 +4328,9 @@ function playIntro() {
     introTimers.forEach(t => clearTimeout(t));
     clearTimeout(introEndTimer);
     state.paused = false;
-    // 인트로 종료 → creditCut 2.6s 후 바로 첫 공격 기회 (3.2s)
+    // 인트로 종료 → creditCut 2.6s 동안 → 첫 공격 기회 (2.4s) — 첫 OMG 순간 최대한 빨리
     if (state.enemy && state.floor === 1 && state.run <= 1) {
-      state.enemy.attackTimer = 3.2;
+      state.enemy.attackTimer = 2.4;
     }
     showCreditCut(
       "rescue",
@@ -4373,7 +4373,7 @@ function playIntro() {
     el.tapBtn.removeEventListener("click", skipHandler);
     el.stageTap.removeEventListener("click", skipHandler);
     finishIntro();
-  }, 3500);
+  }, 2800);
 }
 
 function showLoopInfoCard() {

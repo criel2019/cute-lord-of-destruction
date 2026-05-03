@@ -1330,6 +1330,17 @@ function dealEnemyDamage(amount, source = "auto", label = "") {
   const prevHpRate = state.enemy.hp / state.enemy.maxHp;
   state.enemy.hp = Math.max(0, state.enemy.hp - damage);
   const newHpRate = state.enemy.hp / state.enemy.maxHp;
+  if (prevHpRate > 0.75 && newHpRate <= 0.75 && newHpRate > 0) {
+    if (state.enemy.isBoss) {
+      showToast("보스 체력 75%! 보스가 주춤한다!");
+      shakeScreen(0.9);
+      spawnParticles(14);
+      setDialogue(randomPick([
+        "흐흥! 조금만 더! 보좌관들이 잘... 아니, 짐의 전략이 통하고 있는 것이니라!",
+        "벌써 4분의 1이 줄었느니라! 이 기세로 밀어붙여라! 짐이 명령한다!",
+      ]), "허세");
+    }
+  }
   if (prevHpRate > 0.5 && newHpRate <= 0.5 && newHpRate > 0) {
     if (state.enemy.isBoss) {
       showToast("보스 체력 50%! 보스가 화났습니다!");
@@ -1740,9 +1751,24 @@ function rescueAction() {
     flashScreen("mint", 0.18);
     showTapComboPopup(8);
     setDialogue("훌륭하다! 보좌관들의 박자가 맞아가고 있느니라!", "허세");
+  } else if (tapCombo === 15) {
+    spawnParticles(36);
+    flashScreen("gold", 0.22);
+    showTapComboPopup(15);
+    setDialogue(randomPick([
+      "오오오! 이, 이건... 보좌관들이 완전히 달아올랐느니라! 물론 짐의 지시 덕분이니라!",
+      "15연속!! 이 기력이라면... 막기 한 방에 적이 날아가느니라!!",
+    ]), "각성");
   } else if (tapCombo > 8 && tapCombo % 4 === 0) {
-    spawnParticles(12);
+    spawnParticles(tapCombo >= 15 ? 20 : 12);
     showTapComboPopup(tapCombo);
+    if (tapCombo >= 20 && tapCombo % 8 === 0) {
+      flashScreen("mint", 0.15);
+      setDialogue(randomPick([
+        "멈추지 마라! 기력이 폭발적이니라!!",
+        "보좌관들이 미쳐 날뛰고 있느니라! 짐의 명령이 통한 것이니라!!",
+      ]), "각성");
+    }
   }
   // 기력 게인 숫자 팝업 — 처음 12탭 또는 마일스톤 구간
   if (gainedPrep > 0 && (state._prepClickCount <= 12 || state.prep >= 70)) {

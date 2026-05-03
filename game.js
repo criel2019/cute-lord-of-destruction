@@ -1294,7 +1294,13 @@ function dealEnemyDamage(amount, source = "auto", label = "") {
   } else {
     damage *= (stats.mobDamageMulti || 1);
   }
-  const crit = Math.random() < stats.critChance;
+  const forcedCrit = source === "rescue" && state._nextBlockCritGuaranteed;
+  if (forcedCrit) {
+    state._nextBlockCritGuaranteed = false;
+    // 강화 직후 첫 막기: "강해진 느낌" 즉각 전달
+    window.setTimeout(() => showToast("✦ 강화 효과 발동! 이번 반격이 더 강해졌느니라!"), 100);
+  }
+  const crit = forcedCrit || Math.random() < stats.critChance;
   if (crit) damage *= stats.critMult;
   if (crit && (source === "rescue" || source === "break")) {
     shakeScreen(2.2);
@@ -3057,6 +3063,7 @@ function buyUpgrade(id, cost) {
       ultimate:"절초식이 더 강해졌느니라. 보좌관들이 열심히 연습한... 짐이 원래 이 정도니라!",
     };
     window.setTimeout(() => setDialogue(permDialogues[id] || "짐의 그릇이 커졌느니라!", "각성"), 400);
+    if (id === "power") state._nextBlockCritGuaranteed = true;
   }
   renderUpgrades();
   render();
@@ -3155,6 +3162,10 @@ function buyRunUpgrade(id) {
   }
   // 강화 구매 → 전투 화면에 즉각 효과 가시화
   window.setTimeout(() => showUpgradePowerSurge(id, statsAfter), 300);
+  // 다음 막기 한 번에 강화 효과를 즉각 체감하게 — 크리 보장 플래그
+  if (id === "click" || id === "crit") {
+    state._nextBlockCritGuaranteed = true;
+  }
   render();
   saveGame();
 }

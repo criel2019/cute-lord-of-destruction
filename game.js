@@ -4913,8 +4913,48 @@ if (!state.introSeen) {
     window.setTimeout(dismiss, 3500);
   })();
 } else if (state.enemy) {
-  // 2판+ 첫 로드 시 적 이름 표시
+  // 2판+ 첫 로드 시 — 적 이름 + 마왕 복귀 브리핑
   window.setTimeout(() => showEnemyNameBadge(state.enemy.name, state.enemy.title), 600);
+  window.setTimeout(() => {
+    const floorStr = `${state.floor}F`;
+    const runStr = `${state.run}판`;
+    const ultPct = Math.round(state.ultimate || 0);
+    const dignityPct = Math.round((state.heroHp / state.maxHeroHp) * 100);
+    const isBoss = state.enemy?.isBoss;
+    const buildTag = state.activeBuildTag || "";
+    const briefs = isBoss
+      ? [
+          { mood: "긴장", text: `보좌관들! ${floorStr} 보스가 기다리고 있다! 짐이... 전략을 짜고 있었느니라! 막기 준비!` },
+          { mood: "명령", text: `${runStr} ${floorStr} 보스전이다! 짐이 잠깐 눈 감고 전략 구상 중이었느니라. 보좌관들 긴장해라!` },
+        ]
+      : ultPct >= 80
+      ? [
+          { mood: "각성", text: `${floorStr}에서 돌아왔구나. 궁극기가 ${ultPct}%다! 짐이 미리 채워뒀느니라. 보좌관이 아니라 짐이!` },
+          { mood: "허세", text: `오, 궁극기 ${ultPct}%. 짐이 자리 비운 사이 보좌관들이... 아니! 짐의 지시로 충전된 것이니라!` },
+        ]
+      : dignityPct <= 40
+      ? [
+          { mood: "울먹임", text: `...체면이 ${dignityPct}%밖에 없다. 보좌관들, 다음 공격은 절대 놓치면 안 된다. 짐이 명령이니라!` },
+          { mood: "울먹임", text: `체면이 많이 깎였구나. 짐이 잠깐 자리 비웠더니... 보좌관들 정신 차려!` },
+        ]
+      : buildTag === "반격"
+      ? [
+          { mood: "허세", text: `${runStr} ${floorStr}. 반격 빌드다! 짐의 가장 최선의 선택이었느니라. 막기 타이밍이 핵심!` },
+          { mood: "위엄", text: `반격 빌드로 ${floorStr}까지 왔다. 짐이 예언한 대로니라. 계속 막기로 간다!` },
+        ]
+      : buildTag === "방치"
+      ? [
+          { mood: "명령", text: `${floorStr}이다. 방치 빌드니까 보좌관들이 알아서 한다. 짐은 그냥 지켜보면 되느니라!` },
+          { mood: "허세", text: `자동 공격 빌드로 여기까지 왔구나. 물론 짐의 전략이었느니라. 탭 안 해도 괜찮다!` },
+        ]
+      : [
+          { mood: "허세", text: `돌아왔구나! ${runStr} ${floorStr}이다. 보좌관들, 짐이 잠깐 자리 비웠지만 기다린 보람이 있을 것이니라!` },
+          { mood: "위엄", text: `${floorStr}. 짐의 귀환이다. 보좌관들 준비되었느냐? 이 층은 짐이... 지시할 것이니라.` },
+          { mood: "명령", text: `${runStr} ${floorStr}에서 다시 시작이다! 짐은 잠깐 눈 감고 전략 구상 중이었느니라. 막기 준비해라!` },
+        ];
+    const brief = briefs[Math.floor(Math.random() * briefs.length)];
+    setDialogue(brief.text, brief.mood);
+  }, 1000);
 }
 
 // 첫 인터랙션 시 BGM 시작 (브라우저 autoplay 정책 우회)
@@ -4939,6 +4979,22 @@ document.addEventListener("visibilitychange", () => {
       const idleGain = Math.round(autoStats.autoDamage * autoStats.autoSpeed * autoStats.autoTempo * away * 0.6);
       const idleTributes = Math.round((0.35 + state.floor * 0.12) * away * 0.6);
       const minLabel = away >= 60 ? `${Math.floor(away / 60)}분 ${Math.round(away % 60)}초` : `${Math.round(away)}초`;
+      // 복귀 마왕 대사 — "자리 비웠지만 사실 전략 짜고 있었다"
+      window.setTimeout(() => {
+        const returnLines = away >= 300
+          ? [
+              { mood: "허세", text: `${minLabel} 동안 짐이 전략적으로 자리를 비웠느니라. 보좌관들이 잘 버텼다! 짐이 예측한 대로니라.` },
+              { mood: "위엄", text: `오! ${minLabel} 걸렸구나. 짐은 잠깐 눈 감고 패권 구상 중이었느니라. 그 사이 보좌관들이 수고했다.` },
+              { mood: "명령", text: `${minLabel} 만에 귀환이다! 짐이 없어도 보좌관들이 알아서 잘 싸웠다. 물론 짐이 지시해두고 간 것이니라!` },
+            ]
+          : [
+              { mood: "허세", text: `${minLabel} 동안 짐이 잠깐 전략을 재구성했느니라. 준비됐으니 다시 가자!` },
+              { mood: "울먹임", text: `...짐도 화장실 갈 때가 있느니라. 전략적 이석이었다. 절대로 도망간 게 아니니라!` },
+              { mood: "명령", text: `돌아왔다! ${minLabel}이었지만 짐은 계속 지휘 중이었느니라. 보좌관들 어디 있냐!` },
+            ];
+        const line = returnLines[Math.floor(Math.random() * returnLines.length)];
+        setDialogue(line.text, line.mood);
+      }, 200);
       if (idleTributes > 0) {
         state.tributes += idleTributes;
         showToast(`${minLabel} 자리 비운 사이 보좌관들이 공물 +${idleTributes} 수집!`);

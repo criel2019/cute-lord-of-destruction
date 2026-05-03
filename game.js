@@ -2028,7 +2028,12 @@ function defeatEnemy() {
   const prevBest = state.bestFloor;
   state.bestFloor = Math.max(state.bestFloor, state.floor);
   if (state.bestFloor > prevBest && state.run > 1) {
-    window.setTimeout(() => showToast(`신기록! ${state.bestFloor}F — 지난 판 최고보다 ${state.bestFloor - prevBest}층 앞섬`), 400);
+    window.setTimeout(() => {
+      showToast(`신기록! ${state.bestFloor}F — 지난 판 최고보다 ${state.bestFloor - prevBest}층 앞섬`);
+      // HUD 최고 기록 강조 펄스
+      el.bestFloorText?.closest(".hud-stat")?.classList.add("record-pulse");
+      window.setTimeout(() => el.bestFloorText?.closest(".hud-stat")?.classList.remove("record-pulse"), 1800);
+    }, 400);
   }
 
   // 보스 처치 후 다음 목표 예고 — "다음 보스는 여기야" 당근 제시
@@ -3431,7 +3436,10 @@ function render() {
   }
   el.floorText.textContent = `${state.floor}F`;
   el.floorText.title = `${state.floor}층 / 30층`;
-  if (el.bestFloorText) el.bestFloorText.textContent = `${state.bestFloor}F`;
+  if (el.bestFloorText) {
+    el.bestFloorText.textContent = `${state.bestFloor}F`;
+    el.bestFloorText.closest(".hud-stat--best")?.classList.toggle("visible", state.bestFloor > 1);
+  }
   if (el.floorProgressBar) {
     const totalFloors = 30;
     const progress = Math.min(state.floor / totalFloors, 1);
@@ -4098,7 +4106,9 @@ function showDefeatMoment() {
 function showFloorClearBurst(floor) {
   const burst = document.createElement("div");
   burst.className = "floor-clear-burst";
-  burst.textContent = `${floor}F 돌파!`;
+  // 층수별 감탄사
+  const floorSuffix = floor >= 25 ? " 전설이니라!!" : floor >= 20 ? " 경이롭다!!" : floor >= 15 ? " 대단하다!!" : floor >= 10 ? " 훌륭하니라!" : floor >= 5 ? " 돌파!" : " 클리어!";
+  burst.textContent = `${floor}F${floorSuffix}`;
   el.stagePanel.appendChild(burst);
   // 전투 영역 황금 flash
   el.stagePanel.classList.add("floor-clear-flash");

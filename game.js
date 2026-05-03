@@ -166,6 +166,7 @@ const el = {
   partReason: $("#partReason"),
   partGrid: $("#partGrid"),
   reincarnateModal: $("#reincarnateModal"),
+  reincarnateTitle: $("#reincarnateTitle"),
   reincarnateSummary: $("#reincarnateSummary"),
   upgradeGrid: $("#upgradeGrid"),
   restartRunBtn: $("#restartRunBtn"),
@@ -506,10 +507,10 @@ const traitDefs = [
 ];
 
 const upgradeDefs = [
-  { id: "power", name: "허세의 무게", desc: "도움 반격 +18%", baseCost: 8 },
-  { id: "dignity", name: "왕의 체면", desc: "체면 최대치 +20%", baseCost: 7 },
-  { id: "reward", name: "파편 회수", desc: "파편 획득 +16%", baseCost: 9 },
-  { id: "ultimate", name: "영상 증폭", desc: "궁극기 피해 +18%", baseCost: 10 },
+  { id: "power", name: "허세의 무게", desc: "보좌관 반격력 +18% · 판마다 영구 누적", baseCost: 8 },
+  { id: "dignity", name: "왕의 체면", desc: "최대 체면 +20% · 더 많이 맞아도 버팀", baseCost: 7 },
+  { id: "reward", name: "파편 수확", desc: "파편 획득량 +16% · 성장이 빨라짐", baseCost: 9 },
+  { id: "ultimate", name: "영상 증폭", desc: "궁극기 피해 +18% · 궁극기가 더 강렬해짐", baseCost: 10 },
 ];
 
 const runUpgradeDefs = [
@@ -2154,9 +2155,17 @@ function openReincarnate(forced = false) {
     `▶ https://criel2019.github.io/cute-lord-of-destruction/`,
   ].filter(Boolean).join("\n");
   const shareBtn = `<button class="run-share-btn" type="button" data-share-text="${shareText.replace(/"/g, "&quot;")}">📋 결과 복사</button>`;
+  if (el.reincarnateTitle) {
+    el.reincarnateTitle.textContent = forced
+      ? `제 ${state.run}판 종료 — 체면 상실`
+      : `제 ${state.run}판 환생 준비`;
+  }
+  const gainBadge = gain > 0
+    ? `<span class="reinc-gain-badge">+${gain} 💠 파편 획득!</span>`
+    : "";
   el.reincarnateSummary.innerHTML = forced
-    ? `마왕님 체면이 바닥났습니다. 파편 +${gain}개 회수.${recordLine}${runSummaryLine}${carryLine}${shardHint}${nextPowerLine}<br/><span class="reinc-teaser">${teaser}</span>${shareBtn}`
-    : `환생 시 파편 +${gain}개 획득.${recordLine}${runSummaryLine}${carryLine}${shardHint}${nextPowerLine}<br/><span class="reinc-teaser">${teaser}</span>${shareBtn}`;
+    ? `${gainBadge}${recordLine}${runSummaryLine}${carryLine}${shardHint}${nextPowerLine}<br/><span class="reinc-teaser">${teaser}</span>${shareBtn}`
+    : `${gainBadge}${recordLine}${runSummaryLine}${carryLine}${shardHint}${nextPowerLine}<br/><span class="reinc-teaser">${teaser}</span>${shareBtn}`;
   const shareBtnEl = el.reincarnateSummary.querySelector(".run-share-btn");
   if (shareBtnEl) {
     shareBtnEl.addEventListener("click", () => {
@@ -2253,14 +2262,15 @@ function restartRun(addPendingReward = false) {
       const pct = prevDps > 0 ? Math.round((newDps / prevDps - 1) * 100) : 0;
       if (pct > 0) {
         window.setTimeout(() => {
-          spawnParticles(16);
-          showToast(`지난 판보다 ${pct}% 더 강함!`);
-          // 시각적 성장 배너
+          spawnParticles(32);
+          flashScreen("gold", 0.35);
+          // 시각적 성장 배너 — 더 극적으로
           const banner = document.createElement("div");
           banner.className = "run-power-banner";
-          banner.innerHTML = `제 ${state.run}판 시작<strong>+${pct}% 강해짐!</strong>`;
+          const carryLine = carryTrait ? `<em>${carryTrait.name} 계승</em>` : "";
+          banner.innerHTML = `<span>제 ${state.run}판 시작</span><strong>+${pct}% 강해짐!</strong>${carryLine}`;
           el.stagePanel.appendChild(banner);
-          window.setTimeout(() => banner.remove(), 2400);
+          window.setTimeout(() => banner.remove(), 3000);
         }, carryTrait ? 1200 : 800);
       }
       // 이번 판 목표 힌트

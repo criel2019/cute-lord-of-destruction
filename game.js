@@ -2593,6 +2593,19 @@ function openReincarnate(forced = false) {
       ? `제 ${state.run}판 종료 — 체면 상실`
       : `제 ${state.run}판 환생 준비`;
   }
+  // 첫 패배 시 "괜찮아요" 안내 배너
+  const isFirstForcedDeath = forced && state.run <= 1 && !state._firstDeathSeen;
+  if (isFirstForcedDeath) {
+    state._firstDeathSeen = true;
+    const firstDeathBanner = document.createElement("div");
+    firstDeathBanner.className = "first-death-banner";
+    firstDeathBanner.innerHTML = `
+      <strong>💠 괜찮아요! 죽어도 계속됩니다</strong>
+      <p>파편으로 영구 강화를 사면 <em>다음 판부터 더 강하게</em> 시작해요.<br/>
+      짐은 쓰러졌지만... 위엄은 영원하니라! (보좌관들이 계속 일함)</p>
+    `;
+    el.reincarnateModal.querySelector(".modal-panel")?.prepend(firstDeathBanner);
+  }
   const gainBadge = gain > 0
     ? `<span class="reinc-gain-badge">+${gain} 💠 파편 획득!</span>`
     : "";

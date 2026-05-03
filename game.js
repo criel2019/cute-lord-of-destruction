@@ -2219,7 +2219,9 @@ function openReincarnate(forced = false) {
   });
   const shardHint = affordableUpgrade
     ? `<div class="reinc-shard-hint buyable">파편 ${totalShards}개 → <strong>${affordableUpgrade.name}</strong> 구매 가능!</div>`
-    : `<div class="reinc-shard-hint">파편 ${totalShards}개 보유 — 아래 영구 강화에 사용하세요</div>`;
+    : totalShards === 0
+    ? `<div class="reinc-shard-hint">보스를 처치하면 파편을 얻습니다. 다음 판에 도전!</div>`
+    : `<div class="reinc-shard-hint">파편 ${totalShards}개 — 조금 더 모으면 영구 강화 가능!</div>`;
   // 다음 판 예상 전투력 (영구 업그레이드 기준으로 1층에서 기본 스탯 시뮬)
   const curDps = Math.round(getStats().autoDamage * getStats().autoSpeed);
   const curCounter = Math.round(getStats().counterDamage);
@@ -2252,15 +2254,26 @@ function openReincarnate(forced = false) {
       </div>`
     : "";
   const gradeEmoji = { S: "🌟", A: "⭐", B: "✨", C: "💫" };
+  const reachedFloor = state.floor - 1;
+  const boastLine = reachedFloor >= 25
+    ? `"짐은 전설이니라. 30층도 문제없다." (보좌관들이 다 함)`
+    : reachedFloor >= 15
+    ? `"이 정도는 짐에게 식은 죽이니라!" (보좌관 3명 쓰러짐)`
+    : reachedFloor >= 5
+    ? `"짐의 위엄으로 보스를 물리쳤느니라!" (실제: 보좌관이 막음)`
+    : forced
+    ? `"이, 이건 전략적 후퇴니라! (체면 0%로 떨어짐)"`
+    : `"짐이 원래 이 정도는 껌이니라!" (1층에서 환생)`;
   const shareText = [
     `👑 귀염뽀짝 파멸의 군주`,
-    `${state.floor - 1}층 도달 · ${runGrade}등급 ${gradeEmoji[runGrade] || ""}`,
-    `막기 ${state.runInterceptTotal || 0}회 · PERFECT ${state.runPerfectTotal || 0}회`,
-    forced ? `짐은... 하나도 무섭지 않았느니라! (체면 상실)` : `전략적 후퇴니라! (자진 환생)`,
+    `${reachedFloor}층 도달 · ${runGrade}등급 ${gradeEmoji[runGrade] || ""}`,
+    boastLine,
+    `막기 ${state.runInterceptTotal || 0}회 · PERFECT ${state.runPerfectTotal || 0}회 · 피격 ${state.runHitTotal || 0}회`,
     runScore > 0 ? `${runScore.toLocaleString()}점` : "",
     `▶ https://criel2019.github.io/cute-lord-of-destruction/`,
   ].filter(Boolean).join("\n");
-  const shareBtn = `<button class="run-share-btn" type="button" data-share-text="${shareText.replace(/"/g, "&quot;")}">📋 결과 복사</button>`;
+  const shareBtnLabel = navigator.share ? "📢 결과 공유" : "📋 결과 복사";
+  const shareBtn = `<button class="run-share-btn" type="button" data-share-text="${shareText.replace(/"/g, "&quot;")}">${shareBtnLabel}</button>`;
   if (el.reincarnateTitle) {
     el.reincarnateTitle.textContent = forced
       ? `제 ${state.run}판 종료 — 체면 상실`
@@ -2276,12 +2289,16 @@ function openReincarnate(forced = false) {
   if (shareBtnEl) {
     shareBtnEl.addEventListener("click", () => {
       const txt = shareBtnEl.dataset.shareText;
-      navigator.clipboard?.writeText(txt).then(() => {
-        shareBtnEl.textContent = "✅ 복사됨!";
-        window.setTimeout(() => { shareBtnEl.textContent = "📋 결과 복사"; }, 2000);
-      }).catch(() => {
-        shareBtnEl.textContent = "복사 실패 (직접 선택하세요)";
-      });
+      if (navigator.share) {
+        navigator.share({ text: txt }).catch(() => {});
+      } else {
+        navigator.clipboard?.writeText(txt).then(() => {
+          shareBtnEl.textContent = "✅ 복사됨!";
+          window.setTimeout(() => { shareBtnEl.textContent = "📋 결과 공유"; }, 2000);
+        }).catch(() => {
+          shareBtnEl.textContent = "복사 실패 (직접 선택하세요)";
+        });
+      }
     });
   }
   renderUpgrades();

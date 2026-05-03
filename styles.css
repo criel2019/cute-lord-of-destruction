@@ -7582,25 +7582,30 @@ h1 {
 
 /* ── 판 결과 공유 버튼 ── */
 .run-share-btn {
-  display: inline-flex;
+  display: flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
-  margin-top: 10px;
-  padding: 7px 14px;
+  margin-top: 12px;
+  width: 100%;
+  padding: 10px 14px;
   border-radius: 8px;
-  border: 1px solid rgba(134, 216, 199, 0.4);
-  background: rgba(134, 216, 199, 0.12);
+  border: 1px solid rgba(134, 216, 199, 0.6);
+  background: linear-gradient(135deg, rgba(134, 216, 199, 0.18), rgba(185, 220, 255, 0.12));
   color: #86d8c7;
-  font-size: 13px;
-  font-weight: 700;
+  font-size: 14px;
+  font-weight: 800;
   cursor: pointer;
-  transition: background 150ms, transform 100ms;
+  letter-spacing: 0.02em;
+  transition: background 150ms, transform 100ms, box-shadow 150ms;
+  box-shadow: 0 0 0 1px rgba(134, 216, 199, 0.2);
 }
 .run-share-btn:hover {
-  background: rgba(134, 216, 199, 0.22);
+  background: linear-gradient(135deg, rgba(134, 216, 199, 0.28), rgba(185, 220, 255, 0.2));
+  box-shadow: 0 0 12px rgba(134, 216, 199, 0.3);
 }
 .run-share-btn:active {
-  transform: scale(0.95);
+  transform: scale(0.97);
 }
 
 /* ── 첫 발견 배지 ── */

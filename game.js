@@ -4267,12 +4267,9 @@ function playIntro() {
     introTimers.forEach(t => clearTimeout(t));
     clearTimeout(introEndTimer);
     state.paused = false;
+    // 인트로 종료 → creditCut 2.6s 후 바로 첫 공격 기회 (3.2s)
     if (state.enemy && state.floor === 1 && state.run <= 1) {
       state.enemy.attackTimer = 3.2;
-    }
-    // 인트로 종료 시 게임의 핵심 유머 — creditCut 맛보기 (적 공격 5초 유예)
-    if (state.enemy && state.floor === 1 && state.run <= 1) {
-      state.enemy.attackTimer = 5.5; // creditCut 읽을 여유 확보
     }
     showCreditCut(
       "rescue",

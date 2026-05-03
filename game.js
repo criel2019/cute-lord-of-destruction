@@ -1019,6 +1019,8 @@ function ensureEnemy() {
   if (!state.enemy) {
     state.enemy = makeEnemy(state.floor);
     state._aimTapCount = 0;
+    state._currentEnemyTaunt = "";
+    state._idleEnemyTauntTimer = 3.5 + Math.random() * 2.5;
     if (state.floor !== _lastEnemyFloor) {
       _lastEnemyFloor = state.floor;
       const flavor = floorFlavors[state.floor];
@@ -3639,11 +3641,12 @@ function render() {
   if (el.arenaEnemy) {
     const threatCard = el.arenaEnemy.closest(".threat-card");
     if (threatCard) {
+      const idleTaunt = state._currentEnemyTaunt || "";
       const tauntText = dangerReady
         ? "지금이다!!"
         : phase.aiming
           ? state.enemy.intent || "마왕님… 각오해라"
-          : "";
+          : idleTaunt;
       threatCard.dataset.taunt = tauntText;
     }
   }
@@ -4669,6 +4672,40 @@ function update(now) {
     }
     _wasAiming = _curPhaseForTaunt.aiming;
     _wasDanger = _curPhaseForTaunt.dangerReady;
+
+    // 일반 대기 중 적 도발 텍스트 — 6~9초마다 교체
+    {
+      const phase = _curPhaseForTaunt;
+      if (!phase.aiming && !phase.dangerReady && state.enemy && !state.enemy.isBoss) {
+        state._idleEnemyTauntTimer = (state._idleEnemyTauntTimer || 0) - dt;
+        if (state._idleEnemyTauntTimer <= 0) {
+          const taunts = enemyTaunts[state.enemy.kind] || [];
+          if (taunts.length > 0) {
+            state._currentEnemyTaunt = randomPick(taunts);
+            // 도발 대응 마왕 반응 (25% 확률)
+            if (Math.random() < 0.25) {
+              const reactions = [
+                { mood: "울먹임", text: `저, 저게 무슨 소리니라... 무섭지 않다!` },
+                { mood: "허세", text: `흥! 짐에게 저런 말을 하다니 배짱이 있구나. 보좌관들이 혼내줄 것이니라.` },
+                { mood: "명령", text: `보좌관들! 저 버릇없는 놈을 정리해라! 명령이니라!` },
+                { mood: "위엄", text: `짐에게 도발하다니... 처음이자 마지막이 될 것이니라.` },
+              ];
+              window.setTimeout(() => {
+                const r = randomPick(reactions);
+                setDialogue(r.text, r.mood);
+              }, 400);
+            }
+          } else {
+            state._currentEnemyTaunt = "";
+          }
+          state._idleEnemyTauntTimer = 6.0 + Math.random() * 3.0;
+        }
+      } else {
+        // 조준/위험 진입 시 idle taunt 숨기기
+        state._currentEnemyTaunt = "";
+        state._idleEnemyTauntTimer = 2.0;
+      }
+    }
 
     // 위험 경고 비프 + 미세 진동 (impactSoon 시 0.35초 간격)
     if (!state.paused) {

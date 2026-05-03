@@ -532,7 +532,8 @@ h1 {
   50%       { transform: scale(0.92) translateX(10px); filter: brightness(0.85); }
 }
 
-/* ② 적 공격 말풍선 — aiming/danger 시 적 위에 표시 */
+/* ② 적 공격 말풍선 — idle/aiming/danger 시 적 위에 표시 */
+.threat-card[data-taunt]:not([data-taunt=""])::before,
 .stage-panel.aiming .threat-card::before,
 .stage-panel.danger .threat-card::before {
   content: attr(data-taunt);

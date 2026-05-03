@@ -6099,14 +6099,16 @@ h1 {
 }
 
 /* 3. 사이드 패널 잠금 상태 */
-.side-stack.side-locked {
+.side-stack.side-locked,
+.bottom-panels.side-locked {
   filter: blur(6px) saturate(0.4);
   pointer-events: none;
   opacity: 0.45;
   user-select: none;
   position: relative;
 }
-.side-stack.side-locked::after {
+.side-stack.side-locked::after,
+.bottom-panels.side-locked::after {
   content: "2층 클리어 후 해금";
   position: absolute;
   inset: 0;
@@ -6530,7 +6532,8 @@ h1 {
 }
 
 /* 사이드 해금 애니메이션 */
-.side-stack.side-unlocking {
+.side-stack.side-unlocking,
+.bottom-panels.side-unlocking {
   animation: sideUnlock 1.2s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 @keyframes sideUnlock {

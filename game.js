@@ -74,6 +74,32 @@ function playSfx(type) {
       gain.gain.exponentialRampToValueAtTime(0.001, now + 0.38);
       osc.start(now);
       osc.stop(now + 0.38);
+    } else if (type === "bossDefeat") {
+      // 웅장한 보스 처치 팡파르 — 3음 상승 + 긴 여운
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(392, now);
+      osc.frequency.setValueAtTime(523, now + 0.12);
+      osc.frequency.setValueAtTime(659, now + 0.24);
+      osc.frequency.setValueAtTime(784, now + 0.36);
+      osc.frequency.exponentialRampToValueAtTime(1047, now + 0.55);
+      gain.gain.setValueAtTime(0.28, now);
+      gain.gain.setValueAtTime(0.22, now + 0.36);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.85);
+      osc.start(now);
+      osc.stop(now + 0.85);
+      // 하모니 추가
+      const osc2 = ctx.createOscillator();
+      const gain2 = ctx.createGain();
+      osc2.connect(gain2);
+      gain2.connect(ctx.destination);
+      osc2.type = "triangle";
+      osc2.frequency.setValueAtTime(196, now);
+      osc2.frequency.setValueAtTime(261, now + 0.24);
+      osc2.frequency.setValueAtTime(392, now + 0.55);
+      gain2.gain.setValueAtTime(0.12, now);
+      gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.85);
+      osc2.start(now);
+      osc2.stop(now + 0.85);
     } else if (type === "click") {
       // 부드러운 팝 — 기력 충전 탭
       osc.type = "sine";
@@ -1872,7 +1898,7 @@ function defeatEnemy() {
   const stats = getStats();
 
   el.stagePanel.classList.remove("elite-enemy");
-  playSfx("defeat");
+  playSfx(defeatedBoss ? "bossDefeat" : "defeat");
   shakeScreen(defeatedBoss ? 3 : defeatedElite ? 2 : 1.2);
   spawnParticles(defeatedBoss ? 40 : defeatedElite ? 30 : 20);
   // 적 이미지 처치 연출 — boss/elite/mob 별 다름

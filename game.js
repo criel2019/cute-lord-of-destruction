@@ -2986,14 +2986,16 @@ function renderStageReward() {
   const bossLabel = state.enemy?.isBoss ? "지금 보스" : `${nextBossFloor}F 보스`;
   const ultimateLabel = state.ultimate >= 100 ? "궁극기 준비" : `궁극기 ${Math.round(state.ultimate)}%`;
   const goal30 = state.bestFloor < 30 ? ` · 목표 30층` : ` · 30층 클리어!`;
-  // 첫 판 초반(1~2층, 5번 탭 이하)은 단계별 신규 목표 안내
-  const isNewPlayer = state.run <= 1 && state.floor <= 2 && (state._prepClickCount || 0) < 12;
+  // 첫 판 초반(1~3층)은 단계별 신규 목표 안내
+  const isNewPlayer = state.run <= 1 && state.floor <= 3 && (state._prepClickCount || 0) < 18;
   const prepPct = Math.round(state.prep || 0);
   const newPlayerGoal = !state.firstBlockSeen
     ? `① 탭해서 기력 쌓기 — 지금 기력 ${prepPct}%`
     : (state._prepClickCount || 0) < 8
-      ? `② 기력 50% 이상 쌓은 뒤 빨간 버튼 막기!`
-      : `③ 적 처치 후 강화 탭에서 보좌관 강화!`;
+      ? `② 기력 50%+ 쌓은 뒤 빨간 불(위험) 때 막기!`
+      : !state.sideUnlocked
+        ? `③ 적 처치 후 [강화] 탭에서 보좌관을 강화하세요!`
+        : `④ 강화 탭에서 공물로 보좌관 강화 → 5F 보스 도전!`;
   const rewardText = isNewPlayer
     ? newPlayerGoal
     : dignityCritical
@@ -3003,7 +3005,7 @@ function renderStageReward() {
         : state.enemy?.isBoss
           ? `지금 보스 격파 → 영상 파츠 선택 · ${owned}/${total}개 · ${power.synergyName}`
           : `${nextBossFloor}F 보스까지 ${floorsLeft}층${goal30} · ${owned}/${total}개`;
-  const key = `${state.floor}:${state.enemy?.isBoss ? 1 : 0}:${rewardText}:${nextTraitLabel}:${bossLabel}:${ultimateLabel}:${dignityPercent}:${ids.map((id) => `${id}:${getPartLevel(id)}`).join("|")}:${state._prepClickCount || 0}:${state.firstBlockSeen ? 1 : 0}`;
+  const key = `${state.floor}:${state.enemy?.isBoss ? 1 : 0}:${rewardText}:${nextTraitLabel}:${bossLabel}:${ultimateLabel}:${dignityPercent}:${ids.map((id) => `${id}:${getPartLevel(id)}`).join("|")}:${state._prepClickCount || 0}:${state.firstBlockSeen ? 1 : 0}:${state.sideUnlocked ? 1 : 0}`;
   if (renderCache.stageReward === key) return;
   renderCache.stageReward = key;
 
@@ -3410,6 +3412,20 @@ function render() {
   if (bottomPanels) {
     const isLocked = !state.sideUnlocked && state.run <= 1 && state.floor < 2;
     bottomPanels.classList.toggle("side-locked", isLocked);
+  }
+
+  // 신규 유저 command-bar 단순화 — 첫 판 초반은 막기 버튼만 강조
+  const isEarlyNewbie = state.run <= 1 && state.floor <= 3 && !state.firstBlockSeen;
+  const commandBar = document.querySelector(".command-bar");
+  if (commandBar) {
+    commandBar.classList.toggle("newbie-focus", isEarlyNewbie);
+  }
+  if (el.reincarnateBtn) {
+    const dignityFull = state.dignity >= getStats().maxDignity * 0.95;
+    el.reincarnateBtn.classList.toggle("newbie-hidden", isEarlyNewbie && dignityFull);
+  }
+  if (el.saveBtn) {
+    el.saveBtn.classList.toggle("newbie-hidden", isEarlyNewbie);
   }
 
   renderParts();

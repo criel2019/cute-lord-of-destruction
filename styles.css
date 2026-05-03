@@ -8238,6 +8238,26 @@ h1 {
   to   { opacity: 0; transform: translate(-50%, calc(-50% - 10px)) scale(0.95); }
 }
 
+/* 신규 유저 command-bar 단순화 */
+.command-bar.newbie-focus #tapBtn {
+  flex: 2 1 0;
+  font-size: 16px;
+}
+.command-bar.newbie-focus #ultimateBtn {
+  opacity: 0.45;
+  flex: 0.7 1 0;
+  font-size: 12px;
+}
+.command-btn.newbie-hidden {
+  opacity: 0;
+  pointer-events: none;
+  flex: 0 0 0 !important;
+  min-width: 0 !important;
+  padding: 0 !important;
+  overflow: hidden;
+  transition: opacity 0.3s, flex 0.3s;
+}
+
 /* 빠른 탭 콤보 팝업 */
 .tap-combo-popup {
   position: absolute;

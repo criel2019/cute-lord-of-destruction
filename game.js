@@ -1690,11 +1690,23 @@ function defeatEnemy() {
     : ["흐흥, 또 하나가 짐의 위엄 앞에 쓰러졌느니라.", "짐의 명령 한 마디로 충분하니라."];
   setDialogue(defeatedBoss ? randomPick(bossDefeatLines) : randomPick(mobDefeatLines), "허세");
   showFloorClearBanner(oldFloor, defeatedBoss);
+  const totalKills = (state.runInterceptTotal || 0) + (state.runHitTotal || 0) + (state.floor || 1);
+  const mobCreditDur = (!defeatedBoss && totalKills <= 5) ? 1.7 : 1.1;
+  const mobTruths = [
+    "실제: 자동 공격으로 처치",
+    "실제: 보좌관들이 조용히 처리함",
+    "실제: 부하들이 다 했음",
+  ];
+  const mobClaims = [
+    "발표: 짐의 명령 한 마디로 쓰러졌다!",
+    "발표: 짐의 위엄에 압도돼 스스로 쓰러졌다!",
+    "발표: 짐이 원래부터 계획한 것이니라!",
+  ];
   showCreditCut(
     "streak",
-    defeatedBoss ? "실제: 보조들이 처치함" : "실제: 자동 공격으로 처치",
-    defeatedBoss ? "발표: 짐의 압도적 위엄으로 격파!" : "발표: 짐의 명령 한 마디로 쓰러졌다!",
-    defeatedBoss ? 1.8 : 1.1,
+    defeatedBoss ? "실제: 보좌관들이 처치함" : randomPick(mobTruths),
+    defeatedBoss ? "발표: 짐의 압도적 위엄으로 격파!" : randomPick(mobClaims),
+    defeatedBoss ? 1.8 : mobCreditDur,
   );
 
   // 층 클리어 시 현재 전투력 토스트 — "나는 강해지고 있다" 피드백

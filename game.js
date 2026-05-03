@@ -682,11 +682,11 @@ const upgradeDefs = [
 ];
 
 const runUpgradeDefs = [
-  { id: "click", name: "보좌 손길", desc: "공물/가로채기 피해 증가", truth: "실제: 보좌관이 더 세게 막음", baseCost: 8, growth: 1.58, image: "assets/vfx/protect_sigil.png" },
-  { id: "auto", name: "꼬물 부하", desc: "자동으로 적 체력 감소", truth: "실제: 부하들이 알아서 처리", baseCost: 12, growth: 1.62, image: "assets/trait_wiggle.png" },
-  { id: "guard", name: "체면 방패", desc: "피격 손실 감소와 회복 증가", truth: "실제: 보좌관이 인간 방패 됨", baseCost: 10, growth: 1.55, image: "assets/ultimate_tear.png" },
-  { id: "showoff", name: "허세 연출", desc: "가로채기 성공 공물과 궁극기 충전 증가", truth: "실제: 카메라감독 보좌관 고용", baseCost: 16, growth: 1.7, image: "assets/vfx/counter_spark.png" },
-  { id: "crit", name: "치명적 허세", desc: "치명타 확률 +5% · 치명타 위력 +25%", truth: "실제: 보좌관의 급소 공략술", baseCost: 28, growth: 1.85, image: "assets/vfx/impact_burst.png" },
+  { id: "click", name: "보좌 손길", desc: "막을 때 더 아프게 반격", truth: "실제: 보좌관이 더 세게 막음", baseCost: 8, growth: 1.58, image: "assets/vfx/protect_sigil.png" },
+  { id: "auto", name: "꼬물 부하", desc: "안 눌러도 부하들이 알아서 처리", truth: "실제: 부하들이 알아서 처리", baseCost: 12, growth: 1.62, image: "assets/trait_wiggle.png" },
+  { id: "guard", name: "체면 방패", desc: "맞아도 체면이 덜 깎임", truth: "실제: 보좌관이 인간 방패 됨", baseCost: 10, growth: 1.55, image: "assets/ultimate_tear.png" },
+  { id: "showoff", name: "허세 연출", desc: "막기 성공마다 공물과 궁극기 더 빨리 충전", truth: "실제: 카메라감독 보좌관 고용", baseCost: 16, growth: 1.7, image: "assets/vfx/counter_spark.png" },
+  { id: "crit", name: "치명적 허세", desc: "가끔 엄청 아프게 치는 보좌관 비밀병기", truth: "실제: 보좌관의 급소 공략술", baseCost: 28, growth: 1.85, image: "assets/vfx/impact_burst.png" },
 ];
 
 function preloadImages() {

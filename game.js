@@ -1425,6 +1425,8 @@ function rescueAction() {
       state.firstBlockSeen = true;
       spawnParticles(36);
       flashScreen("gold", 0.45);
+      // 첫 막기 = 게임 핵심 유머 훅 첫 노출
+      showCreditCut("rescue", "실제: 보좌관이 막음", "발표: 짐의 위엄이 막았다!", 2.8);
       window.setTimeout(() => {
         showToast("🎉 첫 가로채기 성공! 적이 공격할 때(빨간불) 막으면 됩니다!");
         setDialogue("흐흥! 봤느냐! 짐의 보좌관이... 아니, 짐의 위엄으로 막은 것이니라!", "허세");
@@ -4381,6 +4383,16 @@ function playIntro() {
     window.setTimeout(() => el.mainCharacter.classList.remove("char-intro-entrance"), 900);
   }
 
+  // 인트로 즉시 탭 힌트 표시 — 클릭 전에 유저가 봐야 함
+  const mainStage = el.stageTap;
+  let tapHintEl = null;
+  if (mainStage && !mainStage.querySelector(".tap-hint-label")) {
+    tapHintEl = document.createElement("span");
+    tapHintEl.className = "tap-hint-label";
+    tapHintEl.innerHTML = "👆 여기 탭하면<br><strong>기력 충전!</strong>";
+    mainStage.appendChild(tapHintEl);
+  }
+
   const lines = [
     { mood: "울먹임", text: "...흥. 저, 저게 또 짐을 혼내러 왔구나! 보좌관들, 준비해— 아니! 짐이 지시하는 것이니라!", delay: 0 },
     { mood: "허세", text: "빨간 빛이 번쩍이면... 그때 짐이 직접 막— 아니, 보좌관에게 막으라 명 할 것이니라! 물론 짐이 하고 싶어서가 아니라 전략이니라!", delay: 1600 },
@@ -4413,17 +4425,9 @@ function playIntro() {
       el.tapBtn.classList.add("intro-pulse");
       window.setTimeout(() => el.tapBtn.classList.remove("intro-pulse"), 3000);
     }, 2700);
-    // 첫 클릭 전 — 화면 전체 탭 힌트 라벨 표시
-    const mainStage = el.stageTap;
-    if (mainStage && !mainStage.querySelector(".tap-hint-label")) {
-      const tapHint = document.createElement("span");
-      tapHint.className = "tap-hint-label";
-      tapHint.textContent = "화면을 탭 → 기력 충전!";
-      mainStage.appendChild(tapHint);
-      const removeTapHint = () => {
-        tapHint.remove();
-        mainStage.removeEventListener("click", removeTapHint);
-      };
+    // 탭 힌트는 인트로 시작 시 이미 추가됨 — 첫 클릭 시 제거
+    if (tapHintEl) {
+      const removeTapHint = () => { if (tapHintEl) { tapHintEl.remove(); tapHintEl = null; } };
       mainStage.addEventListener("click", removeTapHint, { once: true });
     }
     // creditCut(2.6s) 끝난 뒤 인포카드 표시 — 첫 막기 성공 전에만 (이미 알고 있으면 불필요)

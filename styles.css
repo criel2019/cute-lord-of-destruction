@@ -1232,20 +1232,37 @@ h1 {
 /* 전투 영역 전체 탭 힌트 — 첫 클릭 전 */
 .tap-hint-label {
   position: absolute;
-  bottom: 54px;
+  bottom: 38%;
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(134, 216, 199, 0.14);
-  border: 1px solid rgba(134, 216, 199, 0.4);
-  border-radius: 20px;
-  padding: 5px 14px;
-  font-size: 11px;
+  background: rgba(14, 10, 18, 0.82);
+  border: 2px solid rgba(134, 216, 199, 0.7);
+  border-radius: 16px;
+  padding: 10px 22px;
+  font-size: clamp(14px, 3.5vw, 18px);
   font-weight: 800;
   color: var(--mint);
   pointer-events: none;
-  z-index: 4;
-  animation: prepHintBlink 1.2s ease-in-out infinite;
+  z-index: 10;
+  text-align: center;
+  line-height: 1.4;
+  box-shadow: 0 0 18px rgba(134, 216, 199, 0.35), 0 4px 16px rgba(0,0,0,0.6);
+  animation: tapHintPop 0.4s cubic-bezier(0.22,1,0.36,1) both, tapHintPulse 1.4s 0.4s ease-in-out infinite;
   white-space: nowrap;
+}
+.tap-hint-label strong {
+  display: block;
+  font-size: 1.25em;
+  color: #a8f0e0;
+}
+@keyframes tapHintPop {
+  0%   { opacity: 0; transform: translateX(-50%) scale(0.7); }
+  60%  { opacity: 1; transform: translateX(-50%) scale(1.08); }
+  100% { opacity: 1; transform: translateX(-50%) scale(1); }
+}
+@keyframes tapHintPulse {
+  0%, 100% { box-shadow: 0 0 18px rgba(134, 216, 199, 0.35), 0 4px 16px rgba(0,0,0,0.6); border-color: rgba(134, 216, 199, 0.7); }
+  50%       { box-shadow: 0 0 32px rgba(134, 216, 199, 0.7), 0 4px 20px rgba(0,0,0,0.7); border-color: rgba(134, 216, 199, 1); }
 }
 
 .prep-gauge i {

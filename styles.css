@@ -1493,11 +1493,9 @@ h1 {
 }
 
 .dialogue-box {
-  position: absolute;
-  bottom: 76px;
-  left: 0;
-  right: 0;
-  z-index: 7;
+  position: relative;
+  z-index: 3;
+  flex-shrink: 0;
   min-height: 0;
   padding: 5px 14px;
   color: #fff;
@@ -1507,7 +1505,6 @@ h1 {
   align-items: center;
   gap: 8px;
   overflow: hidden;
-  pointer-events: none;
 }
 
 .dialogue-box span {
@@ -1543,19 +1540,17 @@ h1 {
 .bar-line strong { font-size: 11px; color: var(--game-text-dim); }
 .bar-line span { color: var(--game-text-dim); font-size: 10px; font-weight: 800; }
 
-/* 체면/궁극기 하단 오버레이 바 — main-stage 안 absolute */
+/* 체면/궁극기 바 — stage-panel flex 자식 (normal flow) */
 .stage-bottom-meters {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 6;
-  padding: 6px 10px 8px;
+  position: relative;
+  z-index: 3;
+  flex-shrink: 0;
+  padding: 5px 10px 6px;
   display: flex;
   flex-direction: column;
-  gap: 5px;
-  background: linear-gradient(0deg, rgba(14,10,18,0.88) 0%, transparent 100%);
-  pointer-events: none;
+  gap: 4px;
+  background: rgba(14,10,18,0.92);
+  border-top: 1px solid rgba(255,255,255,0.06);
 }
 
 .sbm-row {
@@ -4161,7 +4156,6 @@ h1 {
 }
 
 .arena-combat,
-.battle-readout,
 .threat-lane,
 .scene-overlay {
   z-index: 4;

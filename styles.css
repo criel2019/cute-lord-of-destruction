@@ -7635,6 +7635,75 @@ h1 {
 .arena-enemy.auto-hit-flash {
   animation: autoHitFlash 0.12s ease-out forwards;
 }
+
+/* 기력 탭 → 적 흔들림 반응 */
+@keyframes enemyFlinchSoft {
+  0%   { transform: translateX(0) scale(1); }
+  40%  { transform: translateX(-4px) scale(0.97); }
+  100% { transform: translateX(0) scale(1); }
+}
+@keyframes enemyFlinchMid {
+  0%   { transform: translateX(0) scale(1); filter: brightness(1); }
+  35%  { transform: translateX(-7px) scale(0.94) rotate(-1deg); filter: brightness(1.4) saturate(0.7); }
+  70%  { transform: translateX(3px) scale(0.97); }
+  100% { transform: translateX(0) scale(1); filter: brightness(1); }
+}
+@keyframes enemyFlinchHard {
+  0%   { transform: translateX(0) scale(1); filter: brightness(1); }
+  25%  { transform: translateX(-10px) scale(0.90) rotate(-2deg); filter: brightness(1.8) saturate(0.4) hue-rotate(-20deg); }
+  60%  { transform: translateX(5px) scale(0.96) rotate(1deg); }
+  100% { transform: translateX(0) scale(1); filter: brightness(1); }
+}
+.arena-enemy.enemy-flinch-soft {
+  animation: enemyFlinchSoft 0.18s ease-out forwards;
+}
+.arena-enemy.enemy-flinch {
+  animation: enemyFlinchMid 0.18s ease-out forwards;
+}
+.arena-enemy.enemy-flinch-hard {
+  animation: enemyFlinchHard 0.18s ease-out forwards;
+}
+
+/* 적 HP 낮아질수록 dying 상태 시각화 */
+.arena-enemy.enemy-bloodied {
+  filter: brightness(0.85) saturate(1.3) sepia(0.2);
+}
+.arena-enemy.enemy-dying {
+  filter: brightness(0.65) saturate(0.5) sepia(0.4) contrast(1.2);
+  animation: enemyDyingPulse 1.8s ease-in-out infinite;
+}
+@keyframes enemyDyingPulse {
+  0%, 100% { filter: brightness(0.65) saturate(0.5) sepia(0.4) contrast(1.2); }
+  50% { filter: brightness(0.5) saturate(0.3) sepia(0.6) contrast(1.3); }
+}
+
+/* 적 처치 연출 — mob / elite / boss */
+@keyframes enemyDefeatedMob {
+  0%   { opacity: 1; transform: scale(1) rotate(0deg); filter: brightness(1); }
+  30%  { opacity: 0.8; transform: scale(1.1) rotate(-5deg); filter: brightness(3) saturate(0); }
+  100% { opacity: 0; transform: scale(0.4) rotate(15deg) translateY(-20px); filter: brightness(0); }
+}
+@keyframes enemyDefeatedElite {
+  0%   { opacity: 1; transform: scale(1); filter: brightness(1); }
+  20%  { opacity: 1; transform: scale(1.15); filter: brightness(3.5) hue-rotate(60deg); }
+  100% { opacity: 0; transform: scale(0.3) translateY(-30px); filter: brightness(0) saturate(0); }
+}
+@keyframes enemyDefeatedBoss {
+  0%   { opacity: 1; transform: scale(1); filter: brightness(1); }
+  15%  { opacity: 1; transform: scale(1.2); filter: brightness(5) saturate(0); }
+  40%  { opacity: 0.5; transform: scale(0.8) rotate(-8deg); filter: brightness(0.5) sepia(1); }
+  100% { opacity: 0; transform: scale(0) rotate(20deg) translateY(-40px); filter: brightness(0); }
+}
+.arena-enemy.enemy-defeated {
+  animation: enemyDefeatedMob 0.5s ease-out forwards;
+}
+.arena-enemy.enemy-defeated-elite {
+  animation: enemyDefeatedElite 0.55s ease-out forwards;
+}
+.arena-enemy.enemy-defeated-boss {
+  animation: enemyDefeatedBoss 0.6s ease-in-out forwards;
+}
+
 @keyframes tauntIn {
   0%   { opacity: 0; transform: translate(-50%, -8px) scale(0.85); }
   60%  { opacity: 1; transform: translate(-50%, 2px) scale(1.05); }

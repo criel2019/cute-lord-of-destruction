@@ -1637,6 +1637,15 @@ function rescueAction() {
   playSfx("click");
   setPose("proud", 0.58, "명령");
   triggerPulse("assist", 0.3);
+  // 기력 탭 → 적 반응 (기력 높을수록 더 크게)
+  if (el.arenaEnemy) {
+    const prepNow = state.prep || 0;
+    const flinchClass = prepNow >= 80 ? "enemy-flinch-hard" : prepNow >= 40 ? "enemy-flinch" : "enemy-flinch-soft";
+    el.arenaEnemy.classList.remove("enemy-flinch-soft", "enemy-flinch", "enemy-flinch-hard");
+    void el.arenaEnemy.offsetWidth;
+    el.arenaEnemy.classList.add(flinchClass);
+    window.setTimeout(() => el.arenaEnemy.classList.remove("enemy-flinch-soft", "enemy-flinch", "enemy-flinch-hard"), 180);
+  }
   const prepBefore = state.prep || 0;
   const ragePrepMult = state.rageTimer > 0 ? 2.0 : 1;
   const evPrepMult = state.floorEvent?.prepMult || 1;
@@ -1829,6 +1838,14 @@ function defeatEnemy() {
   playSfx("defeat");
   shakeScreen(defeatedBoss ? 3 : defeatedElite ? 2 : 1.2);
   spawnParticles(defeatedBoss ? 40 : defeatedElite ? 30 : 20);
+  // 적 이미지 처치 연출 — boss/elite/mob 별 다름
+  if (el.arenaEnemy) {
+    el.arenaEnemy.classList.remove("enemy-dying", "enemy-bloodied");
+    el.arenaEnemy.classList.add(defeatedBoss ? "enemy-defeated-boss" : defeatedElite ? "enemy-defeated-elite" : "enemy-defeated");
+    window.setTimeout(() => {
+      el.arenaEnemy.classList.remove("enemy-defeated", "enemy-defeated-elite", "enemy-defeated-boss");
+    }, 600);
+  }
   setPose("counter", defeatedBoss ? 1.8 : 1.1, defeatedBoss ? "보스 격파" : "우쭐");
   const bossDefeatLines = oldFloor >= 25
     ? [
@@ -3413,6 +3430,11 @@ function render() {
   // 적 HP 단계에 따라 바 색상 변화
   el.enemyHpBar.parentElement?.classList.toggle("hp-phase-low", enemyHpRate <= 0.25);
   el.enemyHpBar.parentElement?.classList.toggle("hp-phase-mid", enemyHpRate > 0.25 && enemyHpRate <= 0.5);
+  // 적 HP 낮아질수록 arenaEnemy에 dying 클래스 → CSS로 시각화
+  if (el.arenaEnemy) {
+    el.arenaEnemy.classList.toggle("enemy-dying", enemyHpRate <= 0.25);
+    el.arenaEnemy.classList.toggle("enemy-bloodied", enemyHpRate > 0.25 && enemyHpRate <= 0.5);
+  }
   el.heroHpText.textContent = `${formatNumber(state.dignity)} / ${formatNumber(stats.maxDignity)}`;
   el.heroHpBar.style.width = `${clamp(dignityRate * 100, 0, 100)}%`;
   el.castText.textContent = `${Math.max(0, state.enemy.attackTimer).toFixed(1)}초`;

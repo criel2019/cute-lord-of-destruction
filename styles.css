@@ -7994,6 +7994,58 @@ h1 {
   font-weight: 600;
   max-width: 300px;
 }
+
+/* 스플래시 핵심 개그 미리보기 */
+.splash-credit-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: min(320px, 90vw);
+  background: rgba(20, 10, 30, 0.75);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 10px;
+  padding: 10px 14px;
+  animation: splashCreditIn 0.5s 0.3s ease both;
+}
+@keyframes splashCreditIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.splash-credit-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.splash-credit-label {
+  font-size: 10px;
+  font-weight: 900;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: rgba(134,216,199,0.2);
+  color: #86d8c7;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.splash-credit-row--claim .splash-credit-label {
+  background: rgba(243,197,95,0.2);
+  color: #f3c55f;
+}
+.splash-credit-text {
+  font-size: clamp(12px, 3.5vw, 15px);
+  font-weight: 700;
+  color: rgba(232,216,240,0.85);
+}
+.splash-credit-row--claim .splash-credit-text {
+  color: #f3c55f;
+  font-weight: 900;
+}
+.splash-credit-divider {
+  text-align: center;
+  font-size: 10px;
+  color: rgba(255,255,255,0.3);
+  font-weight: 800;
+  letter-spacing: 0.1em;
+}
 .splash-hint {
   margin-top: 6px;
   font-size: 13px;

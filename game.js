@@ -100,6 +100,78 @@ let _lastDangerBeep = 0;
 let _wasAiming = false;
 let _wasDanger = false;
 
+// ── 앰비언트 BGM ──
+let _bgmNodes = null;
+let _bgmMelodyTimer = null;
+
+function startBgm() {
+  if (_bgmNodes) return;
+  const ctx = getAudioCtx();
+  if (!ctx) return;
+  try {
+    // 드론: 낮은 베이스 패드
+    const droneOsc = ctx.createOscillator();
+    const droneGain = ctx.createGain();
+    droneOsc.type = "sine";
+    droneOsc.frequency.value = 110;
+    droneGain.gain.value = 0;
+    droneOsc.connect(droneGain);
+    droneGain.connect(ctx.destination);
+    droneOsc.start();
+    droneGain.gain.linearRampToValueAtTime(0.032, ctx.currentTime + 1.5);
+
+    // 하모닉 드론
+    const drone2 = ctx.createOscillator();
+    const drone2Gain = ctx.createGain();
+    drone2.type = "triangle";
+    drone2.frequency.value = 165;
+    drone2Gain.gain.value = 0;
+    drone2.connect(drone2Gain);
+    drone2Gain.connect(ctx.destination);
+    drone2.start();
+    drone2Gain.gain.linearRampToValueAtTime(0.018, ctx.currentTime + 2.5);
+
+    _bgmNodes = { droneOsc, droneGain, drone2, drone2Gain };
+
+    // 멜로디 루프 — 마왕성 분위기 단순 음계
+    const melody = [330, 294, 330, 392, 349, 330, 294, 262];
+    let mi = 0;
+    function playMelodyNote() {
+      const c = getAudioCtx();
+      if (!c || !_bgmNodes) return;
+      const mOsc = c.createOscillator();
+      const mGain = c.createGain();
+      mOsc.type = "triangle";
+      mOsc.frequency.value = melody[mi % melody.length];
+      mGain.gain.setValueAtTime(0.038, c.currentTime);
+      mGain.gain.exponentialRampToValueAtTime(0.001, c.currentTime + 0.55);
+      mOsc.connect(mGain);
+      mGain.connect(c.destination);
+      mOsc.start(c.currentTime);
+      mOsc.stop(c.currentTime + 0.6);
+      mi++;
+      _bgmMelodyTimer = window.setTimeout(playMelodyNote, 680 + Math.random() * 120);
+    }
+    window.setTimeout(playMelodyNote, 2000);
+  } catch {}
+}
+
+function stopBgm() {
+  if (!_bgmNodes) return;
+  try {
+    const ctx = getAudioCtx();
+    if (ctx && _bgmNodes.droneGain) {
+      _bgmNodes.droneGain.gain.linearRampToValueAtTime(0, ctx.currentTime + 1);
+      _bgmNodes.drone2Gain.gain.linearRampToValueAtTime(0, ctx.currentTime + 1);
+    }
+    window.setTimeout(() => {
+      try { _bgmNodes?.droneOsc?.stop(); _bgmNodes?.drone2?.stop(); } catch {}
+      _bgmNodes = null;
+    }, 1200);
+  } catch {}
+  if (_bgmMelodyTimer) { clearTimeout(_bgmMelodyTimer); _bgmMelodyTimer = null; }
+}
+
 const el = {
   runText: $("#runText"),
   floorText: $("#floorText"),
@@ -3855,13 +3927,24 @@ if (!state.introSeen) {
       <div class="splash-inner">
         <img src="assets/mainchar_proud_clean.png" alt="마왕님" class="splash-char" />
         <div class="splash-title">귀염뽀짝 파멸의 군주</div>
-        <div class="splash-tagline">허세 마왕님이 사실 아무것도 못 하는데<br/>보좌관들이 다 해주는 클리커 RPG</div>
-        <div class="splash-quote">"짐이 한 거니라... 보좌관은 아무 관계 없느니라."</div>
+        <div class="splash-credit-preview">
+          <div class="splash-credit-row">
+            <span class="splash-credit-label">실제</span>
+            <span class="splash-credit-text">보좌관이 막음</span>
+          </div>
+          <div class="splash-credit-divider">vs</div>
+          <div class="splash-credit-row splash-credit-row--claim">
+            <span class="splash-credit-label">발표</span>
+            <span class="splash-credit-text">짐의 위엄이 막았다!</span>
+          </div>
+        </div>
+        <div class="splash-tagline">보좌관들이 다 하는데 본인이 한 척하는 클리커 RPG</div>
         <div class="splash-hint">탭해서 시작 ▶</div>
       </div>
     `;
     document.body.appendChild(splash);
     const dismiss = () => {
+      startBgm();
       splash.classList.add("splash-exit");
       window.setTimeout(() => {
         splash.remove();
@@ -3876,6 +3959,10 @@ if (!state.introSeen) {
   // 2판+ 첫 로드 시 적 이름 표시
   window.setTimeout(() => showEnemyNameBadge(state.enemy.name, state.enemy.title), 600);
 }
+
+// 첫 인터랙션 시 BGM 시작 (브라우저 autoplay 정책 우회)
+document.addEventListener("click", () => startBgm(), { once: true });
+document.addEventListener("keydown", () => startBgm(), { once: true });
 
 startMurmurLoop();
 requestAnimationFrame(update);

@@ -3588,6 +3588,21 @@ h1 {
     padding: 0;
   }
 
+  /* 모바일: intent-text 숨기고 타이머만 */
+  .intent-text {
+    display: none;
+  }
+
+  .enemy-intent-badge {
+    max-width: 36%;
+    padding: 4px 8px;
+    gap: 4px;
+  }
+
+  .enemy-header {
+    padding: 6px 10px 4px;
+  }
+
   .encounter-row {
     display: none;
   }
@@ -3603,10 +3618,11 @@ h1 {
   }
 
   .battle-readout {
-    top: 8px;
+    top: auto;
+    bottom: 12px;
     left: 8px;
     right: 8px;
-    justify-content: space-between;
+    justify-content: flex-start;
   }
 
   .boss-alert {
@@ -3617,36 +3633,42 @@ h1 {
     line-height: 1.25;
   }
 
-  .battle-readout span,
-  .battle-readout strong {
+  .battle-readout span {
     min-height: 27px;
-    max-width: 52%;
+    max-width: 80%;
     overflow: hidden;
     text-overflow: ellipsis;
-    padding: 6px 8px;
-    font-size: 10px;
+    padding: 6px 10px;
+    font-size: 11px;
+  }
+
+  .battle-readout strong {
+    display: none;
   }
 
   .throne-side {
-    left: 50%;
-    bottom: 28%;
-    width: 76%;
-    height: 52%;
+    left: 60%;
+    bottom: 18%;
+    width: 68%;
+    height: 66%;
   }
 
   .main-character {
     width: auto;
-    height: 108%;
-    max-width: 118%;
-    max-height: 300px;
+    height: 112%;
+    max-width: 120%;
+    max-height: 340px;
   }
 
   .threat-card {
-    left: 4%;
-    bottom: 4%;
-    width: 46%;
-    height: 30%;
-    padding: 7px 5px;
+    left: 3%;
+    bottom: 5%;
+    width: 38%;
+    height: 32%;
+    padding: 4px 3px;
+    background: transparent;
+    box-shadow: none;
+    border: none;
   }
 
   .arena-enemy {
@@ -3655,29 +3677,21 @@ h1 {
   }
 
   .command-station {
-    right: 3.5%;
-    bottom: 3%;
-    width: 41%;
-    min-height: 164px;
-    padding: 7px;
-    gap: 4px;
+    display: none;
   }
 
   .protect-sigil {
-    width: 46px;
-    height: 46px;
-    font-size: 24px;
+    display: none;
   }
 
   .lane-line {
     display: none;
   }
 
-  .command-station > strong,
   .enemy-side strong,
-  .demon-side strong {
-    font-size: 9.5px;
-    padding: 6px 7px;
+  .demon-side strong,
+  .command-station > strong {
+    display: none;
   }
 
   .throne-side > strong {
@@ -3746,6 +3760,16 @@ h1 {
 
   .side-panel {
     max-height: none;
+  }
+
+  /* 적 말풍선 숨김 — 모바일은 enemy-header 텍스트로 충분 */
+  .threat-card::before {
+    display: none !important;
+  }
+
+  /* arena-combat 텍스트 레이블 모두 숨김 */
+  .combatant-stat {
+    display: none;
   }
 }
 

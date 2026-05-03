@@ -6682,6 +6682,61 @@ h1 {
   100% { opacity: 0; transform: translateX(-50%) translateY(-16px) scale(0.9); }
 }
 
+/* ── 궁극기 첫 충전 팝업 ── */
+.ultimate-first-alert {
+  position: fixed;
+  top: 35%;
+  left: 50%;
+  transform: translateX(-50%) scale(0.7);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(160deg, #2a1540 0%, #1a0d28 100%);
+  border: 2px solid #f3c55f;
+  border-radius: 18px;
+  padding: 20px 32px 18px;
+  pointer-events: none;
+  z-index: 200;
+  text-align: center;
+  box-shadow: 0 0 40px rgba(243, 197, 95, 0.6), 0 4px 24px rgba(0,0,0,0.6);
+  animation: ufIn 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+.ultimate-first-alert.uf-exit {
+  animation: ufOut 0.5s ease both !important;
+}
+.uf-icon {
+  font-size: 2.2rem;
+  color: #f3c55f;
+  text-shadow: 0 0 20px rgba(243, 197, 95, 0.9);
+  animation: ufIconPulse 0.7s ease-in-out infinite;
+}
+.uf-title {
+  font-size: 1.3rem;
+  font-weight: 900;
+  color: #f3c55f;
+  letter-spacing: 0.06em;
+  text-shadow: 0 0 16px rgba(243, 197, 95, 0.6);
+}
+.uf-hint {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.75);
+  margin: 0;
+  letter-spacing: 0.05em;
+}
+@keyframes ufIn {
+  0%   { opacity: 0; transform: translateX(-50%) scale(0.6) translateY(20px); }
+  100% { opacity: 1; transform: translateX(-50%) scale(1) translateY(0); }
+}
+@keyframes ufOut {
+  0%   { opacity: 1; transform: translateX(-50%) scale(1) translateY(0); }
+  100% { opacity: 0; transform: translateX(-50%) scale(0.85) translateY(-20px); }
+}
+@keyframes ufIconPulse {
+  0%, 100% { transform: scale(1); }
+  50%       { transform: scale(1.18); }
+}
+
 /* ── combo fever 마왕님 애니 (charFever 정의는 위에 있음) ── */
 
 /* ── 체면 위험 저강도 vibrate ── */

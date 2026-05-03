@@ -835,6 +835,7 @@ const defaultState = () => ({
   _firstPerfectSeen: false,
   _idleDialogueTimer: 4.5,
   seenEnemyKinds: [],
+  firstUltimateSeen: false,
 });
 
 let state = loadState();
@@ -1355,7 +1356,12 @@ function dealEnemyDamage(amount, source = "auto", label = "") {
   const prevUltimate = state.ultimate;
   state.ultimate = clamp(state.ultimate + (source === "auto" ? 1.5 : 6) * stats.chargeGain, 0, 100);
   if (prevUltimate < 100 && state.ultimate >= 100) {
-    showToast("✦ 궁극기 준비! [궁극기] 버튼 또는 Q키를 누르세요!");
+    if (!state.firstUltimateSeen) {
+      state.firstUltimateSeen = true;
+      showUltimateFirstAlert();
+    } else {
+      showToast("✦ 궁극기 준비! 궁극기 버튼을 누르세요!");
+    }
   }
   if (source !== "auto") spawnDamage(damage, crit || source !== "auto", label);
   if (source !== "auto") spawnParticles(source === "ultimate" ? 34 : 16);
@@ -1811,8 +1817,13 @@ function enemyHits() {
   const hitCharge = 12 * stats.chargeGain + (stats.hitChargeBonus || 0);
   state.ultimate = clamp(state.ultimate + hitCharge, 0, 100);
   if (prevUltimateHit < 100 && state.ultimate >= 100) {
-    showToast("✦ 궁극기 준비! [궁극기] 버튼 또는 Q키를 누르세요!");
-    setDialogue("흐흥! 마침내 짐의 절초식을 쓸 때가 왔느니라! 궁극기 버튼을 눌러라!", "각성");
+    if (!state.firstUltimateSeen) {
+      state.firstUltimateSeen = true;
+      showUltimateFirstAlert();
+    } else {
+      showToast("✦ 궁극기 준비! 궁극기 버튼을 누르세요!");
+      setDialogue("흐흥! 마침내 짐의 절초식을 쓸 때가 왔느니라! 궁극기 버튼을 눌러라!", "각성");
+    }
   }
   playSfx("hit");
   showMissedPopup();
@@ -4552,6 +4563,24 @@ function showBossReport(floorNum, shardGain) {
   window.setTimeout(close, 5500);
 }
 
+function showUltimateFirstAlert() {
+  flashScreen("gold", 0.5);
+  playSfx("ultimate");
+  setDialogue("흐흥! 마침내 짐의 절초식을 쓸 때가 왔느니라! 아래 ✦궁극기 버튼을 눌러라!!", "각성");
+  const alert = document.createElement("div");
+  alert.className = "ultimate-first-alert";
+  alert.innerHTML = `
+    <span class="uf-icon">✦</span>
+    <strong class="uf-title">궁극기 준비 완료!</strong>
+    <p class="uf-hint">아래 ✦궁극기 버튼을 누르세요</p>
+  `;
+  document.body.appendChild(alert);
+  window.setTimeout(() => {
+    alert.classList.add("uf-exit");
+    window.setTimeout(() => alert.remove(), 500);
+  }, 2200);
+}
+
 function showFloorClearBanner(floorNum, isBoss) {
   if (isBoss) {
     const flash = document.createElement("div");
@@ -4592,7 +4621,7 @@ function showFloorClearBanner(floorNum, isBoss) {
   window.setTimeout(() => {
     banner.classList.add("floor-clear-exit");
     window.setTimeout(() => banner.remove(), 400);
-  }, isBoss ? 1800 : 900);
+  }, isBoss ? 2400 : 1100);
 }
 
 const murmurPools = {

@@ -855,13 +855,13 @@ h1 {
 .battle-readout {
   position: absolute;
   z-index: 8;
-  top: 96px;
-  left: 12px;
-  right: 12px;
+  bottom: 10px;
+  left: 10px;
+  right: 10px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
+  gap: 6px;
   pointer-events: none;
 }
 
@@ -1766,11 +1766,24 @@ h1 {
   background: linear-gradient(90deg, #f09abb, #d06898) !important;
 }
 
+/* 막기 버튼 — stage-panel flex 자식, 단독 큰 버튼 */
+.tap-main-btn {
+  width: 100%;
+  min-height: 64px !important;
+  font-size: 20px !important;
+  border-radius: 0;
+  border-left: none;
+  border-right: none;
+  border-top: 1px solid var(--game-border);
+  border-bottom: none;
+  flex-shrink: 0;
+}
+
 .command-bar {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
   gap: 6px;
-  padding: 8px 10px;
+  padding: 6px 10px 8px;
   background: var(--hud-bg);
   border-top: 1px solid var(--game-border);
   flex-shrink: 0;
@@ -1794,11 +1807,10 @@ h1 {
   font-size: 12px;
 }
 
-/* 막기 버튼 — 압도적으로 크게 (2열 차지) */
+/* 막기 버튼 기본 스타일 */
 .command-btn.rescue {
   font-size: 18px;
-  min-height: 68px;
-  grid-column: span 2;
+  min-height: 64px;
 }
 
 .command-btn:hover {
@@ -8732,14 +8744,8 @@ h1 {
 }
 
 /* 신규 유저 command-bar 단순화 */
-.command-bar.newbie-focus #tapBtn {
-  flex: 2 1 0;
-  font-size: 16px;
-}
-.command-bar.newbie-focus #ultimateBtn {
+.stage-panel.newbie-focus .command-bar #ultimateBtn {
   opacity: 0.45;
-  flex: 0.7 1 0;
-  font-size: 12px;
 }
 .command-btn.newbie-hidden {
   opacity: 0;

@@ -4120,12 +4120,9 @@ function render() {
     : (heroSprites[state.pose] || heroSprites.idle);
   if (el.mainCharacter.getAttribute("src") !== heroImage) el.mainCharacter.src = heroImage;
 
-  // 신규 유저 command-bar 단순화 — 첫 판 초반은 막기 버튼만 강조
+  // 신규 유저 단순화 — 첫 판 초반은 막기 버튼만 강조
   const isEarlyNewbie = state.run <= 1 && state.floor <= 3 && !state.firstBlockSeen;
-  const commandBar = document.querySelector(".command-bar");
-  if (commandBar) {
-    commandBar.classList.toggle("newbie-focus", isEarlyNewbie);
-  }
+  el.stagePanel.classList.toggle("newbie-focus", isEarlyNewbie);
 
   // 하단 탭 패널 잠금 상태 반영
   const bottomPanels = document.querySelector(".bottom-panels");

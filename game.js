@@ -1974,7 +1974,14 @@ function useUltimate() {
   setDialogue("흐흥, 짐이 원래 하려던 일이니라!", "각성");
   el.cutscene.classList.remove("hidden");
 
-  const slots = getEquippedPartIds().map((id) => partDefs[id]);
+  const rawSlots = getEquippedPartIds().map((id) => partDefs[id]).filter(Boolean);
+  // 파츠 없을 때 기본 컷씬 카드 사용
+  const defaultPart = {
+    role: "도입", name: "마왕의 위엄", attr: "",
+    image: "assets/mainchar_proud_clean.png",
+    caption: "흐흥, 짐이 원래 하려던 일이니라!",
+  };
+  const slots = rawSlots.length > 0 ? rawSlots : [defaultPart];
   let index = 0;
   const nextFrame = () => {
     const part = slots[index];
@@ -3859,17 +3866,9 @@ function playIntro() {
   state.introSeen = true;
   state.paused = true;
 
-  // 게임 시작 직후 핵심 개그를 즉시 맛보기
-  showCreditCut(
-    "rescue",
-    "실제: 보좌관들이 마왕님 옆에서 대기 중",
-    "발표: 짐이 전략 회의를 주재하는 중!",
-    1.8,
-  );
-
   const lines = [
-    { mood: "울먹임", text: "...흥. 저, 저게 또 짐을 혼내러 왔구나. 막기 버튼을 눌러 기력을 쌓아라!", delay: 2000 },
-    { mood: "명령", text: "적이 빨간색으로 빛나면 막기 버튼을 눌러야 한다! 기력이 높을수록 반격이 강해진다!", delay: 3600 },
+    { mood: "울먹임", text: "...흥. 저, 저게 또 짐을 혼내러 왔구나. 막기 버튼을 눌러 기력을 쌓아라!", delay: 0 },
+    { mood: "명령", text: "적이 빨간색으로 빛나면 막기 버튼을 눌러야 한다! 기력이 높을수록 반격이 강해진다!", delay: 1600 },
   ];
 
   const introTimers = [];
@@ -3931,7 +3930,7 @@ function playIntro() {
     el.tapBtn.removeEventListener("click", skipHandler);
     el.stageTap.removeEventListener("click", skipHandler);
     finishIntro();
-  }, 5500);
+  }, 3500);
 }
 
 function showLoopInfoCard() {

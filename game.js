@@ -350,19 +350,74 @@ const enemyTaunts = {
 };
 
 const idleDialogueLines = [
+  // 허세 — 기본 패턴
   { mood: "위엄", text: "흥... 짐이 허락해서 이 정도인 것이니라." },
   { mood: "허세", text: "보좌관들이 잘 하고 있는 건지 짐이 감시 중이니라." },
   { mood: "명령", text: "다들 짐의 명령을 기다리는 중이다. 짐이 원래 여기 있었느니라." },
   { mood: "위엄", text: "이 정도 적은... 짐에겐 간식 수준이니라." },
   { mood: "허세", text: "흐흥. 짐의 무공은 원래 이 정도이니라. 놀라지 마라." },
-  { mood: "울먹임", text: "사, 사실 짐도 좀 무섭긴 한데... 안 무서운 척이니라." },
   { mood: "명령", text: "보좌관들! 긴장 풀지 마라! 짐이 보고 있다!" },
   { mood: "허세", text: "짐은 원래 이런 상황쯤은 다 예측하고 있었느니라." },
   { mood: "위엄", text: "적이 떨고 있는 것이 느껴지는가? 짐의 오라 때문이니라." },
-  { mood: "울먹임", text: "...짐, 짐은 지금 전략적으로 아무것도 안 하고 있는 것이니라." },
   { mood: "허세", text: "보좌관아, 수고가 많은데 이건 다 짐의 전술이니라." },
   { mood: "명령", text: "적이 감히 짐 앞에 나타나다니... 용기는 가상하다." },
+  { mood: "허세", text: "짐이 한쪽 눈만 뜨고도 처리할 수 있는 수준이니라." },
+  { mood: "위엄", text: "짐의 패기가 이 공간 전체를 압도하고 있음을 알아라." },
+  { mood: "명령", text: "보좌관들이 알아서 하니 짐은 지휘만 하면 되느니라." },
+  { mood: "허세", text: "적이 잠깐 멈춘 것은 짐의 눈빛을 이기지 못했기 때문이니라." },
+  { mood: "위엄", text: "이 정도는 짐의 오전 수련 수준이니라. 아직 본격 아니니라." },
+  // 슬립 — 솔직한 감정이 새어나옴
+  { mood: "울먹임", text: "사, 사실 짐도 좀 무섭긴 한데... 안 무서운 척이니라." },
+  { mood: "울먹임", text: "...짐, 짐은 지금 전략적으로 아무것도 안 하고 있는 것이니라." },
+  { mood: "울먹임", text: "흑... 보좌관이 없으면 짐은... 아, 아니다. 아무것도 아니니라!" },
+  { mood: "울먹임", text: "가끔 짐도... 칭찬받고 싶을 때가 있느니라. 아닌 척이지만." },
+  { mood: "울먹임", text: "...지금 적이 짐을 째려보고 있다. 무섭지 않다고. 안 무서워." },
+  { mood: "울먹임", text: "보좌관이 막아줘서... 아, 아니! 짐이 명령해서 막은 것이니라!" },
+  { mood: "울먹임", text: "짐이 혼자였다면... 어, 어쨌든 혼자는 아니니 상관없느니라." },
+  // 해학 — 상황 인식
+  { mood: "허세", text: "짐이 지금 뭘 하고 있는 건지 궁금한가? 전부 계획이니라." },
+  { mood: "명령", text: "잘 보거라. 짐이 아무것도 안 하는 것처럼 보이겠지만... 다 계획이니라." },
+  { mood: "허세", text: "보좌관들이 분주한 것은 짐의 카리스마가 그들을 움직이기 때문이니라." },
+  { mood: "위엄", text: "짐이 여기 있는 것만으로도 전장의 분위기가 달라지느니라. 당연하지." },
+  { mood: "명령", text: "짐은 최고의 전략가니라. 현재 전략은 '기다리기'이니라. 완벽하지." },
 ];
+
+// 층수/상황별 맥락 대사 (idleDialogueLines에서 랜덤 선택 후 가끔 덮어쓰기)
+function getContextualIdleLine() {
+  const floor = state.floor || 1;
+  const dignityRate = state.dignity / (getStats().maxDignity || 100);
+  const streak = state.rescueStreak || 0;
+  // 체면 위기 시 우선
+  if (dignityRate < 0.35) {
+    return randomPick([
+      { mood: "울먹임", text: "흑흑... 이, 이건 전략적으로 체면을 낮추는 중이니라..." },
+      { mood: "울먹임", text: "체면이 좀 깎였지만... 짐은 아직 건재하다! 아마도." },
+      { mood: "명령", text: "보좌관들! 다음 공격은 반드시 막아라! 명령이니라! 제발!" },
+    ]);
+  }
+  // 연속 막기 중 허세
+  if (streak >= 3) {
+    return randomPick([
+      { mood: "허세", text: `${streak}연속 막기? 이건 당연히 짐이 예측한 것이니라. 당연하지!` },
+      { mood: "허세", text: "이 정도 연속은 짐에겐 워밍업 수준이니라. 아직 본번이 아니다." },
+    ]);
+  }
+  // 층수별 맥락
+  if (floor >= 20) {
+    return randomPick([
+      { mood: "위엄", text: "20층... 원래부터 짐이 여기 속한 존재이니라. 전설이라 불러라." },
+      { mood: "허세", text: "이 층까지 온 마왕은 짐뿐일 것이니라. 물론 보좌관들 덕분은 아니니라." },
+    ]);
+  }
+  if (floor >= 10) {
+    return randomPick([
+      { mood: "위엄", text: "10층이 넘었구나. 당연히 짐이 처음부터 계획한 것이니라." },
+      { mood: "허세", text: "적들이 강해질수록 짐의 위엄도 커지느니라. 비례하느니라." },
+    ]);
+  }
+  // 기본: 일반 idle
+  return randomPick(idleDialogueLines);
+}
 
 const enemyPool = [
   { kind: "knight", name: "솜방망이 기사", title: "일반 적", image: "assets/enemy_clicker_knight_clean.png", intent: "빠른 망치로 마왕님을 연속 가격합니다.", speedMod: 1.22, damageMod: 0.72 },
@@ -4130,18 +4185,18 @@ function update(now) {
 
     if (state.enemy.attackTimer <= 0) enemyHits();
 
-    // 아이들 마왕 혼잣말 — idle 포즈 중 3~7초마다 랜덤 대사
+    // 아이들 마왕 혼잣말 — idle 포즈 중 5~9초마다 맥락 대사
     {
       const phase = getCombatPhase(state.enemy, getStats());
       if (state.pose === "idle" && !phase.aiming && !phase.dangerReady) {
-        state._idleDialogueTimer = (state._idleDialogueTimer || 4.5) - dt;
+        state._idleDialogueTimer = (state._idleDialogueTimer || 5.0) - dt;
         if (state._idleDialogueTimer <= 0) {
-          const line = randomPick(idleDialogueLines);
+          const line = getContextualIdleLine();
           setDialogue(line.text, line.mood);
-          state._idleDialogueTimer = 3.5 + Math.random() * 3.5;
+          state._idleDialogueTimer = 5.0 + Math.random() * 4.0;
         }
       } else {
-        state._idleDialogueTimer = 2.5;
+        state._idleDialogueTimer = 3.0;
       }
     }
 

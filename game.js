@@ -1259,11 +1259,25 @@ function rescueAction() {
     showCreditCut(
       "rescue",
       timing.key === "perfect" ? "실제: 보좌관이 완벽하게 막음" : "실제: 보좌관이 대신 맞을 뻔함",
-      randomPick([
-        "발표: 짐의 위엄이 공격을 지웠느니라!",
-        "발표: 짐이 일부러 막을 기회를 준 것이니라!",
-        "발표: 보았느냐, 짐의 계획대로니라!",
-      ]),
+      timing.key === "perfect"
+        ? randomPick([
+            "발표: 짐의 완전무결한 반응속도가 막은 것이니라!",
+            "발표: 완벽? 당연하지. 짐은 항상 이 정도니라!",
+            "발표: PERFECT는 짐한테 기본이니라!",
+            "발표: 짐의 카리스마가 공격 자체를 녹였느니라!",
+          ])
+        : randomPick([
+            "발표: 짐의 위엄이 공격을 지웠느니라!",
+            "발표: 짐이 일부러 막을 기회를 준 것이니라!",
+            "발표: 보았느냐, 짐의 계획대로니라!",
+            "발표: 짐의 눈빛 하나로 적이 주춤한 것이니라!",
+            "발표: 짐이 미리 예측하고 막으라 명한 것이니라!",
+            "발표: 막힌 건 적 실력이 부족한 탓이니라!",
+            "발표: 짐의 오라가 공격을 빗나가게 한 것이니라!",
+            "발표: 짐의 기세에 눌려 적이 힘을 잃은 것이니라!",
+            "발표: 이 정도는 짐에게 재채기 수준이니라!",
+            "발표: 짐의 전략이 적의 타이밍을 완벽히 읽었느니라!",
+          ]),
       1.35,
     );
     // 적 도발에 대한 마왕 반박 대사 (막기 성공)
@@ -1319,7 +1333,12 @@ function rescueAction() {
       gainTributes((7 + state.floor * 1.8) * stats.rewardMult * comboMult, "rescue");
       dealEnemyDamage(streakBonus, "rescue", "허세 연계");
       triggerPulse("counter", 0.55);
-      showCreditCut("streak", "실제: 연속으로 보좌관이 수습함", "발표: 짐의 연속 위엄 작전 성공!", 1.45);
+      showCreditCut("streak", "실제: 연속으로 보좌관이 수습함", randomPick([
+        "발표: 짐의 연속 위엄 작전 성공!",
+        "발표: 짐이 처음부터 이렇게 계획했느니라!",
+        "발표: 연속 허세! 짐의 진정한 실력이니라!",
+        "발표: 보좌관? 무슨 보좌관? 다 짐이 한 것이니라!",
+      ]), 1.45);
       showToast(`연속 가로채기 ${state.rescueStreak}: 허세 연계가 터졌습니다.`);
     }
     if (state.enemy === targetEnemy && targetEnemy.isBoss) {
@@ -1438,6 +1457,12 @@ function enemyHits() {
       "발표: 방금 건 전략적 피격이니라!",
       "발표: 적의 힘을 시험해 본 것뿐이니라!",
       "발표: 짐은 아직 전혀 아프지 않느니라!",
+      "발표: 일부러 맞아줌으로써 적을 방심시킨 것이니라!",
+      "발표: 짐은 약점 따위 없느니라. 그냥 자비를 베푼 것뿐!",
+      "발표: 짐의 체면은 여전히 완벽하니라!",
+      "발표: 아픈 게 아니라 감동받은 것이니라!",
+      "발표: 방금 건 짐이 연구 목적으로 맞아본 것이니라!",
+      "발표: 적이 감히 짐을 건드리다니, 무례함에 기절한 것이니라!",
     ]),
     1.45,
   );
@@ -3770,9 +3795,11 @@ if (!state.introSeen) {
     splash.className = "game-splash";
     splash.innerHTML = `
       <div class="splash-inner">
+        <img src="assets/mainchar_proud_clean.png" alt="마왕님" class="splash-char" />
         <div class="splash-title">귀염뽀짝 파멸의 군주</div>
         <div class="splash-tagline">허세 마왕님이 사실 아무것도 못 하는데<br/>보좌관들이 다 해주는 클리커 RPG</div>
-        <div class="splash-hint">탭해서 시작</div>
+        <div class="splash-quote">"짐이 한 거니라... 보좌관은 아무 관계 없느니라."</div>
+        <div class="splash-hint">탭해서 시작 ▶</div>
       </div>
     `;
     document.body.appendChild(splash);

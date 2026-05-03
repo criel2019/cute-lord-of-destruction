@@ -4203,8 +4203,8 @@ function playIntro() {
   state.paused = true;
 
   const lines = [
-    { mood: "울먹임", text: "...흥. 저, 저게 또 짐을 혼내러 왔구나. 막기 버튼을 눌러 기력을 쌓아라!", delay: 0 },
-    { mood: "명령", text: "적이 빨간색으로 빛나면 막기 버튼을 눌러야 한다! 기력이 높을수록 반격이 강해진다!", delay: 1600 },
+    { mood: "울먹임", text: "...흥. 저, 저게 또 짐을 혼내러 왔구나! 보좌관들, 대신 좀 막아줘... 아니, 짐이 막을 것이니라!", delay: 0 },
+    { mood: "명령", text: "빨간 불이 들어오면 누르면 된다! 기력이 높을수록 반격이 강해지니라! (짐은 지시만 하는 것이니라)", delay: 1600 },
   ];
 
   const introTimers = [];
@@ -4274,21 +4274,19 @@ function showLoopInfoCard() {
   card.className = "loop-info-card";
   card.innerHTML = `
     <div class="loop-info-row">
-      <span class="loop-step">① 막기 클릭</span>
+      <span class="loop-step">① 탭 → 기력 충전</span>
       <span class="loop-arrow">→</span>
-      <span class="loop-step">② 기력 쌓기</span>
+      <span class="loop-step">② 빨간 불 시 막기</span>
       <span class="loop-arrow">→</span>
-      <span class="loop-step">③ 위험 시 막기</span>
-      <span class="loop-arrow">→</span>
-      <span class="loop-step highlight">💥 강한 반격!</span>
+      <span class="loop-step highlight">💥 보좌관이 반격!</span>
     </div>
-    <span class="loop-info-sub">기력이 높을수록 반격이 더 강해집니다</span>
+    <span class="loop-info-sub">실제: 보좌관이 다 함 / 발표: 짐의 위엄이 막았느니라!</span>
   `;
   document.body.appendChild(card);
   window.setTimeout(() => {
     card.classList.add("loop-info-exit");
     window.setTimeout(() => card.remove(), 400);
-  }, 4000);
+  }, 4500);
 }
 
 function getTraitClaimLine(trait) {

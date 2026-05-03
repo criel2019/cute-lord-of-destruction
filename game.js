@@ -4125,6 +4125,21 @@ function render() {
   renderStageReward();
   renderTraits();
   renderRunUpgrades();
+  // 강화 탭에서 위협 발생 시 경고 배너 표시
+  const upgradeTabActive = document.querySelector('.tab-btn[data-tab="upgrade"]')?.classList.contains("active");
+  let upgradeWarnBanner = document.getElementById("upgradeWarnBanner");
+  if (upgradeTabActive && (dangerReady || (phase.aiming && Math.max(0, state.enemy.attackTimer) <= 1.8))) {
+    if (!upgradeWarnBanner) {
+      upgradeWarnBanner = document.createElement("div");
+      upgradeWarnBanner.id = "upgradeWarnBanner";
+      upgradeWarnBanner.className = "upgrade-warn-banner";
+      document.getElementById("tabUpgrade")?.prepend(upgradeWarnBanner);
+    }
+    upgradeWarnBanner.textContent = dangerReady ? "⚡ 지금 막아! 적이 공격 중!" : "⏱ 막기 준비! 곧 공격이 들어옵니다!";
+    upgradeWarnBanner.classList.toggle("danger", dangerReady);
+  } else if (upgradeWarnBanner) {
+    upgradeWarnBanner.remove();
+  }
   // 환생 버튼에 예상 파편 수 표시 (floor 변경 시만 갱신)
   if (el.reincarnateBtn && state.run >= 1) {
     const gainKey = `gain:${state.floor}:${Math.floor(state.tributes)}`;

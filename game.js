@@ -2109,7 +2109,7 @@ function defeatEnemy() {
         : ["저, 저기... 보스가 나타났습니다! 짐은 당연히 알고 있었느니라!", "흐, 흠. 보스라고 해도 짐의 위엄 앞엔 소용없느니라."];
       window.setTimeout(() => {
         setDialogue(randomPick(bossFloorLines), "긴장");
-        showBossTitleOverlay(bossName, bossIntent);
+        showBossTitleOverlay(bossName, bossIntent, state.enemy?.image);
         // 보스 등장 시 강화 탭으로 자동 전환 후 2.5초 뒤 원래대로
         if (state.sideUnlocked) {
           switchTab("upgrade");
@@ -3892,10 +3892,12 @@ function showBlockBurst(timingKey) {
   window.setTimeout(() => burst.remove(), 700);
 }
 
-function showBossTitleOverlay(bossName, bossIntent) {
+function showBossTitleOverlay(bossName, bossIntent, bossImage) {
   const overlay = document.createElement("div");
   overlay.className = "boss-title-overlay";
+  const imgHtml = bossImage ? `<img src="${bossImage}" alt="" class="boss-title-img" />` : "";
   overlay.innerHTML = `
+    ${imgHtml}
     <div class="boss-title-name">${bossName}</div>
     <div class="boss-title-line"></div>
     <div class="boss-title-sub">${bossIntent}</div>

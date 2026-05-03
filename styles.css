@@ -6253,10 +6253,19 @@ h1 {
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 4px;
   pointer-events: none;
   z-index: 90;
   background: radial-gradient(ellipse at center, rgba(44,15,44,0.55) 0%, transparent 70%);
   animation: bossTitleFade 2200ms ease both;
+}
+.boss-title-img {
+  width: clamp(80px, 20vw, 140px);
+  height: auto;
+  object-fit: contain;
+  margin-bottom: 8px;
+  filter: drop-shadow(0 0 24px rgba(242,99,99,0.7)) drop-shadow(0 0 8px rgba(255,80,80,0.5));
+  animation: bossTitleSlide 2200ms ease both;
 }
 @keyframes bossTitleFade {
   0%   { opacity: 0; }

@@ -3887,9 +3887,9 @@ h1 {
   display: flex;
   align-items: center;
   gap: 8px;
-  min-height: 30px;
-  padding: 4px 12px;
-  background: rgba(14, 10, 18, 0.85);
+  min-height: 32px;
+  padding: 5px 12px;
+  background: rgba(14, 10, 18, 0.9);
   border-top: 1px solid var(--game-border);
   flex-shrink: 0;
 }
@@ -3904,7 +3904,7 @@ h1 {
 
 .stage-reward-copy span {
   color: var(--rose);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 900;
   flex-shrink: 0;
 }

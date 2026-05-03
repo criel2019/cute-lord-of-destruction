@@ -824,18 +824,19 @@ function makeEnemy(floor) {
   const data = pool[Math.floor((floor * 1.7 + state.run) % pool.length)];
   // 11층 이상: 일반 적이 엘리트화 (33% 확률)
   const isElite = !isBoss && floor >= 11 && Math.random() < 0.33;
-  // 1층 잡몹 HP: 막기 버튼 누르면 빠르게 죽는 것을 체감하게 — 너무 높으면 첫 경험이 답답함
+  // 잡몹 HP — 막기 반격 한 방에 확실히 죽는 느낌 유지
   const hpBase = 44 + floor * 18 + Math.pow(floor, 1.15) * 7;
-  const hpMod = (!isBoss && floor === 1 && state.run <= 1) ? 1.35 : 1;
-  const maxHp = Math.round(hpBase * hpMod * (isBoss ? 2.1 + floor * 0.018 : 1));
+  const maxHp = Math.round(hpBase * (isBoss ? 2.1 + floor * 0.018 : 1));
   const speedMod = (!isBoss && data.speedMod) ? data.speedMod : 1;
   const baseAttackMax = Math.max(isBoss ? 7.8 : 5.2, (isBoss ? 8.8 : 6.4) - floor * 0.01);
-  const attackMax = isBoss ? baseAttackMax : Math.max(3.4, baseAttackMax / speedMod);
-  const firstAttackDelay = isBoss ? 1.0 : 0.6;
-  // 1층 첫 적: 빠르게 첫 공격 → 유저가 바로 가로채기 메카닉 경험
+  // 초반(1~3층) 잡몹 공격 주기를 cap — 인터랙션 밀도 높여서 지루하지 않게
+  const rawAttackMax = isBoss ? baseAttackMax : Math.max(3.0, baseAttackMax / speedMod);
+  const attackMax = (!isBoss && floor <= 3) ? Math.min(rawAttackMax, 3.8) : rawAttackMax;
+  const firstAttackDelay = isBoss ? 1.0 : 0.5;
+  // 1층 첫 적: 3초 후 첫 공격 → 슬로모션 튜토리얼과 연동
   const firstAttackTimer = (!isBoss && floor === 1 && state.run <= 1)
     ? 3.0
-    : Math.max(attackMax + firstAttackDelay, isBoss ? 5.2 : 4.2);
+    : Math.max(attackMax + firstAttackDelay, isBoss ? 5.2 : 3.6);
   return {
     ...data,
     image: (isBoss ? cleanBossImages[data.kind] : cleanEnemyImages[data.kind]) || data.image,
@@ -891,6 +892,7 @@ let _lastEnemyFloor = -1;
 function ensureEnemy() {
   if (!state.enemy) {
     state.enemy = makeEnemy(state.floor);
+    state._aimTapCount = 0;
     if (state.floor !== _lastEnemyFloor) {
       _lastEnemyFloor = state.floor;
       const flavor = floorFlavors[state.floor];
@@ -1319,6 +1321,9 @@ function rescueAction() {
         showToast("🎉 첫 가로채기 성공! 적이 공격할 때(빨간불) 막으면 됩니다!");
         setDialogue("흐흥! 봤느냐! 짐의 보좌관이... 아니, 짐의 위엄으로 막은 것이니라!", "허세");
       }, 400);
+      window.setTimeout(() => {
+        showToast("💡 아래 [강화] 탭에서 공물로 보좌관을 강화할 수 있습니다!");
+      }, 2800);
     }
     state.floorInterceptCount = (state.floorInterceptCount || 0) + 1;
     state.runInterceptTotal = (state.runInterceptTotal || 0) + 1;
@@ -1486,12 +1491,19 @@ function rescueAction() {
     ]), "긴장");
     gainTributes((0.35 + state.floor * 0.08) * stats.rewardMult, "click");
     shakeScreen(0.4);
-    showToast(`조준 중 — 기력 +4% 쌓임. ${stats.timingWindow.toFixed(1)}초 안에 막으세요!`);
+    // aiming 탭은 토스트 자제 — 처음 두 번만 힌트
+    const aimTaps = (state._aimTapCount = (state._aimTapCount || 0) + 1);
+    if (aimTaps <= 2) {
+      showToast(`조준 중 — ${stats.timingWindow.toFixed(1)}초 안에 막으세요!`);
+    }
     return;
   }
 
-  // 기력 충전 클릭 횟수 추적 — 힌트 제거용
+  // 기력 충전 클릭 횟수 추적
   state._prepClickCount = (state._prepClickCount || 0) + 1;
+  if (state._prepClickCount === 1 && state.run <= 1) {
+    window.setTimeout(() => showToast("기력을 쌓는 중! 적이 공격할 때(빨간 버튼) 막으면 기력만큼 더 강하게 반격!"), 300);
+  }
   playSfx("click");
   setPose("proud", 0.58, "명령");
   triggerPulse("assist", 0.3);
@@ -2945,9 +2957,10 @@ function render() {
   el.prepBar.style.setProperty("--prep-multiplier-text", `"x${prepMult.toFixed(2)}"`);
   el.prepBar.closest(".prep-gauge")?.classList.toggle("prep-charged", prepRate >= 70);
   const enemyLowHp = state.enemy && state.enemy.hp / state.enemy.maxHp <= 0.25;
+  const aimSecs = Math.max(0, state.enemy.attackTimer);
   el.tapLabel.textContent = dangerReady
     ? nextStreakBonus ? "⚡ 연속 막기!" : "★ 지금 막아!"
-    : phase.aiming ? "⏱ 막을 준비!"
+    : phase.aiming ? (aimSecs <= 1.2 ? "⚠ 곧 온다! 준비!" : "⏱ 막을 준비!")
     : dignityCritical ? "🚨 위기! 막아!"
     : enemyLowHp ? "💥 마무리!"
     : prepRate < 30 ? "탭 — 보좌관 준비!"
@@ -2967,6 +2980,7 @@ function render() {
   el.autoPowerText.textContent = dangerReady ? "위험!" : phase.aiming ? "조준 감지" : state.rescueStreak ? `연속 ${state.rescueStreak}회` : `자동 ${formatNumber(stats.autoDamage * stats.autoSpeed * stats.autoTempo)}/s`;
   el.tapBtn.classList.toggle("danger-ready", dangerReady);
   el.tapBtn.classList.toggle("watching", phase.aiming);
+  el.tapBtn.classList.toggle("near-aim", phase.aiming && aimSecs <= 1.2 && !dangerReady);
   el.tapBtn.classList.toggle("assist-ready", !dangerReady && !phase.aiming && prepRate < 100);
   el.tapBtn.classList.toggle("finish-ready", !dangerReady && enemyLowHp);
   // 기력 단계별 버튼 시각 강화
@@ -3068,7 +3082,7 @@ function render() {
   }
   const buyableCount = state.sideUnlocked ? runUpgradeDefs.filter(u => state.tributes >= getRunUpgradeCost(u)).length : 0;
   const canAffordUpgrade = buyableCount > 0;
-  // 공물이 늘어서 새로 구매 가능해졌을 때 HUD 바운스
+  // 공물이 늘어서 새로 구매 가능해졌을 때 HUD 바운스 + 최초 1회 힌트
   {
     const prev = el.tributeText._lastVal;
     if (state.tributes !== prev) {
@@ -3079,6 +3093,10 @@ function render() {
         if (chip && !chip.classList.contains("tribute-bounce")) {
           chip.classList.add("tribute-bounce");
           window.setTimeout(() => chip.classList.remove("tribute-bounce"), 600);
+        }
+        if (!state._firstUpgradeHintSeen && state.run <= 1) {
+          state._firstUpgradeHintSeen = true;
+          window.setTimeout(() => showToast("🔸 강화 가능! 아래 [강화] 탭을 눌러보세요!"), 200);
         }
       }
     }

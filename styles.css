@@ -4766,6 +4766,20 @@ h1 {
   border-color: rgba(243, 197, 95, 0.78);
 }
 
+.command-btn.primary.near-aim {
+  color: #2c1910;
+  background:
+    linear-gradient(90deg, rgba(255, 200, 80, 0.95), rgba(240, 154, 100, 0.9)),
+    #ffc850;
+  border-color: rgba(255, 160, 40, 0.9);
+  animation: nearAimPulse 480ms ease-in-out infinite;
+}
+
+@keyframes nearAimPulse {
+  0%, 100% { box-shadow: 0 0 0 2px rgba(255, 160, 40, 0.5), 0 0 12px rgba(255, 160, 40, 0.4); }
+  50% { box-shadow: 0 0 0 4px rgba(255, 160, 40, 0.7), 0 0 20px rgba(255, 160, 40, 0.5); }
+}
+
 .command-btn.primary.danger-ready {
   color: #fffaf4;
   background:

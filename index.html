@@ -135,6 +135,30 @@
                 <strong id="clickPowerText" class="click-power-inline">반격 x1.00</strong>
               </div>
             </div>
+            <!-- 체면/궁극기 — main-stage 안 absolute 오버레이 (flex 공간 차지 안 함) -->
+            <div class="stage-bottom-meters">
+              <div class="sbm-row">
+                <span class="sbm-icon">♥</span>
+                <div class="meter dignity-meter" aria-label="마왕 체면">
+                  <span id="heroHpBar"></span>
+                </div>
+                <span class="sbm-value" id="heroHpText">100/100</span>
+                <span class="sbm-label" id="dignityText">100%</span>
+              </div>
+              <div class="sbm-row">
+                <span class="sbm-icon">✦</span>
+                <div class="meter ultimate-meter" aria-label="궁극기 충전">
+                  <span id="ultimateBar"></span>
+                </div>
+                <span class="sbm-value" id="ultimateInlineText">0%</span>
+                <span class="sbm-label" id="ultimateText">궁극기</span>
+              </div>
+            </div>
+            <!-- 마왕 대사 — main-stage 안 absolute 오버레이 -->
+            <div class="dialogue-box">
+              <span id="moodText">울먹임</span>
+              <strong id="dialogueText">흥... 짐은 하나도 무섭지 않으니라.</strong>
+            </div>
             <img src="assets/scene_rescue.png" alt="" class="scene-overlay hidden" id="sceneOverlay" />
             <div class="credit-cut hidden" id="creditCut" aria-live="polite">
               <span id="creditTruth">실제: 보좌관이 막음</span>
@@ -145,32 +169,6 @@
             <span id="damageLayer" class="damage-layer" aria-hidden="true"></span>
             <span id="particleLayer" class="particle-layer" aria-hidden="true"></span>
           </button>
-
-          <!-- 체면/궁극기 — 스테이지 하단 오버레이 바 -->
-          <div class="stage-bottom-meters">
-            <div class="sbm-row">
-              <span class="sbm-icon">♥</span>
-              <div class="meter dignity-meter" aria-label="마왕 체면">
-                <span id="heroHpBar"></span>
-              </div>
-              <span class="sbm-value" id="heroHpText">100/100</span>
-              <span class="sbm-label" id="dignityText">100%</span>
-            </div>
-            <div class="sbm-row">
-              <span class="sbm-icon">✦</span>
-              <div class="meter ultimate-meter" aria-label="궁극기 충전">
-                <span id="ultimateBar"></span>
-              </div>
-              <span class="sbm-value" id="ultimateInlineText">0%</span>
-              <span class="sbm-label" id="ultimateText">궁극기</span>
-            </div>
-          </div>
-
-          <!-- 마왕 대사 -->
-          <div class="dialogue-box">
-            <span id="moodText">울먹임</span>
-            <strong id="dialogueText">흥... 짐은 하나도 무섭지 않으니라.</strong>
-          </div>
 
           <!-- 다음 목표 (접힌 형태) -->
           <div class="stage-reward-strip" aria-live="polite">

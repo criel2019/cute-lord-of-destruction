@@ -636,7 +636,6 @@ h1 {
 }
 
 .encounter-row,
-.dialogue-box,
 .meter-stack,
 .command-bar {
   position: relative;
@@ -1494,6 +1493,11 @@ h1 {
 }
 
 .dialogue-box {
+  position: absolute;
+  bottom: 76px;
+  left: 0;
+  right: 0;
+  z-index: 7;
   min-height: 0;
   padding: 5px 14px;
   color: #fff;
@@ -1502,8 +1506,8 @@ h1 {
   display: flex;
   align-items: center;
   gap: 8px;
-  flex-shrink: 0;
   overflow: hidden;
+  pointer-events: none;
 }
 
 .dialogue-box span {
@@ -1539,16 +1543,19 @@ h1 {
 .bar-line strong { font-size: 11px; color: var(--game-text-dim); }
 .bar-line span { color: var(--game-text-dim); font-size: 10px; font-weight: 800; }
 
-/* 체면/궁극기 하단 오버레이 바 */
+/* 체면/궁극기 하단 오버레이 바 — main-stage 안 absolute */
 .stage-bottom-meters {
-  position: relative;
-  z-index: 3;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 6;
   padding: 6px 10px 8px;
   display: flex;
   flex-direction: column;
   gap: 5px;
   background: linear-gradient(0deg, rgba(14,10,18,0.88) 0%, transparent 100%);
-  flex-shrink: 0;
+  pointer-events: none;
 }
 
 .sbm-row {

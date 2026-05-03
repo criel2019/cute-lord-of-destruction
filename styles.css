@@ -2342,6 +2342,7 @@ h1 {
 
 .choice-card,
 .upgrade-card {
+  position: relative;
   min-height: 176px;
   padding: 14px;
   display: grid;
@@ -2373,9 +2374,28 @@ h1 {
 .choice-card[data-rarity="A"] .rarity-pill {
   background: var(--mint);
 }
+.choice-card[data-rarity="A"] {
+  border-color: rgba(134, 216, 199, 0.45);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.3), 0 0 0 1px rgba(134,216,199,0.2);
+}
 
 .choice-card[data-rarity="S"] .rarity-pill {
   background: var(--gold);
+}
+.choice-card[data-rarity="S"] {
+  border-color: rgba(243, 197, 95, 0.6);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.3), 0 0 0 1px rgba(243,197,95,0.3), 0 0 18px rgba(243,197,95,0.15);
+  background: linear-gradient(135deg, rgba(243,197,95,0.08) 0%, rgba(255,255,255,0.04) 100%);
+}
+.choice-card[data-rarity="S"]::before {
+  content: "✦";
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  font-size: 10px;
+  color: var(--gold);
+  opacity: 0.7;
+  pointer-events: none;
 }
 
 .card-tag {

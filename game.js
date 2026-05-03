@@ -2279,7 +2279,14 @@ function defeatEnemy() {
       const nextBossName = nextBossData?.name || "강력한 보스";
       window.setTimeout(() => {
         showToast(`⚠ 다음 층 보스: ${nextBossName}! 격파 시 파편 +${expectedShards}. 기력 70% 이상으로 준비하세요.`);
-        setDialogue(`저, 저기... 다음은 ${nextBossName}이 온다는 걸 짐이 이미 알았느니라! 준비됐느니라!`, "긴장");
+        // 궁극기 상태에 따른 전략 힌트 대사
+        const ultPct = Math.round(state.ultimate || 0);
+        const preBossDialogue = ultPct >= 100
+          ? `궁극기가 꽉 찼느니라! ${nextBossName}에게 즉시 날릴 준비 완료! (보좌관이 만든 것이니라)`
+          : ultPct >= 60
+          ? `좋다. 이 층에서 궁극기(${ultPct}%)를 채우면 ${nextBossName}에게 첫 타로 퍼부을 수 있느니라!`
+          : `흠, 궁극기가 ${ultPct}%밖에 안 됐구나. 보좌관들아, 이 층에서 기력을 채워 막기를 많이 해라!`;
+        setDialogue(preBossDialogue, ultPct >= 100 ? "각성" : "긴장");
         // 다음 보스 이름 배너 잠깐 표시
         const bossTeaser = document.createElement("div");
         bossTeaser.className = "boss-teaser-banner";
@@ -2460,7 +2467,19 @@ function openChoice(reason) {
   if (state.choiceOpen || state.partChoiceOpen || state.cutscenePlaying) return;
   state.choiceOpen = true;
   state.paused = true;
-  el.choiceReason.textContent = `${reason}: 이번 판의 허세를 강화합니다.`;
+  // 현재 빌드 방향에 따른 안내 맞춤화
+  const _tag = state.activeBuildTag || "";
+  const _choiceHints = {
+    "반격": "반격 빌드 유지 추천 — 타이밍 막기가 3배 강해집니다",
+    "방치": "방치 빌드 추천 — 탭 없이도 자동공격이 강해집니다",
+    "궁극기": "궁극기 빌드 — 자동은 느리지만 궁극기 한 방이 터집니다",
+    "생존": "생존 빌드 — 맞아도 오히려 강해지는 빌드입니다",
+    "치명": "치명타 빌드 — 랜덤하지만 터지면 엄청납니다",
+    "보스": "보스 특화 — 다음 보스전에 확실히 강해집니다",
+    "계승": "콤보 눈덩이 — 연속 막기를 유지할수록 폭발합니다",
+  };
+  const hintSuffix = _tag && _choiceHints[_tag] ? ` · ${_choiceHints[_tag]}` : " · 첫 선택이 빌드 방향을 결정합니다";
+  el.choiceReason.textContent = `${reason}${hintSuffix}`;
   el.choiceGrid.innerHTML = "";
   const styleHints = {
     "방치": "👾 그냥 두면 됨 — 클릭 안 해도 강함",

@@ -402,8 +402,8 @@ h1 {
 
 .boss-alert {
   position: absolute;
-  z-index: 8;
-  top: 126px;
+  z-index: 18;
+  top: 8px;
   left: 50%;
   transform: translateX(-50%) translateY(-150%);
   width: min(620px, calc(100% - 28px));
@@ -646,13 +646,18 @@ h1 {
 .encounter-row { display: none; }
 .enemy-portrait { display: none; }
 
-/* 적 이름 오버레이 (스테이지 상단) */
+/* 적 이름 오버레이 — main-stage 안 absolute */
 .enemy-header {
-  position: relative;
-  z-index: 3;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 9;
   padding: 8px 12px 4px;
   display: flex;
   align-items: flex-start;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(14,10,18,0.7) 0%, transparent 100%);
   justify-content: space-between;
   gap: 8px;
   background: linear-gradient(180deg, rgba(14,10,18,0.9) 0%, transparent 100%);
@@ -779,15 +784,18 @@ h1 {
   50% { box-shadow: 0 0 20px rgba(242, 99, 99, 0.8); }
 }
 
-/* 스테이지 상단 게이지 묶음 */
+/* 스테이지 게이지 — main-stage 안 absolute, enemy-header 아래 */
 .stage-meters {
-  position: relative;
-  z-index: 3;
-  padding: 0 10px 6px;
+  position: absolute;
+  top: 52px;
+  left: 0;
+  right: 0;
+  z-index: 9;
+  padding: 0 10px 4px;
   display: flex;
   flex-direction: column;
   gap: 3px;
-  flex-shrink: 0;
+  pointer-events: none;
 }
 
 .stage-meter {
@@ -847,7 +855,7 @@ h1 {
 .battle-readout {
   position: absolute;
   z-index: 8;
-  top: 12px;
+  top: 96px;
   left: 12px;
   right: 12px;
   display: flex;
@@ -1503,7 +1511,7 @@ h1 {
   z-index: 3;
   flex-shrink: 0;
   min-height: 0;
-  padding: 5px 14px;
+  padding: 4px 12px;
   color: #fff;
   background: linear-gradient(135deg, rgba(20, 10, 30, 0.98), rgba(60, 30, 80, 0.94));
   border-top: 1px solid var(--game-border);
@@ -1760,7 +1768,7 @@ h1 {
 
 .command-bar {
   display: grid;
-  grid-template-columns: 3fr 1.5fr 0.85fr 0.75fr;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
   gap: 6px;
   padding: 8px 10px;
   background: var(--hud-bg);
@@ -1769,7 +1777,7 @@ h1 {
 }
 
 .command-btn {
-  min-height: 62px;
+  min-height: 56px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 8px;
   color: var(--game-text);
@@ -1786,10 +1794,11 @@ h1 {
   font-size: 12px;
 }
 
-/* 막기 버튼 — 전체 높이 더 크게, 폰트 강조 */
+/* 막기 버튼 — 압도적으로 크게 (2열 차지) */
 .command-btn.rescue {
-  font-size: 16px;
+  font-size: 18px;
   min-height: 68px;
+  grid-column: span 2;
 }
 
 .command-btn:hover {

@@ -190,6 +190,29 @@ function stopBgm() {
   _bgmNodes = null;
 }
 
+let _bgmIsBoss = false;
+function setBgmBossMode(isBoss) {
+  if (_bgmIsBoss === isBoss) return;
+  _bgmIsBoss = isBoss;
+  if (!_bgmNodes) return;
+  const ctx = getAudioCtx();
+  if (!ctx) return;
+  try {
+    const now = ctx.currentTime;
+    if (isBoss) {
+      // 보스전: 드론 반음 올림 + 볼륨 살짝 증가 → 긴장감
+      _bgmNodes.droneOsc.frequency.linearRampToValueAtTime(130, now + 1.2);
+      _bgmNodes.drone2.frequency.linearRampToValueAtTime(196, now + 1.2);
+      _bgmNodes.master.gain.linearRampToValueAtTime(1.3, now + 1.2);
+    } else {
+      // 일반전: 원래대로
+      _bgmNodes.droneOsc.frequency.linearRampToValueAtTime(110, now + 1.5);
+      _bgmNodes.drone2.frequency.linearRampToValueAtTime(165, now + 1.5);
+      _bgmNodes.master.gain.linearRampToValueAtTime(1.0, now + 1.5);
+    }
+  } catch {}
+}
+
 const el = {
   runText: $("#runText"),
   floorText: $("#floorText"),
@@ -3118,6 +3141,7 @@ function render() {
   el.stagePanel.classList.toggle("combo-hot", (state.rescueStreak || 0) >= 3);
   el.stagePanel.classList.toggle("combo-fever", (state.rescueStreak || 0) >= 7);
   el.stagePanel.classList.toggle("is-boss", state.enemy.isBoss);
+  setBgmBossMode(state.enemy.isBoss);
   el.stagePanel.classList.toggle("low-dignity", dignityCritical);
   el.stagePanel.classList.toggle("dignity-crisis", dignityRate <= 0.2);
   const bossFinishing = state.enemy.isBoss && state.enemy.hp / state.enemy.maxHp <= 0.25;

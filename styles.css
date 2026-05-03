@@ -8237,3 +8237,30 @@ h1 {
   from { opacity: 1; transform: translate(-50%, -50%) scale(1); }
   to   { opacity: 0; transform: translate(-50%, calc(-50% - 10px)) scale(0.95); }
 }
+
+/* 빠른 탭 콤보 팝업 */
+.tap-combo-popup {
+  position: absolute;
+  top: 42%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-8px);
+  z-index: 60;
+  font-size: 13px;
+  font-weight: 900;
+  color: #86d8c7;
+  text-shadow: 0 0 8px rgba(134,216,199,0.7);
+  pointer-events: none;
+  white-space: nowrap;
+  animation: tcpRise 0.25s ease both;
+}
+.tap-combo-popup.tcp-exit {
+  animation: tcpFade 0.3s ease both;
+}
+@keyframes tcpRise {
+  from { opacity: 0; transform: translateX(-50%) translateY(0px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(-8px); }
+}
+@keyframes tcpFade {
+  from { opacity: 1; }
+  to   { opacity: 0; transform: translateX(-50%) translateY(-18px); }
+}

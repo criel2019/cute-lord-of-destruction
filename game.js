@@ -1541,13 +1541,41 @@ function rescueAction() {
     setDialogue("오! 시작하는구나! 보좌관들, 준비해라! 짐이 지켜보고 있겠느니라!", "명령");
     window.setTimeout(() => showToast("기력을 쌓는 중! 적이 공격할 때(빨간 버튼) 막으면 기력만큼 더 강하게 반격!"), 300);
   }
+
+  // 빠른 연속 탭 콤보 — 리듬감 있는 클릭에 보너스
+  const now_tap = performance.now();
+  const tapGap = now_tap - (state._lastTapTs || 0);
+  state._lastTapTs = now_tap;
+  if (tapGap < 450) {
+    state._tapCombo = (state._tapCombo || 0) + 1;
+  } else {
+    state._tapCombo = 0;
+  }
+  const tapCombo = state._tapCombo;
+
   playSfx("click");
   setPose("proud", 0.58, "명령");
   triggerPulse("assist", 0.3);
   const prepBefore = state.prep || 0;
   const ragePrepMult = state.rageTimer > 0 ? 2.0 : 1;
   const evPrepMult = state.floorEvent?.prepMult || 1;
-  const gainedPrep = addPrep((11 + state.floor * 0.28) * ragePrepMult * evPrepMult, true);
+  // 콤보 보너스: 4탭+ 연속 시 +15%, 8탭+ 연속 시 +30%
+  const comboBonus = tapCombo >= 8 ? 1.3 : tapCombo >= 4 ? 1.15 : 1;
+  const gainedPrep = addPrep((11 + state.floor * 0.28) * ragePrepMult * evPrepMult * comboBonus, true);
+
+  // 콤보 달성 피드백
+  if (tapCombo === 4) {
+    spawnParticles(14);
+    showTapComboPopup(4);
+  } else if (tapCombo === 8) {
+    spawnParticles(24);
+    flashScreen("mint", 0.18);
+    showTapComboPopup(8);
+    setDialogue("훌륭하다! 보좌관들의 박자가 맞아가고 있느니라!", "허세");
+  } else if (tapCombo > 8 && tapCombo % 4 === 0) {
+    spawnParticles(12);
+    showTapComboPopup(tapCombo);
+  }
   if (gainedPrep > 0 && state.prep >= 100 && prepBefore < 100) {
     showToast("기력 MAX! 이제 적이 공격할 때 막으세요!");
     flashScreen("mint", 0.3);
@@ -1562,6 +1590,20 @@ function rescueAction() {
   state.ultimate = clamp(state.ultimate + 6 * stats.chargeGain, 0, 100);
   gainTributes((1 + state.floor * 0.32) * stats.rewardMult, "click");
   dealEnemyDamage(stats.assistDamage * 0.62, "assist", "보좌");
+}
+
+function showTapComboPopup(count) {
+  const existing = document.querySelector(".tap-combo-popup");
+  if (existing) existing.remove();
+  const pop = document.createElement("div");
+  pop.className = "tap-combo-popup";
+  const label = count >= 8 ? `${count}연속! +30%` : `${count}연속! +15%`;
+  pop.textContent = label;
+  el.stagePanel?.appendChild(pop);
+  window.setTimeout(() => {
+    pop.classList.add("tcp-exit");
+    window.setTimeout(() => pop.remove(), 300);
+  }, 900);
 }
 
 function showMissedPopup() {

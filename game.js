@@ -3594,24 +3594,43 @@ function renderParts() {
   if (renderCache.parts === key) return;
   renderCache.parts = key;
 
-  el.partSlots.innerHTML = ids
-    .map((id, index) => {
-      const part = partDefs[id];
+  if (ids.length === 0) {
+    el.partSlots.innerHTML = partSlotDefs.map((slot, i) => {
+      const nextBoss = Math.ceil(state.floor / 5) * 5;
+      const hint = i === 0 ? `${nextBoss}F 보스 처치로 획득` : `보스 처치 후 선택`;
       return `
-        <div class="part-card">
-          <div class="part-thumb">
-            <span class="part-level">Lv.${getPartLevel(id)}</span>
-            <img src="${part.image}" alt="" />
+        <div class="part-card part-card--locked">
+          <div class="part-thumb part-thumb--empty">
+            <span class="part-lock-icon">🔒</span>
           </div>
           <div class="part-body">
-            <span class="enemy-label">${partSlotDefs[index].label} · ${part.attr}</span>
-            <strong>${part.name}</strong>
-            <p>${part.desc}</p>
+            <span class="enemy-label">${slot.label} 슬롯</span>
+            <strong>파츠 미장착</strong>
+            <p>${hint} — 궁극기 연출에 반영됩니다.</p>
           </div>
         </div>
       `;
-    })
-    .join("");
+    }).join("");
+  } else {
+    el.partSlots.innerHTML = ids
+      .map((id, index) => {
+        const part = partDefs[id];
+        return `
+          <div class="part-card">
+            <div class="part-thumb">
+              <span class="part-level">Lv.${getPartLevel(id)}</span>
+              <img src="${part.image}" alt="" />
+            </div>
+            <div class="part-body">
+              <span class="enemy-label">${partSlotDefs[index].label} · ${part.attr}</span>
+              <strong>${part.name}</strong>
+              <p>${part.desc}</p>
+            </div>
+          </div>
+        `;
+      })
+      .join("");
+  }
   el.memoryText.textContent = `${owned}/${Object.keys(partDefs).length}개 · ${power.synergyName}`;
 }
 

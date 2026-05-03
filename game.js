@@ -3028,10 +3028,13 @@ function render() {
   const breakStars = state.enemy.isBoss
     ? "★".repeat(Math.min(3, breakCount)) + "☆".repeat(Math.max(0, 3 - breakCount))
     : "";
+  const breakCharge = Math.round(100 - (state.enemy.breakGauge || 100));
   el.breakText.textContent = state.enemy.isBoss
-    ? `${breakStars} ${Math.round(state.enemy.breakGauge)}%`
-    : `${Math.round(state.enemy.breakGauge)}%`;
-  el.breakBar.style.width = `${clamp(state.enemy.breakGauge, 0, 100)}%`;
+    ? `${breakStars} 브레이크 ${breakCharge}%`
+    : `${breakCharge}%`;
+  el.breakBar.style.width = `${clamp(breakCharge, 0, 100)}%`;
+  // 브레이크 80% 이상 → 임박 강조
+  el.breakBar.parentElement?.classList.toggle("break-near", state.enemy.isBoss && breakCharge >= 80);
   el.ultimateBar.style.width = `${clamp(state.ultimate, 0, 100)}%`;
   el.ultimateBtn.disabled = state.ultimate < 100 || state.paused || state.cutscenePlaying;
   el.ultimateBtn.classList.toggle("ultimate-ready", state.ultimate >= 100 && !state.paused && !state.cutscenePlaying);

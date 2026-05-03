@@ -1579,6 +1579,15 @@ h1 {
 
 .break-meter span {
   background: linear-gradient(90deg, var(--mint), var(--sky));
+  transition: background 0.4s;
+}
+.break-meter.break-near span {
+  background: linear-gradient(90deg, #f2c94c, #ff7c44, #ff4d4d);
+  animation: breakPulse 0.7s ease-in-out infinite;
+}
+@keyframes breakPulse {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.35) saturate(1.4); }
 }
 
 .ultimate-meter span {

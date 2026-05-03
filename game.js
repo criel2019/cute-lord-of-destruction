@@ -3835,9 +3835,17 @@ function playIntro() {
   state.introSeen = true;
   state.paused = true;
 
+  // 게임 시작 직후 핵심 개그를 즉시 맛보기
+  showCreditCut(
+    "rescue",
+    "실제: 보좌관들이 마왕님 옆에서 대기 중",
+    "발표: 짐이 전략 회의를 주재하는 중!",
+    1.8,
+  );
+
   const lines = [
-    { mood: "울먹임", text: "...흥. 저, 저게 또 짐을 혼내러 왔구나. 막기 버튼을 눌러 기력을 쌓아라!", delay: 0 },
-    { mood: "명령", text: "적이 빨간색으로 빛나면 막기 버튼을 눌러야 한다! 기력이 높을수록 반격이 강해진다!", delay: 1600 },
+    { mood: "울먹임", text: "...흥. 저, 저게 또 짐을 혼내러 왔구나. 막기 버튼을 눌러 기력을 쌓아라!", delay: 2000 },
+    { mood: "명령", text: "적이 빨간색으로 빛나면 막기 버튼을 눌러야 한다! 기력이 높을수록 반격이 강해진다!", delay: 3600 },
   ];
 
   const introTimers = [];
@@ -3899,7 +3907,7 @@ function playIntro() {
     el.tapBtn.removeEventListener("click", skipHandler);
     el.stageTap.removeEventListener("click", skipHandler);
     finishIntro();
-  }, 3500);
+  }, 5500);
 }
 
 function showLoopInfoCard() {

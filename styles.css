@@ -1999,6 +1999,13 @@ h1 {
   opacity: 0.85;
   letter-spacing: 0.02em;
 }
+.upgrade-truth {
+  font-size: 9px;
+  color: rgba(255,255,255,0.38);
+  font-style: italic;
+  letter-spacing: 0.01em;
+  margin-top: 1px;
+}
 
 .run-upgrade .cost {
   align-self: center;

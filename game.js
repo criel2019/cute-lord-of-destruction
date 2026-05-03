@@ -682,11 +682,11 @@ const upgradeDefs = [
 ];
 
 const runUpgradeDefs = [
-  { id: "click", name: "보좌 손길", desc: "공물/가로채기 피해 증가", baseCost: 8, growth: 1.58, image: "assets/vfx/protect_sigil.png" },
-  { id: "auto", name: "꼬물 부하", desc: "자동으로 적 체력 감소", baseCost: 12, growth: 1.62, image: "assets/trait_wiggle.png" },
-  { id: "guard", name: "체면 방패", desc: "피격 손실 감소와 회복 증가", baseCost: 10, growth: 1.55, image: "assets/ultimate_tear.png" },
-  { id: "showoff", name: "허세 연출", desc: "가로채기 성공 공물과 궁극기 충전 증가", baseCost: 16, growth: 1.7, image: "assets/vfx/counter_spark.png" },
-  { id: "crit", name: "치명적 허세", desc: "치명타 확률 +5% · 치명타 위력 +25%", baseCost: 28, growth: 1.85, image: "assets/vfx/impact_burst.png" },
+  { id: "click", name: "보좌 손길", desc: "공물/가로채기 피해 증가", truth: "실제: 보좌관이 더 세게 막음", baseCost: 8, growth: 1.58, image: "assets/vfx/protect_sigil.png" },
+  { id: "auto", name: "꼬물 부하", desc: "자동으로 적 체력 감소", truth: "실제: 부하들이 알아서 처리", baseCost: 12, growth: 1.62, image: "assets/trait_wiggle.png" },
+  { id: "guard", name: "체면 방패", desc: "피격 손실 감소와 회복 증가", truth: "실제: 보좌관이 인간 방패 됨", baseCost: 10, growth: 1.55, image: "assets/ultimate_tear.png" },
+  { id: "showoff", name: "허세 연출", desc: "가로채기 성공 공물과 궁극기 충전 증가", truth: "실제: 카메라감독 보좌관 고용", baseCost: 16, growth: 1.7, image: "assets/vfx/counter_spark.png" },
+  { id: "crit", name: "치명적 허세", desc: "치명타 확률 +5% · 치명타 위력 +25%", truth: "실제: 보좌관의 급소 공략술", baseCost: 28, growth: 1.85, image: "assets/vfx/impact_burst.png" },
 ];
 
 function preloadImages() {
@@ -3073,6 +3073,7 @@ function renderRunUpgrades() {
         statPreview = `치명타 ${Math.round(currentStats.critChance * 100)}% · x${currentStats.critMult.toFixed(1)}`;
       }
       const statLine = statPreview ? `<span class="upgrade-stat-preview">${statPreview} →</span>` : "";
+      const truthLine = upgrade.truth ? `<span class="upgrade-truth">${upgrade.truth}</span>` : "";
       return `
         <button class="run-upgrade${affordable ? " affordable" : ""}${recommended ? " recommended" : ""}" type="button" data-run-upgrade="${upgrade.id}" ${affordable ? "" : "disabled"}>
           <span class="upgrade-icon"><img src="${upgrade.image}" alt="" /></span>
@@ -3080,6 +3081,7 @@ function renderRunUpgrades() {
             <strong>${upgrade.name} Lv.${level}</strong>
             <p>${upgrade.desc}</p>
             ${statLine}
+            ${truthLine}
           </span>
           ${recommended ? `<span class="recommend-badge">추천</span>` : ""}
           <span class="cost">${formatNumber(cost)}</span>

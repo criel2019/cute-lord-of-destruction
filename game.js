@@ -1246,7 +1246,28 @@ function dealEnemyDamage(amount, source = "auto", label = "") {
   }
   const crit = Math.random() < stats.critChance;
   if (crit) damage *= stats.critMult;
-  if (crit && source !== "auto") shakeScreen(1.5);
+  if (crit && (source === "rescue" || source === "break")) {
+    shakeScreen(2.2);
+    flashScreen("gold", 0.3);
+    spawnParticles(22);
+    // 치명타 팝업
+    const critPop = document.createElement("div");
+    critPop.className = "crit-pop";
+    critPop.textContent = "CRITICAL!";
+    el.stagePanel?.appendChild(critPop);
+    window.setTimeout(() => critPop.remove(), 700);
+    // 치명타 creditCut — 보좌관의 숨겨진 실력 폭발
+    showCreditCut(
+      "rescue",
+      "실제: 보좌관이 급소를 노림",
+      randomPick([
+        "발표: 짐의 기운이 폭발한 것이니라!!",
+        "발표: 짐이 원래 이 정도니라!!",
+        "발표: 짐의 필살기가 발동됐느니라!",
+      ]),
+      1.2,
+    );
+  }
 
   const prevHpRate = state.enemy.hp / state.enemy.maxHp;
   state.enemy.hp = Math.max(0, state.enemy.hp - damage);

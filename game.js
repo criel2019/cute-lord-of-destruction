@@ -413,6 +413,14 @@ function getContextualIdleLine() {
   const floor = state.floor || 1;
   const dignityRate = state.dignity / (getStats().maxDignity || 100);
   const streak = state.rescueStreak || 0;
+  // 궁극기 거의 충전됐을 때 — 유저 시선 유도
+  const ultPct = Math.round(state.ultimate || 0);
+  if (ultPct >= 85 && ultPct < 100) {
+    return randomPick([
+      { mood: "각성", text: `궁극기가 ${ultPct}%니라! 조금만 더 막으면 짐의 절초식을 쓸 수 있느니라!` },
+      { mood: "허세", text: `이제 거의 다 됐느니라. 궁극기 100%가 되면... 짐이 전부 해결할 것이니라!` },
+    ]);
+  }
   // 체면 위기 시 우선
   if (dignityRate < 0.35) {
     return randomPick([

@@ -1655,6 +1655,10 @@ function rescueAction() {
     spawnParticles(12);
     showTapComboPopup(tapCombo);
   }
+  // 기력 게인 숫자 팝업 — 처음 12탭 또는 마일스톤 구간
+  if (gainedPrep > 0 && (state._prepClickCount <= 12 || state.prep >= 70)) {
+    showPrepGainPop(gainedPrep);
+  }
   if (gainedPrep > 0 && state.prep >= 100 && prepBefore < 100) {
     showToast("기력 MAX! 이제 적이 공격할 때 막으세요!");
     flashScreen("mint", 0.3);
@@ -1683,6 +1687,18 @@ function showTapComboPopup(count) {
     pop.classList.add("tcp-exit");
     window.setTimeout(() => pop.remove(), 300);
   }, 900);
+}
+
+function showPrepGainPop(amount) {
+  if (amount <= 0) return;
+  const pop = document.createElement("div");
+  pop.className = "prep-gain-pop";
+  pop.textContent = `+${Math.round(amount)}%`;
+  el.stagePanel?.appendChild(pop);
+  window.setTimeout(() => {
+    pop.classList.add("pgp-exit");
+    window.setTimeout(() => pop.remove(), 280);
+  }, 480);
 }
 
 function showMissedPopup() {

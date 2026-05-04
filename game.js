@@ -4268,14 +4268,19 @@ function render() {
     const isCurrentBoss = state.enemy?.isBoss;
     el.floorProgressBar.parentElement?.classList.toggle("floor-bar-boss", isCurrentBoss);
     el.floorProgressBar.title = `${state.floor}F / ${totalFloors}F`;
-    // "보스까지 N층" 라벨 — 항상 표시
+    // "보스까지 N층" 라벨 — 트랙 형제로 배치 (트랙은 4px+overflow:hidden이라 자식으로 들어가면 안 보임)
     const progressTrack = el.floorProgressBar.parentElement;
-    if (progressTrack) {
-      let bossLbl = progressTrack.querySelector(".boss-distance-label");
+    const labelHost = progressTrack?.parentElement;
+    if (progressTrack && labelHost) {
+      let bossLbl = labelHost.querySelector(":scope > .boss-distance-label");
+      // 과거 버전 잔재 제거 — 트랙 자식에 잘못 들어간 라벨 정리
+      const stale = progressTrack.querySelector(".boss-distance-label");
+      if (stale) stale.remove();
       if (!bossLbl) {
         bossLbl = document.createElement("span");
         bossLbl.className = "boss-distance-label";
-        progressTrack.appendChild(bossLbl);
+        // 트랙 바로 아래에 위치
+        progressTrack.insertAdjacentElement("afterend", bossLbl);
       }
       const nextBossFloor = Math.ceil(state.floor / 5) * 5;
       const floorsLeft = nextBossFloor - state.floor;

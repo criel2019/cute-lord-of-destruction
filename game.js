@@ -3952,9 +3952,22 @@ function renderRunUpgrades() {
     .join("");
   el.runUpgradeGrid.querySelectorAll("[data-run-upgrade]").forEach((button) => {
     button.addEventListener("click", () => {
+      const upgradeId = button.dataset.runUpgrade;
+      const beforeLv = state.runUpgrades?.[upgradeId] || 0;
+      // 카드 위치 기준 부동 텍스트 위해 position:relative 보장
+      if (getComputedStyle(button).position === "static") button.style.position = "relative";
       button.classList.add("buy-bounce");
-      window.setTimeout(() => button.classList.remove("buy-bounce"), 320);
-      buyRunUpgrade(button.dataset.runUpgrade);
+      window.setTimeout(() => button.classList.remove("buy-bounce"), 420);
+      buyRunUpgrade(upgradeId);
+      const afterLv = state.runUpgrades?.[upgradeId] || 0;
+      // 실제 구매 성공한 경우만 +Lv 폼업
+      if (afterLv > beforeLv) {
+        const pop = document.createElement("span");
+        pop.className = "run-upgrade-levelup";
+        pop.textContent = `+1 Lv → ${afterLv}`;
+        button.appendChild(pop);
+        window.setTimeout(() => pop.remove(), 820);
+      }
     });
   });
 

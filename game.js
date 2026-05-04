@@ -3688,7 +3688,20 @@ function renderUpgrades() {
       ${recommended ? `<span class="recommend-badge">추천</span>` : ""}
       <span class="card-tag">비용 ${cost} 파편</span>
     `;
-    button.addEventListener("click", () => buyUpgrade(upgrade.id, cost));
+    button.addEventListener("click", () => {
+      const beforeLv = state.permanent[upgrade.id] || 0;
+      button.classList.add("buy-bounce");
+      window.setTimeout(() => button.classList.remove("buy-bounce"), 420);
+      buyUpgrade(upgrade.id, cost);
+      const afterLv = state.permanent[upgrade.id] || 0;
+      if (afterLv > beforeLv) {
+        const pop = document.createElement("span");
+        pop.className = "run-upgrade-levelup";
+        pop.textContent = `Lv.${beforeLv} → Lv.${afterLv}`;
+        button.appendChild(pop);
+        window.setTimeout(() => pop.remove(), 820);
+      }
+    });
     el.upgradeGrid.appendChild(button);
   });
 }

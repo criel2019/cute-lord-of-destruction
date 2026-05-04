@@ -1856,10 +1856,18 @@ function autoAttack(dt) {
   }
 }
 
-function rescueAction() {
+function rescueAction(ev) {
   if (state.paused || state.cutscenePlaying) return;
   // 즉시 탭 피드백 — 막기 성공/실패 판정 전에 유저 입력 인식
   triggerTapFeedback();
+  // 클릭 좌표 캡처 — hit-spark용 (없으면 stage 중앙 기본값)
+  const tapCoord = (() => {
+    if (!ev || !el.stagePanel) return null;
+    const rect = el.stagePanel.getBoundingClientRect();
+    const x = (ev.clientX != null ? ev.clientX : rect.left + rect.width / 2) - rect.left;
+    const y = (ev.clientY != null ? ev.clientY : rect.top + rect.height / 2) - rect.top;
+    return { x, y };
+  })();
   ensureEnemy();
   const stats = getStats();
   const targetEnemy = state.enemy;
@@ -2145,7 +2153,19 @@ function rescueAction() {
     if (tapCombo >= 8) {
       hitstop(50);
       spawnImpactRay();
+    } else {
+      // 일반 탭에도 미니 hitstop으로 격투게임 무게감
+      hitstop(prepNow >= 40 ? 22 : 14);
     }
+  }
+  // 클릭 좌표 hit-spark — 격투게임 임팩트
+  spawnTapHitSpark(tapCoord, tapCombo);
+  // 마왕 lunge — 펀치 모션
+  if (el.mainCharacter) {
+    el.mainCharacter.classList.remove("char-tap-lunge");
+    void el.mainCharacter.offsetWidth;
+    el.mainCharacter.classList.add("char-tap-lunge");
+    window.setTimeout(() => el.mainCharacter?.classList.remove("char-tap-lunge"), 220);
   }
   const prepBefore = state.prep || 0;
   const ragePrepMult = state.rageTimer > 0 ? 2.0 : 1;
@@ -4796,6 +4816,38 @@ function spawnImpactRay() {
   window.setTimeout(() => ray.remove(), 460);
 }
 
+// 격투게임 hit-spark — 클릭 좌표에서 별 모양 4-6개 분사
+function spawnTapHitSpark(coord, tapCombo = 0) {
+  const stage = el.stagePanel;
+  if (!stage || !coord) return;
+  const sparkCount = tapCombo >= 8 ? 6 : tapCombo >= 4 ? 5 : 4;
+  for (let i = 0; i < sparkCount; i++) {
+    const spark = document.createElement("span");
+    spark.className = "tap-hit-spark";
+    const angle = (Math.PI * 2 * i) / sparkCount + Math.random() * 0.4;
+    const dist = 18 + Math.random() * 22 + Math.min(12, tapCombo);
+    const dx = Math.round(Math.cos(angle) * dist);
+    const dy = Math.round(Math.sin(angle) * dist);
+    const size = 6 + Math.random() * 4 + Math.min(4, tapCombo * 0.3);
+    spark.style.left = `${coord.x}px`;
+    spark.style.top = `${coord.y}px`;
+    spark.style.setProperty("--dx", `${dx}px`);
+    spark.style.setProperty("--dy", `${dy}px`);
+    spark.style.setProperty("--sz", `${size}px`);
+    if (tapCombo >= 8) spark.classList.add("tap-hit-spark-hot");
+    stage.appendChild(spark);
+    window.setTimeout(() => spark.remove(), 380);
+  }
+  // 중앙 큰 ring 1개
+  const ring = document.createElement("span");
+  ring.className = "tap-hit-ring";
+  ring.style.left = `${coord.x}px`;
+  ring.style.top = `${coord.y}px`;
+  if (tapCombo >= 8) ring.classList.add("tap-hit-ring-hot");
+  stage.appendChild(ring);
+  window.setTimeout(() => ring.remove(), 320);
+}
+
 function enemyImpactHit() {
   if (!el.arenaEnemy) return;
   el.arenaEnemy.classList.remove("enemy-impact");
@@ -6315,8 +6367,8 @@ window.setTimeout(() => { renderCache.runUpgrades = ""; renderRunUpgrades(); }, 
   }, { passive: true });
 })();
 
-el.stageTap.addEventListener("click", rescueAction);
-el.tapBtn.addEventListener("click", rescueAction);
+el.stageTap.addEventListener("click", (ev) => rescueAction(ev));
+el.tapBtn.addEventListener("click", (ev) => rescueAction(ev));
 el.ultimateBtn.addEventListener("click", useUltimate);
 el.reincarnateBtn.addEventListener("click", () => openReincarnate(false));
 // HUD 파편 칩 클릭 → 환생 모달 (파편 용도 바로 확인)

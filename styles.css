@@ -583,20 +583,7 @@ img { display: block; max-width: 100%; }
   max-width: calc(100% - 24px);
 }
 
-/* 시너지 배지 — 캐릭터 영역 좌상단 (alert rail 아래) */
-.stage-panel > .active-synergy-badge {
-  top: calc(var(--h-intent) + var(--h-alert) + 8px);
-  left: 10px;
-  padding: 4px 9px;
-  border-radius: 999px;
-  background: rgba(243, 197, 95, 0.92);
-  color: #2c1930;
-  font-size: 10px;
-  font-weight: 800;
-  white-space: nowrap;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
-  z-index: 6;
-}
+/* active-synergy-badge 단독 스타일은 line 4513 부근에서 정의 (보라 그라디언트, intent 바로 아래) */
 
 /* ──────────────────────────────────────────────────────────────
    탭/콤보/기력 팝업 — 모두 dialogue 바로 위 안전 영역에 통일.
@@ -832,13 +819,7 @@ img { display: block; max-width: 100%; }
   animation: bannerDrop 0.3s ease;
 }
 
-/* 티어 오버레이 — 무대 배경 전체 */
-.stage-panel > .floor-tier-overlay {
-  inset: 0;
-  pointer-events: none;
-  opacity: 0.15;
-  z-index: 0;
-}
+/* floor-tier-overlay 스타일은 line 4523 부근에서 정의 (radial gradient 티어 글로우) */
 
 @keyframes bannerDrop {
   from { opacity: 0; transform: translate(-50%, -8px); }
@@ -3502,9 +3483,9 @@ body.hp-warning .danger-vignette {
   text-shadow: 0 2px 6px rgba(0,0,0,0.8);
 }
 
-/* crit-pop: 보스 화면 한가운데 (큰 임팩트) */
+/* crit-pop: 보스 화면 위쪽 1/3 (combo-break-banner는 38%로 동시 발생 시 분리) */
 .stage-panel > .crit-pop {
-  top: 38%;
+  top: 26%;
   font-size: 30px;
   font-weight: 900;
   color: #ff8a4c;
@@ -5351,4 +5332,63 @@ body.hp-warning .danger-vignette {
 }
 @media (prefers-reduced-motion: reduce) {
   .coin-reward, .shard-gained { animation: none !important; }
+}
+
+/* ============================================================
+   격투게임 hit-spark — 일반 탭의 무게감 강화
+   ============================================================ */
+.tap-hit-spark {
+  position: absolute;
+  width: var(--sz, 8px);
+  height: var(--sz, 8px);
+  margin-left: calc(var(--sz, 8px) / -2);
+  margin-top: calc(var(--sz, 8px) / -2);
+  background: radial-gradient(circle, #fff 0%, #ffe066 40%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 7;
+  filter: drop-shadow(0 0 4px rgba(255,220,100,0.85));
+  animation: tapHitSparkAnim 0.38s cubic-bezier(.15,.7,.3,1) forwards;
+}
+.tap-hit-spark-hot {
+  background: radial-gradient(circle, #fff 0%, #ff8a4c 35%, #ff3a3a 65%, transparent 75%);
+  filter: drop-shadow(0 0 6px rgba(255,80,40,0.9));
+}
+@keyframes tapHitSparkAnim {
+  0%   { transform: translate(0, 0) scale(0.4); opacity: 0; }
+  18%  { transform: translate(calc(var(--dx) * 0.4), calc(var(--dy) * 0.4)) scale(1.25); opacity: 1; }
+  100% { transform: translate(var(--dx), var(--dy)) scale(0.3); opacity: 0; }
+}
+.tap-hit-ring {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  margin-left: -4px;
+  margin-top: -4px;
+  border: 2px solid rgba(255,230,140,0.95);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 6;
+  animation: tapHitRingAnim 0.32s ease-out forwards;
+}
+.tap-hit-ring-hot {
+  border-color: rgba(255,140,80,0.98);
+  box-shadow: 0 0 8px rgba(255,80,40,0.6);
+}
+@keyframes tapHitRingAnim {
+  0%   { transform: scale(0.3); opacity: 0; }
+  20%  { transform: scale(1); opacity: 1; }
+  100% { transform: scale(3.5); opacity: 0; }
+}
+/* 마왕 lunge — 일반 탭에 펀치 모션 */
+.main-character.char-tap-lunge {
+  animation: charTapLunge 0.22s cubic-bezier(.3,.8,.4,1) both;
+}
+@keyframes charTapLunge {
+  0%   { transform: translateX(0); }
+  35%  { transform: translateX(7px) translateY(-2px); }
+  100% { transform: translateX(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tap-hit-spark, .tap-hit-ring, .main-character.char-tap-lunge { animation: none !important; }
 }

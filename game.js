@@ -420,6 +420,9 @@ const el = {
   runText: $("#runText"),
   floorText: $("#floorText"),
   bestFloorText: $("#bestFloorText"),
+  bestChip: $("#bestChip"),
+  tributeChip: $("#tributeChip"),
+  shardChip: $("#shardChip"),
   demonTitle: $("#demonTitle"),
   tributeText: $("#tributeText"),
   shardText: $("#shardText"),
@@ -4220,8 +4223,13 @@ function render() {
   el.floorText.title = `${state.floor}층 / 30층`;
   if (el.bestFloorText) {
     el.bestFloorText.textContent = `${state.bestFloor}F`;
-    el.bestFloorText.closest(".hud-stat--best")?.classList.toggle("visible", state.bestFloor > 1);
   }
+  // 점진적 disclosure — 신규 유저(첫 보스 처치 전) 자원 chip 숨김
+  // 첫 5층 보스 클리어 시 .firstBossDefeated=true → chip 등장
+  const isNewbie = !state.firstBossDefeated && state.run <= 1;
+  el.bestChip?.classList.toggle("hud-chip-onboarding-hidden", isNewbie || state.bestFloor <= 1);
+  el.tributeChip?.classList.toggle("hud-chip-onboarding-hidden", isNewbie && (state.tributes || 0) < 1);
+  el.shardChip?.classList.toggle("hud-chip-onboarding-hidden", isNewbie && (state.shards || 0) < 1);
   if (el.floorProgressBar) {
     const totalFloors = 30;
     const progress = Math.min(state.floor / totalFloors, 1);

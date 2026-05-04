@@ -180,8 +180,21 @@ img { display: block; max-width: 100%; }
 }
 
 .hud-chip.hidden-run,
-.hud-chip.hidden-streak {
+.hud-chip.hidden-streak,
+.hud-chip.hud-chip-onboarding-hidden {
   display: none;
+}
+/* 신규 유저 첫 보스 처치 후 chip 등장 시 fade-in 살짝 */
+.hud-chip:not(.hud-chip-onboarding-hidden) {
+  animation: hudChipReveal 0.45s ease-out;
+}
+@keyframes hudChipReveal {
+  0% { opacity: 0; transform: translateY(-4px) scale(0.8); }
+  60% { opacity: 1; transform: translateY(0) scale(1.06); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hud-chip { animation: none !important; }
 }
 
 .hud-chip.streak-hot strong { color: var(--gold); }

@@ -252,6 +252,7 @@ let _wasDanger = false;
 // ── 앰비언트 BGM ──
 let _bgmNodes = null;
 let _bgmMelodyTimer = null;
+let _bgmPedalTimer = null;
 let _bgmStarted = false;
 
 function startBgm() {
@@ -288,40 +289,90 @@ function startBgm() {
 
     _bgmNodes = { droneOsc, droneGain, drone2, drone2Gain, master };
 
-    // 느린 멜로디 루프 — 마왕성 앰비언트 (단계별 음계, 느린 박자)
-    // 단음들 사이 간격을 길게 → 더 분위기 있고 덜 귀찮음
-    const phrases = [
+    // 마왕성 앰비언트 멜로디 — 일반/보스 모드별 별도 프레이즈
+    // A 단조 분위기 (마왕성 어둡고 신비로움). 보스는 D 단조로 더 무겁게.
+    const phrasesNormal = [
       [330, 0], [294, 1100], [262, 900], [null, 1200],
       [330, 1400], [370, 800], [330, 700], [null, 2000],
       [294, 1200], [262, 1000], [220, 1100], [null, 2500],
+    ];
+    // 보스 프레이즈 — D 단조 (D, F, A, C, E♭) + 5도/8도 위협음
+    const phrasesBoss = [
+      [294, 0], [349, 700], [440, 600], [349, 800], [null, 600],
+      [294, 700], [392, 600], [466, 800], [392, 700], [null, 900],
+      [262, 600], [330, 500], [392, 600], [466, 700], [311, 1200], [null, 1500],
     ];
     let pi = 0;
     function playMelodyNote() {
       const c = getAudioCtx();
       if (!c || !_bgmNodes) return;
+      const phrases = _bgmIsBoss ? phrasesBoss : phrasesNormal;
+      if (pi >= phrases.length) pi = 0;
       const [freq, gap] = phrases[pi % phrases.length];
       if (freq) {
+        // 메인 멜로디 (sine, 부드러움)
         const mOsc = c.createOscillator();
         const mGain = c.createGain();
         mOsc.type = "sine";
         mOsc.frequency.value = freq;
-        mGain.gain.setValueAtTime(0.055, c.currentTime);
-        mGain.gain.exponentialRampToValueAtTime(0.001, c.currentTime + 1.1);
+        const vol = _bgmIsBoss ? 0.07 : 0.055;
+        mGain.gain.setValueAtTime(vol, c.currentTime);
+        mGain.gain.exponentialRampToValueAtTime(0.001, c.currentTime + (_bgmIsBoss ? 0.85 : 1.1));
         mOsc.connect(mGain);
         mGain.connect(_bgmNodes.master);
         mOsc.start(c.currentTime);
-        mOsc.stop(c.currentTime + 1.2);
+        mOsc.stop(c.currentTime + (_bgmIsBoss ? 0.95 : 1.2));
+        // 보스 모드: 5도 아래 베이스 노트 동시 연주 → 위협감
+        if (_bgmIsBoss) {
+          const bassOsc = c.createOscillator();
+          const bassGain = c.createGain();
+          bassOsc.type = "triangle";
+          bassOsc.frequency.value = freq / 2;
+          bassGain.gain.setValueAtTime(0.04, c.currentTime);
+          bassGain.gain.exponentialRampToValueAtTime(0.001, c.currentTime + 0.7);
+          bassOsc.connect(bassGain);
+          bassGain.connect(_bgmNodes.master);
+          bassOsc.start(c.currentTime);
+          bassOsc.stop(c.currentTime + 0.8);
+        }
       }
       pi++;
-      _bgmMelodyTimer = window.setTimeout(playMelodyNote, (gap || 800) + Math.random() * 200);
+      const baseGap = gap || 800;
+      const adjustedGap = _bgmIsBoss ? baseGap * 0.65 : baseGap;
+      _bgmMelodyTimer = window.setTimeout(playMelodyNote, adjustedGap + Math.random() * 150);
     }
     window.setTimeout(playMelodyNote, 3000);
+
+    // 보스 모드용 페달톤 — 낮은 D 페달이 일정 박자로 두근거림 (전투 심박음)
+    function playBossPedal() {
+      const c = getAudioCtx();
+      if (!c || !_bgmNodes) {
+        _bgmPedalTimer = window.setTimeout(playBossPedal, 1500);
+        return;
+      }
+      if (_bgmIsBoss) {
+        const pOsc = c.createOscillator();
+        const pGain = c.createGain();
+        pOsc.type = "sine";
+        pOsc.frequency.value = 73.4;  // D2
+        pGain.gain.setValueAtTime(0, c.currentTime);
+        pGain.gain.linearRampToValueAtTime(0.045, c.currentTime + 0.05);
+        pGain.gain.exponentialRampToValueAtTime(0.001, c.currentTime + 0.7);
+        pOsc.connect(pGain);
+        pGain.connect(_bgmNodes.master);
+        pOsc.start(c.currentTime);
+        pOsc.stop(c.currentTime + 0.75);
+      }
+      _bgmPedalTimer = window.setTimeout(playBossPedal, _bgmIsBoss ? 1100 : 2200);
+    }
+    window.setTimeout(playBossPedal, 5000);
   } catch {}
 }
 
 function suspendBgm() {
   try { getAudioCtx()?.suspend(); } catch {}
   if (_bgmMelodyTimer) { clearTimeout(_bgmMelodyTimer); _bgmMelodyTimer = null; }
+  if (_bgmPedalTimer) { clearTimeout(_bgmPedalTimer); _bgmPedalTimer = null; }
 }
 
 function resumeBgm() {

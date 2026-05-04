@@ -1692,6 +1692,52 @@ function gainTributes(amount, source = "click") {
     node.style.setProperty("--dx", `${Math.round((Math.random() - 0.5) * 180)}px`);
     el.damageLayer.appendChild(node);
     window.setTimeout(() => node.remove(), 820);
+    // 막기/처치 보상은 코인이 적 → 공물 카운터로 호를 그리며 빨려옴
+    if (source === "rescue" || source === "defeat" || source === "boss") {
+      spawnCoinReward(gain, source === "boss" ? 14 : source === "defeat" ? 10 : 6);
+    }
+  }
+}
+
+// 공물 코인 보상 시각화 — 적 → 공물 카운터 방향으로 호를 그리며 빨려옴
+function spawnCoinReward(totalAmount, count = 6) {
+  const stage = el.stagePanel?.querySelector(".main-stage");
+  if (!stage) return;
+  const counter = el.tributeText;
+  if (!counter) return;
+  const stageRect = stage.getBoundingClientRect();
+  const counterRect = counter.getBoundingClientRect();
+  // 카운터 위치를 stage 좌표계로 변환 (% 단위)
+  const targetX = ((counterRect.left + counterRect.width / 2 - stageRect.left) / stageRect.width) * 100;
+  const targetY = ((counterRect.top + counterRect.height / 2 - stageRect.top) / stageRect.height) * 100;
+  const actualCount = Math.min(14, Math.max(3, count));
+  for (let i = 0; i < actualCount; i++) {
+    const coin = document.createElement("span");
+    coin.className = "coin-reward";
+    // 시작: 적 영역 (우상단)
+    const sx = 55 + Math.random() * 30;
+    const sy = 25 + Math.random() * 25;
+    // 호 중간점 (위로 솟구침)
+    const midY = Math.min(sy, targetY) - 25 - Math.random() * 15;
+    coin.style.setProperty("--sx", `${sx}%`);
+    coin.style.setProperty("--sy", `${sy}%`);
+    coin.style.setProperty("--mx", `${(sx + targetX) / 2}%`);
+    coin.style.setProperty("--my", `${midY}%`);
+    coin.style.setProperty("--ex", `${targetX}%`);
+    coin.style.setProperty("--ey", `${targetY}%`);
+    coin.style.animationDelay = `${i * 50}ms`;
+    stage.appendChild(coin);
+    const totalDur = 750 + i * 50;
+    window.setTimeout(() => coin.remove(), totalDur);
+    // 코인이 카운터에 도달하는 순간 카운터 펄스
+    window.setTimeout(() => {
+      if (counter) {
+        counter.classList.remove("shard-gained");
+        void counter.offsetWidth;
+        counter.classList.add("shard-gained");
+        window.setTimeout(() => counter.classList.remove("shard-gained"), 280);
+      }
+    }, totalDur - 80);
   }
 }
 
@@ -2546,7 +2592,7 @@ function defeatEnemy() {
   const lootMod = bossRewardMod ? bossRewardMod.lootMod : 1;
   state.dignity = clamp(state.dignity + (defeatedBoss ? 18 * dignityRewardMod : 7), 0, stats.maxDignity);
   state.ultimate = clamp(state.ultimate + (defeatedBoss ? 24 : 9), 0, 100);
-  gainTributes((defeatedBoss ? 18 : 6) * Math.max(1, oldFloor) * stats.rewardMult * lootMod, "kill");
+  gainTributes((defeatedBoss ? 18 : 6) * Math.max(1, oldFloor) * stats.rewardMult * lootMod, defeatedBoss ? "boss" : "defeat");
   if (stats.shardPerFloor) {
     state.shards += stats.shardPerFloor;
     showToast(`파편 수집가: 파편 +${stats.shardPerFloor}`);

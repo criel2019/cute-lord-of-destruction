@@ -4869,3 +4869,62 @@ body.hp-warning .danger-vignette {
     transform: none !important;
   }
 }
+
+/* ── 공물 코인 보상 — 적 → 카운터 호 비행 ── */
+.coin-reward {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 35% 30%, #fff8c0 0%, #ffd76a 30%, #ffaa22 70%, #c47a08 100%);
+  box-shadow:
+    0 0 8px rgba(255,210,80,0.95),
+    0 0 16px rgba(255,160,40,0.55),
+    inset 0 -2px 3px rgba(120,60,0,0.6);
+  pointer-events: none;
+  z-index: 7;
+  animation: coinRewardFly 0.75s cubic-bezier(.25,.1,.25,1) forwards;
+  --sx: 65%; --sy: 40%;
+  --mx: 50%; --my: 15%;
+  --ex: 10%; --ey: 5%;
+}
+@keyframes coinRewardFly {
+  0% {
+    left: var(--sx); top: var(--sy);
+    transform: scale(0.4) rotate(0deg);
+    opacity: 0;
+    filter: brightness(1.5);
+  }
+  15% {
+    transform: scale(1.2) rotate(60deg);
+    opacity: 1;
+  }
+  50% {
+    left: var(--mx); top: var(--my);
+    transform: scale(1.1) rotate(180deg);
+    opacity: 1;
+  }
+  85% {
+    transform: scale(0.9) rotate(280deg);
+    opacity: 1;
+  }
+  100% {
+    left: var(--ex); top: var(--ey);
+    transform: scale(0.3) rotate(360deg);
+    opacity: 0;
+    filter: brightness(2);
+  }
+}
+/* 공물 카운터가 코인 흡수 시 황금 펄스 */
+.shard-gained {
+  animation: shardGainedPulse 0.28s cubic-bezier(.2,.8,.3,1.4) both;
+}
+@keyframes shardGainedPulse {
+  0%   { transform: scale(1); color: inherit; text-shadow: none; }
+  50%  { transform: scale(1.18); color: #ffe066; text-shadow: 0 0 10px rgba(255,210,80,0.85), 0 0 18px rgba(255,160,40,0.5); }
+  100% { transform: scale(1); color: inherit; text-shadow: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .coin-reward, .shard-gained { animation: none !important; }
+}

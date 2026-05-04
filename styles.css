@@ -806,6 +806,7 @@ img { display: block; max-width: 100%; }
   filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.5));
   transition: transform 0.2s, filter 0.2s, opacity 0.3s;
   transform-origin: center bottom;
+  animation: idleBreathEnemy 3.2s ease-in-out infinite;
 }
 
 .main-character {
@@ -816,7 +817,29 @@ img { display: block; max-width: 100%; }
   filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.5));
   transition: transform 0.2s, filter 0.2s;
   transform-origin: center bottom;
+  animation: idleBreathPlayer 3.6s ease-in-out infinite;
 }
+
+@keyframes idleBreathPlayer {
+  0%, 100% { transform: translateY(0) scale(1, 1); }
+  50% { transform: translateY(-2px) scale(1.012, 0.988); }
+}
+@keyframes idleBreathEnemy {
+  0%, 100% { transform: translateY(0) scale(1, 1); }
+  50% { transform: translateY(-3px) scale(1.018, 0.982); }
+}
+
+/* idle 중지: 활성 애니메이션과 충돌 방지 */
+.arena-enemy.enemy-enter,
+.arena-enemy.enemy-impact,
+.arena-enemy.enemy-flinch,
+.arena-enemy.enemy-flinch-soft,
+.arena-enemy.enemy-flinch-hard,
+.arena-enemy.enemy-defeated,
+.arena-enemy.enemy-defeated-elite,
+.arena-enemy.enemy-defeated-boss,
+.arena-enemy.enemy-dying { animation-play-state: paused; }
+.main-character.char-rescue-jump { animation-play-state: paused; }
 
 /* 적 상태 변화 */
 .arena-enemy.enemy-enter { animation: enemyEnter 0.42s ease; }
@@ -850,9 +873,116 @@ img { display: block; max-width: 100%; }
 .arena-enemy.enemy-flinch-hard { animation: flinchHard 0.18s ease; }
 .arena-enemy.auto-hit-flash { filter: drop-shadow(0 6px 14px rgba(0,0,0,0.5)) brightness(1.6); }
 
+/* 임팩트 강화: 막기 성공 시 적이 하얗게 번쩍 + 강하게 튕겨나감 */
+.arena-enemy.enemy-impact {
+  animation: enemyImpact 0.32s cubic-bezier(.18,.89,.32,1.28);
+  filter: drop-shadow(0 6px 14px rgba(0,0,0,0.5)) brightness(2.2) saturate(0) contrast(1.5) !important;
+}
+@keyframes enemyImpact {
+  0% { transform: translateX(0) scale(1); }
+  20% { transform: translateX(22px) scale(1.06) rotate(5deg); }
+  60% { transform: translateX(-6px) scale(0.96) rotate(-2deg); }
+  100% { transform: translateX(0) scale(1); }
+}
+
 @keyframes flinchSoft { 50% { transform: translateX(4px); } }
 @keyframes flinchMid { 50% { transform: translateX(8px) rotate(2deg); } }
 @keyframes flinchHard { 50% { transform: translateX(14px) rotate(4deg) scale(0.95); } }
+
+/* 시간정지 (hitstop): 0.12초 동안 모든 애니메이션 일시정지 */
+.stage-panel.hitstop * { animation-play-state: paused !important; transition: none !important; }
+.stage-panel.hitstop .arena-enemy { transform: scale(1.04) !important; filter: drop-shadow(0 0 24px rgba(255,255,255,0.9)) brightness(2.5) saturate(0) !important; }
+
+/* 수치 펄스: 값이 변경되면 잠깐 커지면서 색이 살짝 변함 */
+.value-pulse-up {
+  animation: valuePulseUp 0.42s cubic-bezier(.18,.89,.32,1.28);
+  display: inline-block;
+}
+.value-pulse-down {
+  animation: valuePulseDown 0.42s cubic-bezier(.18,.89,.32,1.28);
+  display: inline-block;
+}
+.value-pulse-flash {
+  animation: valuePulseFlash 0.5s ease-out;
+  display: inline-block;
+}
+@keyframes valuePulseUp {
+  0% { transform: scale(1); color: inherit; }
+  35% { transform: scale(1.35); color: #f3c55f; text-shadow: 0 0 12px rgba(243,197,95,0.85); }
+  100% { transform: scale(1); color: inherit; text-shadow: none; }
+}
+@keyframes valuePulseDown {
+  0% { transform: scale(1); color: inherit; }
+  35% { transform: scale(0.9); color: #ff6b6b; text-shadow: 0 0 10px rgba(255,107,107,0.85); }
+  100% { transform: scale(1); color: inherit; text-shadow: none; }
+}
+@keyframes valuePulseFlash {
+  0% { transform: scale(1); color: #fff; text-shadow: 0 0 16px rgba(255,255,255,0.95); }
+  100% { transform: scale(1); color: inherit; text-shadow: none; }
+}
+
+/* 적 처치 폭발 파편 */
+.defeat-shard {
+  position: absolute;
+  left: 50%; top: 55%;
+  pointer-events: none;
+  z-index: 10;
+  box-shadow: 0 0 8px currentColor;
+  animation: defeatShardFly 0.85s cubic-bezier(.18,.89,.32,1) forwards;
+}
+@keyframes defeatShardFly {
+  0% { transform: translate(-50%,-50%) scale(1.4) rotate(0); opacity: 1; }
+  60% { opacity: 1; }
+  100% {
+    transform: translate(calc(-50% + var(--sdx, 0)), calc(-50% + var(--sdy, 0))) scale(0.4) rotate(var(--rot, 360deg));
+    opacity: 0;
+  }
+}
+
+/* 강한 흰 플래시 (전화면) — 0.18초 */
+.impact-flash {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9998;
+  background: radial-gradient(circle at center, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.6) 35%, transparent 70%);
+  animation: impactFlash 0.18s ease-out forwards;
+  mix-blend-mode: screen;
+}
+@keyframes impactFlash {
+  0% { opacity: 0; transform: scale(0.6); }
+  20% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.1); }
+}
+
+/* 막기 성공 방사형 라인 (impact ray) */
+.impact-ray {
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 220px; height: 220px;
+  margin: -110px 0 0 -110px;
+  pointer-events: none;
+  z-index: 8;
+  background:
+    conic-gradient(from 0deg,
+      transparent 0deg, rgba(255,255,255,0.85) 8deg, transparent 16deg,
+      transparent 45deg, rgba(255,235,150,0.85) 53deg, transparent 61deg,
+      transparent 90deg, rgba(255,255,255,0.85) 98deg, transparent 106deg,
+      transparent 135deg, rgba(255,235,150,0.85) 143deg, transparent 151deg,
+      transparent 180deg, rgba(255,255,255,0.85) 188deg, transparent 196deg,
+      transparent 225deg, rgba(255,235,150,0.85) 233deg, transparent 241deg,
+      transparent 270deg, rgba(255,255,255,0.85) 278deg, transparent 286deg,
+      transparent 315deg, rgba(255,235,150,0.85) 323deg, transparent 331deg);
+  animation: impactRay 0.42s ease-out forwards;
+  border-radius: 50%;
+  -webkit-mask: radial-gradient(circle, transparent 22%, black 24%, black 60%, transparent 100%);
+          mask: radial-gradient(circle, transparent 22%, black 24%, black 60%, transparent 100%);
+}
+@keyframes impactRay {
+  0% { opacity: 0; transform: scale(0.3) rotate(0deg); }
+  30% { opacity: 1; transform: scale(1.0) rotate(20deg); }
+  100% { opacity: 0; transform: scale(1.6) rotate(45deg); }
+}
 
 .main-character.char-rescue-jump { animation: rescueJump 0.38s ease; }
 @keyframes rescueJump {

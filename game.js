@@ -1664,7 +1664,12 @@ function rescueAction() {
       ? ["흐흥! 그게 최선이냐? 짐에겐 재채기 수준이니라!", "완벽하게 막았느니라! 이게 바로 짐이다!", "PERFECT? 당연하지! 짐은 원래 이 정도니라!"]
       : ["막았느니라! 짐을 누가 건드려?!", "이 정도 공격이 통할 것 같았나?!", "방금 건... 짐이 일부러 맞아준 척이니라!"];
     setDialogue(randomPick(counterLines), "허세");
-    shakeScreen(timing.key === "perfect" ? 2 : 1);
+    shakeScreen(timing.key === "perfect" ? 2.4 : 1.4);
+    // 타격감: hitstop + 흰 플래시 + 적 임팩트 연출
+    hitstop(timing.key === "perfect" ? 160 : 110);
+    spawnImpactFlash();
+    spawnImpactRay();
+    enemyImpactHit();
     const dignityBefore = state.dignity;
     const streakDignityBonus = (state.rescueStreak % 3 === 0 && state.rescueStreak >= 3 && stats.streakDignityBonus)
       ? stats.streakDignityBonus : 0;
@@ -1790,7 +1795,7 @@ function rescueAction() {
   playSfx("click");
   setPose("proud", 0.58, "명령");
   triggerPulse("assist", 0.3);
-  // 기력 탭 → 적 반응 (기력 높을수록 더 크게)
+  // 기력 탭 → 적 반응 (기력 높을수록 더 크게) + 가벼운 흔들림으로 묵직함 추가
   if (el.arenaEnemy) {
     const prepNow = state.prep || 0;
     const flinchClass = prepNow >= 80 ? "enemy-flinch-hard" : prepNow >= 40 ? "enemy-flinch" : "enemy-flinch-soft";
@@ -1798,6 +1803,13 @@ function rescueAction() {
     void el.arenaEnemy.offsetWidth;
     el.arenaEnemy.classList.add(flinchClass);
     window.setTimeout(() => el.arenaEnemy.classList.remove("enemy-flinch-soft", "enemy-flinch", "enemy-flinch-hard"), 180);
+    // 콤보 단계별 임팩트: 0~3 약함, 4~7 중, 8+ 강 (hitstop+ray)
+    const intensity = prepNow >= 80 ? 0.55 : prepNow >= 40 ? 0.35 : 0.22;
+    shakeScreen(intensity + Math.min(0.4, tapCombo * 0.04));
+    if (tapCombo >= 8) {
+      hitstop(50);
+      spawnImpactRay();
+    }
   }
   const prepBefore = state.prep || 0;
   const ragePrepMult = state.rageTimer > 0 ? 2.0 : 1;
@@ -2036,8 +2048,14 @@ function defeatEnemy() {
 
   el.stagePanel.classList.remove("elite-enemy");
   playSfx(defeatedBoss ? "bossDefeat" : "defeat");
-  shakeScreen(defeatedBoss ? 3 : defeatedElite ? 2 : 1.2);
-  spawnParticles(defeatedBoss ? 40 : defeatedElite ? 30 : 20);
+  shakeScreen(defeatedBoss ? 3.6 : defeatedElite ? 2.4 : 1.5);
+  spawnParticles(defeatedBoss ? 60 : defeatedElite ? 42 : 28);
+  // 처치 임팩트: hitstop + 흰 플래시 + 폭발 ray (모든 처치)
+  hitstop(defeatedBoss ? 220 : defeatedElite ? 160 : 110);
+  spawnImpactFlash();
+  spawnImpactRay();
+  // 폭발 파편 분사
+  spawnDefeatShards(defeatedBoss ? 18 : defeatedElite ? 12 : 8);
   // 적 이미지 처치 연출 — boss/elite/mob 별 다름
   if (el.arenaEnemy) {
     el.arenaEnemy.classList.remove("enemy-dying", "enemy-bloodied");
@@ -3847,9 +3865,14 @@ function render() {
   }
   updateDemonTitle();
   el.shardText.textContent = formatNumber(state.shards);
+  pulseValue(el.shardText, state.shards);
   el.dignityText.textContent = `${dignityPercent}%`;
-  el.ultimateText.textContent = `${Math.round(state.ultimate)}%`;
-  el.ultimateInlineText.textContent = `${Math.round(state.ultimate)}%`;
+  pulseValue(el.dignityText, dignityPercent);
+  const ultRound = Math.round(state.ultimate);
+  el.ultimateText.textContent = `${ultRound}%`;
+  el.ultimateInlineText.textContent = `${ultRound}%`;
+  pulseValue(el.ultimateText, ultRound);
+  pulseValue(el.ultimateInlineText, ultRound);
   el.enemyLabel.textContent = state.enemy.title;
   el.enemyName.textContent = state.enemy.name;
   if (el.enemyArt) el.enemyArt.style.backgroundImage = `url("${state.enemy.image}")`;
@@ -4255,6 +4278,84 @@ function shakeScreen(intensity = 1) {
     stage.classList.remove("shaking");
     _shakeTimer = null;
   }, 220);
+}
+
+let _hitstopTimer = null;
+function hitstop(durationMs = 120) {
+  const stage = el.stagePanel;
+  if (!stage) return;
+  if (_hitstopTimer) {
+    clearTimeout(_hitstopTimer);
+    stage.classList.remove("hitstop");
+  }
+  stage.classList.add("hitstop");
+  _hitstopTimer = window.setTimeout(() => {
+    stage.classList.remove("hitstop");
+    _hitstopTimer = null;
+  }, durationMs);
+}
+
+function spawnImpactFlash() {
+  const div = document.createElement("div");
+  div.className = "impact-flash";
+  document.body.appendChild(div);
+  window.setTimeout(() => div.remove(), 220);
+}
+
+function spawnImpactRay() {
+  const stage = el.stagePanel;
+  if (!stage) return;
+  const ray = document.createElement("div");
+  ray.className = "impact-ray";
+  stage.appendChild(ray);
+  window.setTimeout(() => ray.remove(), 460);
+}
+
+function enemyImpactHit() {
+  if (!el.arenaEnemy) return;
+  el.arenaEnemy.classList.remove("enemy-impact");
+  void el.arenaEnemy.offsetWidth;
+  el.arenaEnemy.classList.add("enemy-impact");
+  window.setTimeout(() => el.arenaEnemy?.classList.remove("enemy-impact"), 340);
+}
+
+function spawnDefeatShards(count = 10) {
+  const stage = el.stagePanel;
+  if (!stage) return;
+  const colors = ["#fff7d6", "#ffe066", "#ff9de2", "#86d8c7", "#b9dcff", "#ffaa6e"];
+  for (let i = 0; i < count; i++) {
+    const s = document.createElement("span");
+    s.className = "defeat-shard";
+    const angle = (i / count) * Math.PI * 2 + Math.random() * 0.4;
+    const dist = 90 + Math.random() * 140;
+    s.style.setProperty("--sdx", `${Math.round(Math.cos(angle) * dist)}px`);
+    s.style.setProperty("--sdy", `${Math.round(Math.sin(angle) * dist - 30)}px`);
+    s.style.setProperty("--rot", `${Math.round((Math.random() - 0.5) * 720)}deg`);
+    s.style.background = colors[Math.floor(Math.random() * colors.length)];
+    const size = 6 + Math.random() * 10;
+    s.style.width = `${size}px`;
+    s.style.height = `${size}px`;
+    s.style.borderRadius = Math.random() > 0.5 ? "50%" : "2px";
+    stage.appendChild(s);
+    window.setTimeout(() => s.remove(), 900);
+  }
+}
+
+const _pulseLastValues = new Map();
+function pulseValue(node, value, direction = "auto") {
+  if (!node) return;
+  const key = node.id || node.className;
+  const prev = _pulseLastValues.get(key);
+  _pulseLastValues.set(key, value);
+  if (prev === undefined || prev === value) return;
+  const cls = direction === "down" ? "value-pulse-down"
+    : direction === "flash" ? "value-pulse-flash"
+    : (typeof prev === "number" && typeof value === "number" && value < prev) ? "value-pulse-down"
+    : "value-pulse-up";
+  node.classList.remove("value-pulse-up", "value-pulse-down", "value-pulse-flash");
+  void node.offsetWidth;
+  node.classList.add(cls);
+  window.setTimeout(() => node.classList.remove(cls), 460);
 }
 
 function flashScreen(color = "white", duration = 0.35) {

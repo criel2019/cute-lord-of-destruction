@@ -23,224 +23,150 @@
   <body>
     <div class="app-shell">
 
-      <!-- 최상단 얇은 상태 바 -->
+      <!-- ① 얇은 HUD: 층/공물/궁극기 — 12px 한 줄 -->
       <header class="top-hud">
         <div class="hud-left">
-          <div class="brand-mark">破</div>
           <span class="demon-title" id="demonTitle">허약한 마왕</span>
-          <div class="hud-stat hidden-run" id="runChip">
-            <span class="hud-label">판</span>
-            <strong id="runText">1</strong>
-          </div>
+          <span class="hud-chip hidden-run" id="runChip">판 <strong id="runText">1</strong></span>
         </div>
         <div class="hud-right">
-          <div class="hud-stat">
-            <span class="hud-label">층</span>
-            <strong id="floorText">1F</strong>
-          </div>
-          <div class="hud-stat hud-stat--best">
-            <span class="hud-label">최고</span>
-            <strong id="bestFloorText">1F</strong>
-          </div>
-          <div class="hud-stat hud-stat--tribute">
-            <span class="hud-label">🔸</span>
-            <strong id="tributeText">0</strong>
-          </div>
-          <div class="hud-stat hud-stat--shard">
-            <span class="hud-label">💠</span>
-            <strong id="shardText">0</strong>
-          </div>
-          <div class="hud-stat hud-stat--streak hidden-streak" id="streakChip">
-            <span class="hud-label">🔥</span>
-            <strong id="streakText">0</strong>
-          </div>
+          <span class="hud-chip"><strong id="floorText">1F</strong></span>
+          <span class="hud-chip muted">최고 <strong id="bestFloorText">1F</strong></span>
+          <span class="hud-chip"><i>🔸</i><strong id="tributeText">0</strong></span>
+          <span class="hud-chip"><i>💠</i><strong id="shardText">0</strong></span>
+          <span class="hud-chip hidden-streak" id="streakChip"><i>🔥</i><strong id="streakText">0</strong></span>
         </div>
       </header>
-      <!-- 층 진행 바 — 보스까지 남은 거리 -->
+
+      <!-- ② 진행 게이지 (얇은 가로줄) -->
       <div class="floor-progress-track" aria-label="보스까지 진행도">
         <div class="floor-progress-fill" id="floorProgressBar"></div>
       </div>
 
-      <!-- 전체 플레이 영역 -->
+      <!-- ③ 메인 무대 — 캐릭터 영역 (절대 침범 금지) -->
       <main class="play-layout">
-
-        <!-- 전투 스테이지 (메인 영역) -->
         <section class="stage-panel" id="stagePanel">
-          <div class="boss-alert" id="bossAlert">공격이 들어옵니다! 지금 막으세요!</div>
 
-          <!-- 전투 메인 버튼 -->
-          <button class="main-stage" id="stageTap" type="button" aria-label="막기">
-          <!-- 적 이름 + 공격 의도 — main-stage 안 오버레이 -->
-          <div class="enemy-header">
-            <div class="enemy-title-group">
+          <!-- 적 정보 — 두 줄 카드. 위: 라벨+이름 / 아래: 인텐트+타이머 -->
+          <div class="intent-bar">
+            <div class="intent-row intent-row--name">
               <span class="enemy-label" id="enemyLabel">일반 몬스터</span>
-              <h2 id="enemyName">솜사탕 기사</h2>
+              <strong class="enemy-name" id="enemyName">솜사탕 기사</strong>
             </div>
-            <div class="enemy-intent-badge" id="enemyIntentBadge">
+            <div class="intent-row intent-row--cast" id="enemyIntentBadge">
               <span class="intent-arrow">→</span>
-              <span class="intent-text" id="enemyIntentText">마왕님을 노리는 중</span>
-              <span class="intent-timer" id="castText">3.8초</span>
+              <span class="intent-text" id="enemyIntentText">노리는 중</span>
+              <span class="intent-timer" id="castText">3.8s</span>
             </div>
           </div>
 
-          <!-- HP/위협 바 — main-stage 안 오버레이 (데스크탑만 표시) -->
-          <div class="stage-meters" style="display:none">
-            <div class="stage-meter stage-meter--threat">
-              <div class="meter threat-meter" aria-label="적 공격 예고">
-                <span id="threatBar"></span>
-              </div>
-            </div>
-            <div class="stage-meter stage-meter--hp">
-              <div class="meter hp-meter" aria-label="적 체력">
-                <span id="enemyHpBar"></span>
-              </div>
-              <span class="meter-label-inline" id="enemyHpText">0/0</span>
-            </div>
-            <div class="stage-meter stage-meter--break boss-only">
-              <div class="meter break-meter" aria-label="브레이크">
-                <span id="breakBar"></span>
-              </div>
-              <span class="meter-label-inline" id="breakText">100%</span>
-            </div>
-          </div>
-            <div class="battle-readout" aria-hidden="true" style="display:none">
-              <span id="timingCall">대기 중</span>
-              <strong id="comboText">기력 0%</strong>
-            </div>
-            <div class="threat-lane" aria-hidden="true">
-              <span class="lane-beam"></span>
-              <span class="timing-zone"></span>
-              <span class="attack-orb"></span>
-            </div>
-            <div class="arena-combat">
-              <div class="combatant enemy-side threat-card">
+          <!-- 보스 알림 -->
+          <div class="boss-alert hidden" id="bossAlert">⚠ 보스가 옵니다!</div>
+
+          <!-- 캐릭터 무대 (메인 탭 영역) -->
+          <button class="main-stage" id="stageTap" type="button" aria-label="막기">
+            <div class="arena">
+              <div class="combatant enemy-side">
                 <img src="assets/enemy_clicker_knight_clean.png" alt="" class="arena-enemy" id="arenaEnemy" />
-                <strong class="combatant-stat" id="enemyAttackStat" style="display:none"></strong>
               </div>
-              <div class="combatant demon-side throne-side">
+              <div class="combatant demon-side">
                 <img src="assets/demon_state_idle.png" alt="귀여운 마왕님" class="main-character" id="mainCharacter" />
-                <strong class="combatant-stat" id="autoPowerText" style="display:none"></strong>
-              </div>
-              <div class="arena-core command-station" style="display:none">
-                <span class="protect-sigil">!</span>
-                <span class="station-label">보좌관 대기</span>
-                <div class="prep-gauge" aria-label="기력">
-                  <strong id="prepText">기력 0%</strong>
-                  <i id="prepBar"></i>
-                </div>
-                <strong id="clickPowerText" class="click-power-inline">반격 x1.00</strong>
               </div>
             </div>
-            <img src="assets/scene_rescue.png" alt="" class="scene-overlay hidden" id="sceneOverlay" />
+            <!-- 적 HP 미니바 (적 발 아래) -->
+            <div class="mini-hp enemy-mini-hp" aria-label="적 체력">
+              <span id="enemyHpBar"></span>
+            </div>
+            <!-- 화면 가장자리 위협 펄스 (CSS만으로 표현) -->
+            <span class="threat-edge" aria-hidden="true"></span>
+            <!-- 데미지/파티클 레이어 -->
+            <span id="damageLayer" class="damage-layer" aria-hidden="true"></span>
+            <span id="particleLayer" class="particle-layer" aria-hidden="true"></span>
+            <!-- 크레딧 컷 (막기 성공 연출) -->
             <div class="credit-cut hidden" id="creditCut" aria-live="polite">
               <span id="creditTruth">실제: 보좌관이 막음</span>
               <strong id="creditClaim">발표: 짐의 위엄이 막았다!</strong>
             </div>
-            <span class="impact-vfx" aria-hidden="true"></span>
-            <span class="counter-vfx" aria-hidden="true"></span>
-            <span id="damageLayer" class="damage-layer" aria-hidden="true"></span>
-            <span id="particleLayer" class="particle-layer" aria-hidden="true"></span>
+            <!-- 보조 장면 오버레이 (게임 로직용) -->
+            <img src="assets/scene_rescue.png" alt="" class="scene-overlay hidden" id="sceneOverlay" />
           </button>
-          <!-- 체면/궁극기 바 — stage-panel flex 자식, main-stage 밖 -->
-          <div class="stage-bottom-meters">
-            <div class="sbm-row">
-              <span class="sbm-icon">♥</span>
-              <div class="meter dignity-meter" aria-label="마왕 체면">
-                <span id="heroHpBar"></span>
-              </div>
-              <span class="sbm-value" id="heroHpText">100/100</span>
-              <span class="sbm-label" id="dignityText">100%</span>
-            </div>
-            <div class="sbm-row">
-              <span class="sbm-icon">✦</span>
-              <div class="meter ultimate-meter" aria-label="궁극기 충전">
-                <span id="ultimateBar"></span>
-              </div>
-              <span class="sbm-value" id="ultimateInlineText">0%</span>
-              <span class="sbm-label" id="ultimateText">궁극기</span>
-            </div>
-          </div>
-          <!-- 마왕 대사 — stage-panel flex 자식, main-stage 밖 -->
-          <div class="dialogue-box">
-            <span id="moodText">울먹임</span>
+
+          <!-- 마왕 대사 한 줄 -->
+          <div class="dialogue-line">
+            <span class="mood-tag" id="moodText">울먹임</span>
             <strong id="dialogueText">흥... 짐은 하나도 무섭지 않으니라.</strong>
           </div>
 
-          <!-- 다음 목표 (접힌 형태) -->
-          <div class="stage-reward-strip" aria-live="polite">
-            <div class="stage-reward-copy">
-              <span>▶</span>
-              <strong id="stageRewardText">5F 보스 처치로 궁극기 영상 파츠 획득</strong>
-              <div class="stage-milestone-row" id="stageMilestones" aria-hidden="true"></div>
+          <!-- ④ 액션 영역 — 막기 버튼 (큰), 보조 버튼들 -->
+          <div class="action-zone">
+            <button class="tap-btn prep-gauge" id="tapBtn" type="button">
+              <span class="tap-icon">!</span>
+              <span class="tap-label" id="tapLabel">탭해서 기력 모으기</span>
+              <span class="tap-prep-fill" id="prepBar"></span>
+            </button>
+            <div class="sub-actions">
+              <button class="sub-btn ult" id="ultimateBtn" type="button">
+                <span>✦</span>
+                <span id="ultimateBtnLabel">궁극기 0%</span>
+                <span class="sub-fill" id="ultimateBar"></span>
+              </button>
+              <button class="sub-btn" id="reincarnateBtn" type="button">↻ 환생</button>
+              <button class="sub-btn ghost" id="menuBtn" type="button">☰ 메뉴</button>
             </div>
-            <div class="stage-reward-deck" id="stageRewardDeck" aria-hidden="true"></div>
-          </div>
-
-          <!-- 막기 버튼 — 단독 큰 버튼 -->
-          <button class="command-btn rescue primary tap-main-btn" id="tapBtn" type="button">
-            <span class="btn-icon">!</span>
-            <span id="tapLabel">막기</span>
-          </button>
-          <!-- 보조 버튼 행 -->
-          <div class="command-bar">
-            <button class="command-btn" id="ultimateBtn" type="button">
-              <span class="btn-icon">✦</span>
-              <span id="ultimateBtnLabel">궁극기</span>
-            </button>
-            <button class="command-btn" id="reincarnateBtn" type="button">
-              <span class="btn-icon">↻</span>
-              <span>환생</span>
-            </button>
-            <button class="command-btn ghost" id="saveBtn" type="button">
-              <span class="btn-icon">✓</span>
-              <span>저장</span>
-            </button>
+            <!-- 체면(HP) — 작은 한 줄 -->
+            <div class="dignity-line" aria-label="마왕 체면">
+              <span class="dignity-icon">♥</span>
+              <div class="dignity-bar"><span id="heroHpBar"></span></div>
+              <span class="dignity-num" id="heroHpText">100/100</span>
+            </div>
           </div>
         </section>
-
-        <!-- 하단 탭 패널 -->
-        <div class="bottom-panels">
-          <div class="tab-bar">
-            <button class="tab-btn active" data-tab="upgrade" type="button">강화</button>
-            <button class="tab-btn" data-tab="build" type="button">빌드</button>
-            <button class="tab-btn" data-tab="parts" type="button">파츠</button>
-          </div>
-
-          <div class="tab-content" id="tabUpgrade">
-            <div class="tab-header">
-              <span>공물 강화</span>
-              <strong id="dpsText">구매 가능</strong>
-            </div>
-            <div class="objective-card" id="objectiveText">
-              기력을 쌓은 뒤 적 공격이 들어오는 순간 막으세요.
-            </div>
-            <div class="run-upgrade-grid" id="runUpgradeGrid"></div>
-          </div>
-
-          <div class="tab-content hidden" id="tabBuild">
-            <div class="tab-header">
-              <span>이번 판 특성</span>
-              <strong>빌드</strong>
-            </div>
-            <div id="traitList" class="trait-list" aria-live="polite"></div>
-          </div>
-
-          <div class="tab-content hidden" id="tabParts">
-            <div class="tab-header">
-              <span>궁극기 파츠</span>
-              <strong>기억의 극장</strong>
-            </div>
-            <div id="partSlots" class="part-slots"></div>
-            <div class="memory-box">
-              <span>수집 현황</span>
-              <strong id="memoryText">3개 장착됨</strong>
-            </div>
-          </div>
-        </div>
       </main>
     </div>
 
-    <!-- 특성 선택 모달 -->
+    <!-- ── 하단 시트(메뉴): 강화/빌드/파츠/저장 ── -->
+    <div class="bottom-sheet hidden" id="bottomSheet" role="dialog" aria-modal="true">
+      <div class="sheet-handle" id="sheetClose">▼ 닫기</div>
+      <div class="sheet-tabs">
+        <button class="sheet-tab active" data-tab="upgrade" type="button">강화</button>
+        <button class="sheet-tab" data-tab="build" type="button">빌드</button>
+        <button class="sheet-tab" data-tab="parts" type="button">파츠</button>
+        <button class="sheet-tab" data-tab="save" type="button">저장</button>
+      </div>
+      <div class="sheet-body">
+        <div class="sheet-content" id="sheetUpgrade">
+          <div class="sheet-header">
+            <span>공물 강화</span>
+            <strong id="dpsText">구매 가능</strong>
+          </div>
+          <div class="objective-card" id="objectiveText">기력을 쌓은 뒤 적 공격이 들어오는 순간 막으세요.</div>
+          <div class="run-upgrade-grid" id="runUpgradeGrid"></div>
+          <div class="reward-strip">
+            <strong id="stageRewardText">5F 보스 처치로 궁극기 영상 파츠 획득</strong>
+            <div id="stageMilestones" class="milestone-row" aria-hidden="true"></div>
+            <div id="stageRewardDeck" class="reward-deck" aria-hidden="true"></div>
+          </div>
+        </div>
+        <div class="sheet-content hidden" id="sheetBuild">
+          <div class="sheet-header"><span>이번 판 특성</span><strong>빌드</strong></div>
+          <div id="traitList" class="trait-list" aria-live="polite"></div>
+        </div>
+        <div class="sheet-content hidden" id="sheetParts">
+          <div class="sheet-header"><span>궁극기 파츠</span><strong>기억의 극장</strong></div>
+          <div id="partSlots" class="part-slots"></div>
+          <div class="memory-box"><span>수집 현황</span><strong id="memoryText">0개 장착됨</strong></div>
+        </div>
+        <div class="sheet-content hidden" id="sheetSave">
+          <div class="sheet-header"><span>진행 상황</span><strong>저장</strong></div>
+          <div class="save-box">
+            <button class="sub-btn" id="saveBtn" type="button">✓ 게임 저장</button>
+            <p class="save-hint">자동 저장도 작동하지만, 중요한 순간엔 직접 저장하세요.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── 모달: 특성 선택 ── -->
     <div class="choice-modal hidden" id="choiceModal" role="dialog" aria-modal="true" aria-labelledby="choiceTitle">
       <div class="modal-panel">
         <span class="kicker">특성 선택</span>
@@ -250,7 +176,7 @@
       </div>
     </div>
 
-    <!-- 파츠 선택 모달 -->
+    <!-- ── 모달: 파츠 선택 ── -->
     <div class="choice-modal hidden" id="partModal" role="dialog" aria-modal="true" aria-labelledby="partTitle">
       <div class="modal-panel">
         <span class="kicker">기억의 극장</span>
@@ -260,7 +186,7 @@
       </div>
     </div>
 
-    <!-- 환생 모달 -->
+    <!-- ── 모달: 환생 ── -->
     <div class="reincarnate-modal hidden" id="reincarnateModal" role="dialog" aria-modal="true" aria-labelledby="reincarnateTitle">
       <div class="modal-panel upgrade-panel">
         <span class="kicker">마왕의 그릇</span>
@@ -268,13 +194,13 @@
         <p id="reincarnateSummary">마왕님이 잠깐 쓰러졌습니다.</p>
         <div class="upgrade-grid" id="upgradeGrid"></div>
         <div class="modal-actions">
-          <button class="command-btn primary" id="restartRunBtn" type="button">다음 판 시작</button>
-          <button class="command-btn ghost" id="closeReincarnateBtn" type="button">계속 버티기</button>
+          <button class="sub-btn primary" id="restartRunBtn" type="button">다음 판 시작</button>
+          <button class="sub-btn ghost" id="closeReincarnateBtn" type="button">계속 버티기</button>
         </div>
       </div>
     </div>
 
-    <!-- 궁극기 컷씬 -->
+    <!-- ── 궁극기 컷씬 ── -->
     <div class="cutscene hidden" id="cutscene" aria-hidden="true">
       <div class="cutscene-stage">
         <img src="assets/demon_state_ultimate.png" alt="" class="cutscene-character" />
@@ -287,7 +213,27 @@
       </div>
     </div>
 
+    <!-- 토스트 -->
     <div class="toast-stack" id="toastStack" aria-live="polite"></div>
+
+    <!-- ── 레거시 ID 보존 (JS에서 참조하지만 새 UI에선 안 보임) ── -->
+    <div hidden aria-hidden="true">
+      <span id="enemyArt"></span>
+      <span id="enemyHpText"></span>
+      <span id="dignityText"></span>
+      <span id="ultimateText"></span>
+      <span id="ultimateInlineText"></span>
+      <span id="threatBar"></span>
+      <span id="threatText"></span>
+      <span id="timingCall"></span>
+      <span id="comboText"></span>
+      <span id="prepText"></span>
+      <span id="breakBar"></span>
+      <span id="breakText"></span>
+      <span id="enemyAttackStat"></span>
+      <span id="autoPowerText"></span>
+      <span id="clickPowerText"></span>
+    </div>
 
     <script src="game.js"></script>
   </body>

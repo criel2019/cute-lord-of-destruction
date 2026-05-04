@@ -323,7 +323,54 @@ const el = {
   stageRewardText: $("#stageRewardText"),
   stageRewardDeck: $("#stageRewardDeck"),
   stageMilestones: $("#stageMilestones"),
+  menuBtn: $("#menuBtn"),
+  bottomSheet: $("#bottomSheet"),
+  sheetClose: $("#sheetClose"),
+  sheetTabs: document.querySelectorAll(".sheet-tab"),
+  sheetUpgrade: $("#sheetUpgrade"),
+  sheetBuild: $("#sheetBuild"),
+  sheetParts: $("#sheetParts"),
+  sheetSave: $("#sheetSave"),
+  runChip: $("#runChip"),
+  bossAlert: $("#bossAlert"),
 };
+
+function openBottomSheet(tab) {
+  if (!el.bottomSheet) return;
+  el.bottomSheet.classList.remove("hidden");
+  if (tab) switchSheetTab(tab);
+}
+
+function closeBottomSheet() {
+  if (!el.bottomSheet) return;
+  el.bottomSheet.classList.add("hidden");
+}
+
+function switchSheetTab(tabName) {
+  const map = {
+    upgrade: el.sheetUpgrade,
+    build: el.sheetBuild,
+    parts: el.sheetParts,
+    save: el.sheetSave,
+  };
+  Object.entries(map).forEach(([k, node]) => {
+    if (node) node.classList.toggle("hidden", k !== tabName);
+  });
+  el.sheetTabs?.forEach(btn => {
+    btn.classList.toggle("active", btn.dataset.tab === tabName);
+  });
+}
+
+if (el.menuBtn) el.menuBtn.addEventListener("click", () => openBottomSheet("upgrade"));
+if (el.sheetClose) el.sheetClose.addEventListener("click", closeBottomSheet);
+if (el.bottomSheet) {
+  el.bottomSheet.addEventListener("click", (e) => {
+    if (e.target === el.bottomSheet) closeBottomSheet();
+  });
+}
+el.sheetTabs?.forEach(btn => {
+  btn.addEventListener("click", () => switchSheetTab(btn.dataset.tab));
+});
 
 const renderCache = {
   parts: "",
@@ -3748,6 +3795,7 @@ function render() {
   if (el.runText) {
     el.runText.textContent = `${state.run}`;
     el.runText.closest(".hud-stat")?.classList.toggle("hidden-run", state.run <= 1);
+    el.runChip?.classList.toggle("hidden-run", state.run <= 1);
   }
   if (el.streakChip && el.streakText) {
     const sn = state.rescueStreak || 0;
@@ -3994,6 +4042,7 @@ function render() {
   // 보스 직전 층(4F, 9F, ...) 긴장감 클래스
   const isPreBoss = !state.enemy.isBoss && state.floor % 5 === 4;
   el.stagePanel.classList.toggle("pre-boss", isPreBoss);
+  el.bossAlert?.classList.toggle("hidden", !isPreBoss);
   el.stagePanel.classList.toggle("hit", state.pose === "hit");
   el.stagePanel.classList.toggle("proud", state.pose === "proud" || state.pose === "rescue" || state.pose === "counter");
   el.stagePanel.classList.toggle("prepared", prepRate >= 70);

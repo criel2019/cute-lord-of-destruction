@@ -448,6 +448,7 @@ const el = {
   bossHpNum: $("#bossHpNum"),
   fightCombo: $("#fightCombo"),
   fightComboNum: $("#fightComboNum"),
+  fightComboMult: $("#fightComboMult"),
   bossCardsOverlay: $("#bossCardsOverlay"),
   bossCardsName: $("#bossCardsName"),
   bossModifierBadge: $("#bossModifierBadge"),
@@ -4832,11 +4833,16 @@ let _fightComboHideTimer = null;
 function updateFightCombo(streak) {
   const node = el.fightCombo;
   const numNode = el.fightComboNum;
+  const multNode = el.fightComboMult;
   if (!node || !numNode) return;
   const next = Math.max(0, streak | 0);
   if (next < 2) {
     if (_fightComboLast >= 2 && !node.classList.contains("hidden")) {
-      node.classList.remove("fc-pop", "fc-mega");
+      // 콤보가 끊기면 큰 COMBO BREAK 배너 (3 이상에서만)
+      if (_fightComboLast >= 3) {
+        showComboBreak(_fightComboLast);
+      }
+      node.classList.remove("fc-pop", "fc-mega", "fc-milestone", "fc-legend");
       node.classList.add("fc-fade");
       window.clearTimeout(_fightComboHideTimer);
       _fightComboHideTimer = window.setTimeout(() => {
@@ -4852,11 +4858,63 @@ function updateFightCombo(streak) {
   node.classList.remove("hidden", "fc-fade");
   numNode.textContent = String(next);
   node.classList.toggle("fc-mega", next >= 10);
+  node.classList.toggle("fc-legend", next >= 20);
+  // 배율 표시 — 막기 보상에 곱해지는 실제 배율
+  if (multNode) {
+    const mult = (typeof getComboMultiplier === "function") ? getComboMultiplier() : 1;
+    multNode.textContent = `x${mult.toFixed(2)}`;
+  }
   // pop 재트리거
-  node.classList.remove("fc-pop");
+  node.classList.remove("fc-pop", "fc-milestone");
   void node.offsetWidth;
-  node.classList.add("fc-pop");
+  // 마일스톤(3/5/10/20)에는 더 큰 임팩트
+  if (next === 3 || next === 5 || next === 10 || next === 20 || next === 30) {
+    node.classList.add("fc-milestone");
+    // 마일스톤 폭발 파티클
+    spawnComboMilestoneBurst(next);
+  } else {
+    node.classList.add("fc-pop");
+  }
   _fightComboLast = next;
+}
+
+// 콤보 마일스톤 — 콤보 카운터 주변에서 황금 별 파티클 분사
+function spawnComboMilestoneBurst(streak) {
+  const node = el.fightCombo;
+  if (!node) return;
+  const stage = el.stagePanel?.querySelector(".main-stage");
+  if (!stage) return;
+  const stageRect = stage.getBoundingClientRect();
+  const nodeRect = node.getBoundingClientRect();
+  const cx = ((nodeRect.left + nodeRect.width / 2 - stageRect.left) / stageRect.width) * 100;
+  const cy = ((nodeRect.top + nodeRect.height / 2 - stageRect.top) / stageRect.height) * 100;
+  const count = Math.min(20, 6 + Math.floor(streak / 2));
+  for (let i = 0; i < count; i++) {
+    const star = document.createElement("span");
+    star.className = "combo-milestone-star";
+    if (streak >= 20) star.classList.add("legend");
+    else if (streak >= 10) star.classList.add("mega");
+    const angle = (Math.PI * 2 * i) / count + Math.random() * 0.4;
+    const dist = 30 + Math.random() * 25;
+    star.style.left = `${cx}%`;
+    star.style.top = `${cy}%`;
+    star.style.setProperty("--dx", `${Math.cos(angle) * dist}vw`);
+    star.style.setProperty("--dy", `${Math.sin(angle) * dist}vh`);
+    star.style.animationDelay = `${i * 18}ms`;
+    stage.appendChild(star);
+    window.setTimeout(() => star.remove(), 900 + i * 18);
+  }
+}
+
+// 콤보 깨짐 배너 — 화면 중앙에 짧게
+function showComboBreak(brokenStreak) {
+  const stage = el.stagePanel;
+  if (!stage) return;
+  const banner = document.createElement("div");
+  banner.className = "combo-break-banner";
+  banner.innerHTML = `<span class="cbb-num">${brokenStreak}</span><span class="cbb-label">COMBO BREAK</span>`;
+  stage.appendChild(banner);
+  window.setTimeout(() => banner.remove(), 900);
 }
 
 // ── 탭 즉시 피드백 + KO 슬로우모션 + KO 도장 ──────────────

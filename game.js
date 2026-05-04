@@ -4409,6 +4409,11 @@ function render() {
   // 브레이크 80% 이상 → 임박 강조
   el.breakBar.parentElement?.classList.toggle("break-near", state.enemy.isBoss && breakCharge >= 80);
   el.ultimateBar.style.setProperty("--ult-fill", `${clamp(state.ultimate, 0, 100)}%`);
+  // 충전 단계별 시각 — 격투게임 슈퍼 게이지 컨벤션
+  const ultPct = state.ultimate;
+  el.ultimateBtn.classList.toggle("ult-charging-low", ultPct > 0 && ultPct < 50);
+  el.ultimateBtn.classList.toggle("ult-charging-mid", ultPct >= 50 && ultPct < 80);
+  el.ultimateBtn.classList.toggle("ult-charging-high", ultPct >= 80 && ultPct < 100);
   el.ultimateBtn.disabled = state.ultimate < 100 || state.paused || state.cutscenePlaying;
   el.ultimateBtn.classList.toggle("ultimate-ready", state.ultimate >= 100 && !state.paused && !state.cutscenePlaying);
   if (el.ultimateBtnLabel) {

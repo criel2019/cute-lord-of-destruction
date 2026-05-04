@@ -5392,3 +5392,37 @@ body.hp-warning .danger-vignette {
 @media (prefers-reduced-motion: reduce) {
   .tap-hit-spark, .tap-hit-ring, .main-character.char-tap-lunge { animation: none !important; }
 }
+
+/* ============================================================
+   Vampire Survivors 스타일 미니 prep gain 숫자 — 매 탭마다 표시
+   ============================================================ */
+.prep-gain-mini {
+  position: absolute;
+  z-index: 7;
+  pointer-events: none;
+  font-size: 13px;
+  font-weight: 900;
+  color: #b9f5d4;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.85), 0 0 6px rgba(120,255,180,0.55);
+  letter-spacing: -0.01em;
+  transform: translate(-50%, -50%);
+  animation: prepGainMiniFloat 0.6s cubic-bezier(.2,.7,.4,1) forwards;
+}
+.prep-gain-mini-warm {
+  color: #ffe066;
+  font-size: 15px;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.85), 0 0 8px rgba(255,210,80,0.6);
+}
+.prep-gain-mini-hot {
+  color: #ff8a4c;
+  font-size: 17px;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.9), 0 0 10px rgba(255,120,60,0.7);
+}
+@keyframes prepGainMiniFloat {
+  0%   { transform: translate(-50%, -50%) scale(0.7); opacity: 0; }
+  20%  { transform: translate(-50%, -85%) scale(1.15); opacity: 1; }
+  100% { transform: translate(-50%, -160%) scale(0.9); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .prep-gain-mini { animation: none !important; }
+}

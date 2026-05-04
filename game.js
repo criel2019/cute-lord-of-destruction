@@ -38,9 +38,11 @@ function _noiseBurst(ctx, now, duration = 0.06, gainPeak = 0.18, lowpass = 1200)
   } catch {}
 }
 
-function playSfx(type) {
+function playSfx(type, opts = {}) {
   const ctx = getAudioCtx();
   if (!ctx) return;
+  // pitchSemis: -12 ~ +12 반음 (리듬게임처럼 콤보 따라 올라가게)
+  const pitchMult = opts.pitchSemis ? Math.pow(2, opts.pitchSemis / 12) : 1;
   try {
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
@@ -224,9 +226,10 @@ function playSfx(type) {
       bigBoom.stop(now + 0.5);
     } else if (type === "click") {
       // 펀치감 있는 탭 — 짧은 톤 + 작은 노이즈
+      // pitchSemis로 콤보 단계별 반음 상승 → 리듬감
       osc.type = "triangle";
-      osc.frequency.setValueAtTime(720, now);
-      osc.frequency.exponentialRampToValueAtTime(380, now + 0.05);
+      osc.frequency.setValueAtTime(720 * pitchMult, now);
+      osc.frequency.exponentialRampToValueAtTime(380 * pitchMult, now + 0.05);
       gain.gain.setValueAtTime(0.1, now);
       gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
       osc.start(now);
@@ -2136,7 +2139,10 @@ function rescueAction(ev) {
   }
   const tapCombo = state._tapCombo;
 
-  playSfx("click");
+  // 콤보에 따라 반음씩 올라가는 click — 리듬게임 효과음 패턴
+  // 0~3: 0~3반음, 4~7: 4~7반음, 8+: 8~12반음 (clamp)
+  const clickPitch = Math.min(12, tapCombo);
+  playSfx("click", { pitchSemis: clickPitch });
   setPose("proud", 0.58, "명령");
   triggerPulse("assist", 0.3);
   // 기력 탭 → 적 반응 (기력 높을수록 더 크게) + 가벼운 흔들림으로 묵직함 추가
@@ -2173,6 +2179,20 @@ function rescueAction(ev) {
   // 콤보 보너스: 4탭+ 연속 시 +15%, 8탭+ 연속 시 +30%
   const comboBonus = tapCombo >= 8 ? 1.3 : tapCombo >= 4 ? 1.15 : 1;
   const gainedPrep = addPrep((11 + state.floor * 0.28) * ragePrepMult * evPrepMult * comboBonus, true);
+
+  // Vampire Survivors 스타일 매 탭 +N 미니 숫자 — 클릭 좌표 기준 위로 튀어오름
+  if (el.stagePanel && tapCoord) {
+    const mini = document.createElement("span");
+    mini.className = "prep-gain-mini";
+    if (tapCombo >= 8) mini.classList.add("prep-gain-mini-hot");
+    else if (tapCombo >= 4) mini.classList.add("prep-gain-mini-warm");
+    mini.textContent = `+${Math.round(gainedPrep)}`;
+    // stage-panel 좌표 기준 (tapCoord와 일치)
+    mini.style.left = `${tapCoord.x}px`;
+    mini.style.top = `${tapCoord.y}px`;
+    el.stagePanel.appendChild(mini);
+    window.setTimeout(() => mini.remove(), 620);
+  }
 
   // 콤보 달성 피드백
   if (tapCombo === 4) {

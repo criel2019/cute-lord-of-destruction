@@ -2787,9 +2787,53 @@ body.hp-warning .danger-vignette {
   30%  { transform: scale(1.18); text-shadow: 0 0 10px rgba(255, 80, 80, 0.85); }
   100% { transform: scale(1); }
 }
+/* 회복 강조 — 골드 펄스 + 위로 솟구치는 +N */
+.dignity-bar.dignity-heal {
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.5), 0 0 0 2px rgba(255, 220, 120, 0.7), 0 0 18px rgba(255, 200, 90, 0.8);
+  animation: dignityBarHeal 0.55s ease;
+}
+.dignity-bar.dignity-heal span {
+  background: linear-gradient(180deg, #ffe88a 0%, #ffc14d 100%);
+  filter: brightness(1.35);
+}
+@keyframes dignityBarHeal {
+  0%   { transform: scale(1); }
+  35%  { transform: scale(1.04, 1.6); }
+  100% { transform: scale(1); }
+}
+.dignity-num.dignity-num-heal {
+  animation: dignityNumHeal 0.55s ease;
+  color: #ffd070;
+}
+@keyframes dignityNumHeal {
+  0%   { transform: scale(1); }
+  30%  { transform: scale(1.22); text-shadow: 0 0 12px rgba(255, 200, 90, 0.95), 0 0 22px rgba(255, 220, 120, 0.7); }
+  100% { transform: scale(1); }
+}
+.dignity-heal-pop {
+  position: absolute;
+  left: 50%;
+  top: -6px;
+  transform: translateX(-50%);
+  pointer-events: none;
+  font-weight: 800;
+  font-size: 14px;
+  color: #ffe98a;
+  text-shadow: 0 0 8px rgba(255, 200, 90, 0.95), 0 1px 2px rgba(0,0,0,0.8);
+  animation: dignityHealPop 0.9s cubic-bezier(0.2, 0.7, 0.3, 1) forwards;
+  z-index: 5;
+}
+@keyframes dignityHealPop {
+  0%   { opacity: 0; transform: translate(-50%, 4px) scale(0.8); }
+  20%  { opacity: 1; transform: translate(-50%, -10px) scale(1.15); }
+  100% { opacity: 0; transform: translate(-50%, -32px) scale(1); }
+}
 @media (prefers-reduced-motion: reduce) {
   .dignity-bar.dignity-hit { animation: none !important; }
   .dignity-num.dignity-num-hit { animation: none !important; }
+  .dignity-bar.dignity-heal { animation: none !important; }
+  .dignity-num.dignity-num-heal { animation: none !important; }
+  .dignity-heal-pop { animation: none !important; opacity: 1 !important; }
 }
 
 .stage-panel.low-dignity .dignity-bar span { background: linear-gradient(90deg, var(--gold), #ff8a4c); }

@@ -2095,7 +2095,10 @@ function rescueAction(ev) {
         state.enemy._breakCount = (state.enemy._breakCount || 0) + 1;
         shakeScreen(2.5);
         dealEnemyDamage(state.enemy.maxHp * 0.18, "break", "브레이크!");
+        const _bDignBefore = state.dignity;
         state.dignity = clamp(state.dignity + 16, 0, stats.maxDignity);
+        const _bDignHealed = state.dignity - _bDignBefore;
+        if (_bDignHealed > 0) flashDignityHeal(_bDignHealed);
         state.ultimate = clamp(state.ultimate + 22, 0, 100);
         showCreditCut("streak", "실제: 보좌관이 적의 집중 흐름을 끊음", "발표: 짐의 위엄이 적의 의지를 꺾었다!", 1.6);
         const breakN = state.enemy._breakCount;
@@ -2694,7 +2697,10 @@ function defeatEnemy() {
   const bossRewardMod = defeatedBoss ? getBossModifier() : null;
   const dignityRewardMod = bossRewardMod ? bossRewardMod.dignityRewardMod : 1;
   const lootMod = bossRewardMod ? bossRewardMod.lootMod : 1;
+  const _dignityBefore = state.dignity;
   state.dignity = clamp(state.dignity + (defeatedBoss ? 18 * dignityRewardMod : 7), 0, stats.maxDignity);
+  const _dignityHealed = state.dignity - _dignityBefore;
+  if (defeatedBoss && _dignityHealed > 0) flashDignityHeal(_dignityHealed);
   state.ultimate = clamp(state.ultimate + (defeatedBoss ? 24 : 9), 0, 100);
   gainTributes((defeatedBoss ? 18 : 6) * Math.max(1, oldFloor) * stats.rewardMult * lootMod, defeatedBoss ? "boss" : "defeat");
   if (stats.shardPerFloor) {
@@ -3720,7 +3726,10 @@ function buyUpgrade(id, cost) {
   const statsBefore = getStats();
   state.shards -= cost;
   state.permanent[id] = (state.permanent[id] || 0) + 1;
+  const dignityBefore = state.dignity;
   state.dignity = clamp(state.dignity + 20, 0, getStats().maxDignity);
+  const dignityGained = state.dignity - dignityBefore;
+  if (dignityGained > 0) flashDignityHeal(dignityGained);
   playSfx("upgrade");
   flashScreen("gold", 0.5);
   spawnParticles(32);
@@ -4816,6 +4825,30 @@ function flashDignityHit() {
     void el.heroHpText.offsetWidth;
     el.heroHpText.classList.add("dignity-num-hit");
     window.setTimeout(() => el.heroHpText.classList.remove("dignity-num-hit"), 420);
+  }
+}
+
+function flashDignityHeal(amount = 0) {
+  const bar = el.heroHpBar?.parentElement;
+  if (!bar) return;
+  bar.classList.remove("dignity-heal");
+  void bar.offsetWidth;
+  bar.classList.add("dignity-heal");
+  window.setTimeout(() => bar.classList.remove("dignity-heal"), 560);
+  if (el.heroHpText) {
+    el.heroHpText.classList.remove("dignity-num-heal");
+    void el.heroHpText.offsetWidth;
+    el.heroHpText.classList.add("dignity-num-heal");
+    window.setTimeout(() => el.heroHpText.classList.remove("dignity-num-heal"), 560);
+  }
+  // +N 골드 텍스트 솟구침
+  if (amount > 0) {
+    if (getComputedStyle(bar).position === "static") bar.style.position = "relative";
+    const pop = document.createElement("span");
+    pop.className = "dignity-heal-pop";
+    pop.textContent = `+${Math.round(amount)} 체면`;
+    bar.appendChild(pop);
+    window.setTimeout(() => pop.remove(), 920);
   }
 }
 

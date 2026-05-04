@@ -140,6 +140,38 @@
       </main>
     </div>
 
+    <!-- 보스 등장 — 전략 카드 3선택 -->
+    <div class="boss-cards-overlay hidden" id="bossCardsOverlay" role="dialog" aria-modal="true" aria-labelledby="bossCardsTitle">
+      <div class="boss-cards-bg" aria-hidden="true"></div>
+      <div class="boss-cards-panel">
+        <div class="boss-cards-header">
+          <span class="boss-cards-eyebrow" id="bossCardsName">보스 등장</span>
+          <strong id="bossCardsTitle">전략을 선택하시오, 마왕님</strong>
+          <span class="boss-cards-hint">선택한 전략에 따라 이번 보스전 전체가 바뀝니다</span>
+        </div>
+        <div class="boss-cards-grid">
+          <button class="boss-card boss-card-shield" data-mod="shield" type="button">
+            <span class="boss-card-icon">🛡</span>
+            <strong class="boss-card-title">방어 작전</strong>
+            <span class="boss-card-desc">받는 피해 -30%<br/>공격 시간 +25%</span>
+            <span class="boss-card-flavor">"안전이 짐의 미덕이니라"</span>
+          </button>
+          <button class="boss-card boss-card-gamble" data-mod="gamble" type="button">
+            <span class="boss-card-icon">⚔</span>
+            <strong class="boss-card-title">광기 작전</strong>
+            <span class="boss-card-desc">데미지 +60%<br/>받는 피해 +20%</span>
+            <span class="boss-card-flavor">"짐의 분노를 받아라!"</span>
+          </button>
+          <button class="boss-card boss-card-loot" data-mod="loot" type="button">
+            <span class="boss-card-icon">💰</span>
+            <strong class="boss-card-title">약탈 작전</strong>
+            <span class="boss-card-desc">처치 시 공물 x2<br/>체면 보상 -50%</span>
+            <span class="boss-card-flavor">"명예보단 금화니라"</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- ── 하단 시트(메뉴): 강화/빌드/파츠/저장 ── -->
     <div class="bottom-sheet hidden" id="bottomSheet" role="dialog" aria-modal="true">
       <div class="sheet-handle" id="sheetClose">▼ 닫기</div>

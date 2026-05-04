@@ -1520,7 +1520,7 @@ function dealEnemyDamage(amount, source = "auto", label = "") {
   const newHpRate = state.enemy.hp / state.enemy.maxHp;
   if (prevHpRate > 0.75 && newHpRate <= 0.75 && newHpRate > 0) {
     if (state.enemy.isBoss) {
-      showToast("보스 체력 75%! 보스가 주춤한다!");
+      // 보스 HP바가 이미 보임 → 토스트 생략, 효과만
       shakeScreen(0.9);
       spawnParticles(14);
       setDialogue(randomPick([
@@ -1531,24 +1531,20 @@ function dealEnemyDamage(amount, source = "auto", label = "") {
   }
   if (prevHpRate > 0.5 && newHpRate <= 0.5 && newHpRate > 0) {
     if (state.enemy.isBoss) {
-      showToast("보스 체력 50%! 보스가 화났습니다!");
       shakeScreen(1.5);
       flashScreen("red", 0.25);
       setDialogue("보았느냐! 벌써 절반이 줄었다! 이제 보스가 더 사납게 덤빈다!", "허세");
       spawnParticles(22);
     } else {
-      showToast("적 체력 50% — 마무리 준비!");
       shakeScreen(0.5);
     }
   }
   if (prevHpRate > 0.25 && newHpRate <= 0.25 && newHpRate > 0) {
     if (state.enemy.isBoss) {
-      showToast("보스 체력 25%! 궁극기 쓸 절호의 기회!");
       shakeScreen(1.8);
       spawnParticles(28);
       setDialogue("흐흥! 거의 다 왔느니라! 이번엔 짐이 직접 나설 것이니라!", "각성");
     } else {
-      showToast("적 체력 25%! 한 번만 더!");
       shakeScreen(0.8);
     }
   }

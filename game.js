@@ -1932,6 +1932,9 @@ function enemyHits() {
   // 피격 빨간 플래시 — stage-panel 에 hit-flash 클래스 토글
   el.stagePanel.classList.add("hit-flash");
   window.setTimeout(() => el.stagePanel.classList.remove("hit-flash"), 420);
+  // 전화면 위협 비네트 한 번 깜박 + 강한 흔들림
+  flashDangerVignette();
+  shakeScreen(1.6);
   state.enemy.attackTimer = state.enemy.attackMax + (state.enemy.isBoss ? 2.2 : 1.65);
   const brokenStreak = state.rescueStreak || 0;
   state.rescueStreak = 0;
@@ -3792,6 +3795,7 @@ function renderStageReward() {
 }
 
 function render() {
+  if (!_motesStarted) { _motesStarted = true; startStageMotes(); }
   ensureEnemy();
   const stats = getStats();
   state.dignity = clamp(state.dignity, 0, stats.maxDignity);
@@ -3805,6 +3809,7 @@ function render() {
   const dignityRate = state.dignity / stats.maxDignity;
   const dignityPercent = Math.round(dignityRate * 100);
   const dignityCritical = dignityRate <= 0.4;
+  applyHpDangerClass(dignityRate);
   const comboMult = getComboMultiplier();
   const prepRate = clamp(state.prep || 0, 0, 100);
   const prepMult = getPrepMultiplier(state.enemy);
@@ -3864,6 +3869,7 @@ function render() {
     }
   }
   updateDemonTitle();
+  applyStageHue();
   el.shardText.textContent = formatNumber(state.shards);
   pulseValue(el.shardText, state.shards);
   el.dignityText.textContent = `${dignityPercent}%`;
@@ -4000,7 +4006,9 @@ function render() {
   el.dignityText.closest(".hud-stat")?.classList.toggle("critical", dignityCritical);
   el.ultimateText.closest(".hud-stat")?.classList.toggle("ready", state.ultimate >= 100);
   el.stagePanel.classList.toggle("aiming", phase.aiming);
+  const wasDanger = el.stagePanel.classList.contains("danger");
   el.stagePanel.classList.toggle("danger", dangerReady);
+  if (dangerReady && !wasDanger) spawnAttackTelegraph();
   // 적 말풍선 taunt 텍스트 업데이트
   if (el.arenaEnemy) {
     const threatCard = el.arenaEnemy.closest(".threat-card");
@@ -4317,6 +4325,77 @@ function enemyImpactHit() {
   void el.arenaEnemy.offsetWidth;
   el.arenaEnemy.classList.add("enemy-impact");
   window.setTimeout(() => el.arenaEnemy?.classList.remove("enemy-impact"), 340);
+}
+
+function spawnAttackTelegraph() {
+  const stage = el.stagePanel?.querySelector(".main-stage");
+  if (!stage) return;
+  const tg = document.createElement("span");
+  tg.className = "attack-telegraph";
+  stage.appendChild(tg);
+  window.setTimeout(() => tg.remove(), 460);
+}
+
+function flashDangerVignette() {
+  const v = document.getElementById("dangerVignette");
+  if (!v) return;
+  v.classList.remove("flash");
+  void v.offsetWidth;
+  v.classList.add("flash");
+  window.setTimeout(() => v.classList.remove("flash"), 470);
+}
+
+function applyHpDangerClass(dignityRate) {
+  document.body.classList.toggle("hp-critical", dignityRate <= 0.25);
+  document.body.classList.toggle("hp-warning", dignityRate > 0.25 && dignityRate <= 0.5);
+}
+
+function getStageHue(floor) {
+  // 1~3 새벽(파랑) / 4~6 대낮(시안) / 7~9 노을(주황) / 10~14 밤(보라) / 15+ 핏빛
+  if (floor <= 3) return 220;       // deep blue
+  if (floor <= 6) return 195;       // cyan/teal daylight
+  if (floor <= 9) return 28;        // sunset orange
+  if (floor <= 14) return 270;      // night purple
+  if (floor <= 19) return 320;      // magenta
+  return 0;                          // blood red 20+
+}
+
+function applyStageHue() {
+  const hue = getStageHue(state.floor || 1);
+  el.stagePanel?.style.setProperty("--stage-hue", String(hue));
+  el.stagePanel?.classList.toggle("stage-night", state.floor >= 10 && state.floor < 15);
+  el.stagePanel?.classList.toggle("stage-blood", state.floor >= 20);
+}
+
+function spawnStageMote() {
+  const stage = el.stagePanel?.querySelector(".main-stage");
+  if (!stage) return;
+  const mote = document.createElement("span");
+  mote.className = "stage-mote";
+  const x = Math.random() * 100;
+  const y = 5 + Math.random() * 30;
+  const dur = 6 + Math.random() * 5;
+  const drift = (Math.random() - 0.5) * 80;
+  mote.style.setProperty("--mote-x", `${x}%`);
+  mote.style.setProperty("--mote-y", `${y}%`);
+  mote.style.setProperty("--mote-dur", `${dur}s`);
+  mote.style.setProperty("--mote-drift", `${drift}px`);
+  const size = 2 + Math.random() * 3;
+  mote.style.width = `${size}px`;
+  mote.style.height = `${size}px`;
+  stage.appendChild(mote);
+  window.setTimeout(() => mote.remove(), dur * 1000 + 200);
+}
+
+let _moteInterval = null;
+let _motesStarted = false;
+function startStageMotes() {
+  if (_moteInterval) return;
+  _moteInterval = window.setInterval(() => {
+    if (document.hidden) return;
+    if (state.paused) return;
+    spawnStageMote();
+  }, 850);
 }
 
 function spawnDefeatShards(count = 10) {

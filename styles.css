@@ -3483,3 +3483,210 @@ body.hp-warning .danger-vignette {
   0%,100% { transform: scale(1); }
   50% { transform: scale(1.06); }
 }
+
+/* ============================================
+   콤보 도박 정산 모달 — 마일스톤 도달 결정 모먼트
+   ============================================ */
+.combo-bet-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  pointer-events: auto;
+}
+.combo-bet-overlay.hidden { display: none; }
+.combo-bet-overlay .cb-bg {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 50%, rgba(255,180,60,0.22), rgba(0,0,0,0.85) 70%);
+  backdrop-filter: blur(4px);
+  animation: cbBgIn 0.3s ease;
+}
+@keyframes cbBgIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.combo-bet-overlay .cb-panel {
+  position: relative;
+  background: linear-gradient(160deg, rgba(40,20,55,0.98), rgba(15,8,25,0.98));
+  border: 3px solid rgba(255,200,80,0.55);
+  border-radius: 22px;
+  padding: 22px 22px 18px;
+  max-width: min(92vw, 440px);
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-shadow: 0 22px 60px rgba(0,0,0,0.85), 0 0 0 5px rgba(255,200,80,0.15), inset 0 2px 0 rgba(255,255,255,0.08);
+  animation: cbPanelIn 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes cbPanelIn {
+  from { transform: scale(0.6) translateY(20px); opacity: 0; }
+  to { transform: scale(1) translateY(0); opacity: 1; }
+}
+.combo-bet-overlay .cb-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  text-align: center;
+}
+.combo-bet-overlay .cb-title {
+  font-size: 14px;
+  letter-spacing: 0.06em;
+  color: #ffd76a;
+  font-weight: 800;
+}
+.combo-bet-overlay .cb-grade {
+  font-size: 32px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-shadow: 0 0 20px currentColor;
+  animation: cbGradePulse 1.2s ease infinite;
+}
+@keyframes cbGradePulse {
+  0%,100% { transform: scale(1); }
+  50% { transform: scale(1.06); }
+}
+.combo-bet-overlay .cb-question {
+  font-size: 14px;
+  color: #fff;
+  text-align: center;
+  margin: 0;
+  opacity: 0.9;
+}
+.combo-bet-overlay .cb-rewards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.combo-bet-overlay .cb-card {
+  padding: 12px 10px;
+  border-radius: 14px;
+  border: 2px solid rgba(255,255,255,0.18);
+  background: rgba(0,0,0,0.45);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+  min-height: 160px;
+  text-align: center;
+}
+.combo-bet-overlay .cb-card:hover,
+.combo-bet-overlay .cb-card:active {
+  transform: translateY(-2px);
+}
+.combo-bet-overlay .cb-card--cashout {
+  border-color: rgba(120, 220, 140, 0.55);
+  background: linear-gradient(160deg, rgba(40,90,55,0.55), rgba(20,40,30,0.6));
+}
+.combo-bet-overlay .cb-card--cashout:hover {
+  border-color: rgba(150, 240, 170, 0.85);
+  background: linear-gradient(160deg, rgba(50,120,70,0.7), rgba(30,60,40,0.75));
+}
+.combo-bet-overlay .cb-card--continue {
+  border-color: rgba(255, 120, 90, 0.55);
+  background: linear-gradient(160deg, rgba(120,40,30,0.55), rgba(60,15,15,0.6));
+}
+.combo-bet-overlay .cb-card--continue:hover {
+  border-color: rgba(255, 160, 130, 0.85);
+  background: linear-gradient(160deg, rgba(160,55,40,0.7), rgba(80,20,20,0.75));
+}
+.combo-bet-overlay .cb-card-icon { font-size: 28px; line-height: 1; }
+.combo-bet-overlay .cb-card-title {
+  font-size: 14px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: 0.04em;
+}
+.combo-bet-overlay .cb-card-rewards {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  width: 100%;
+  font-size: 11px;
+  color: rgba(255,255,255,0.92);
+}
+.combo-bet-overlay .cb-r-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 4px;
+}
+.combo-bet-overlay .cb-r-row span { opacity: 0.7; }
+.combo-bet-overlay .cb-r-row strong { color: #ffd76a; font-weight: 800; }
+.combo-bet-overlay .cb-r-future {
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  opacity: 0.65;
+  text-align: center;
+  justify-content: center;
+  border-top: 1px dashed rgba(255,255,255,0.15);
+  padding-top: 4px;
+  margin-top: 2px;
+}
+.combo-bet-overlay .cb-card-flavor {
+  font-size: 10px;
+  opacity: 0.75;
+  font-style: italic;
+  margin-top: auto;
+}
+.combo-bet-overlay .cb-card--continue .cb-card-flavor em {
+  color: #ffaa90;
+  font-style: normal;
+  font-weight: 700;
+}
+.combo-bet-overlay .cb-timer-bar {
+  height: 5px;
+  border-radius: 999px;
+  background: rgba(0,0,0,0.5);
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.12);
+}
+.combo-bet-overlay .cb-timer-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #ffd76a, #ff8a4c);
+  width: 100%;
+  box-shadow: 0 0 10px rgba(255,180,80,0.6);
+}
+.combo-bet-overlay .cb-tip {
+  font-size: 10px;
+  color: rgba(255,255,255,0.55);
+  text-align: center;
+  margin: 0;
+  letter-spacing: 0.04em;
+}
+
+/* combo-cashout-burst: 정산 완료 후 큰 임팩트 */
+.combo-cashout-burst {
+  position: fixed;
+  top: 35%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9550;
+  padding: 14px 24px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(255,210,90,0.97), rgba(220,140,40,0.97));
+  border: 3px solid var(--ccb-color, #ffd76a);
+  color: #2a1500;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  text-align: center;
+  pointer-events: none;
+  box-shadow: 0 14px 40px rgba(255,180,60,0.6), 0 0 0 5px rgba(255,255,255,0.15), inset 0 2px 0 rgba(255,255,255,0.5);
+  animation: ccbBurst 1.4s ease forwards;
+}
+.combo-cashout-burst .ccb-grade { font-size: 24px; font-weight: 900; letter-spacing: 0.08em; }
+.combo-cashout-burst .ccb-text { font-size: 14px; font-weight: 800; opacity: 0.9; }
+@keyframes ccbBurst {
+  0% { transform: translateX(-50%) scale(0.5) rotate(-4deg); opacity: 0; }
+  20% { transform: translateX(-50%) scale(1.18) rotate(2deg); opacity: 1; }
+  60% { transform: translateX(-50%) scale(1) rotate(0); opacity: 1; }
+  100% { transform: translateX(-50%) scale(1.05); opacity: 0; }
+}

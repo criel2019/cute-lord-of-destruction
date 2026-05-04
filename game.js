@@ -1679,6 +1679,7 @@ function rescueAction() {
     state.rescueStreak = (state.rescueStreak || 0) + 1;
     state.bestRescueStreak = Math.max(state.bestRescueStreak || 0, state.rescueStreak);
     state.lastTimingGrade = timing.label;
+    checkComboMilestone();
     const comboMult = getComboMultiplier();
     const prepMult = getPrepMultiplier(targetEnemy);
     setPose("rescue", 0.95, "가로채기");
@@ -2089,6 +2090,8 @@ function enemyHits() {
       window.setTimeout(() => streakPopup.remove(), 900);
     }, 120);
   }
+  // 콤보 도박 — 미정산 베팅 강제 손실
+  forfeitComboBet(brokenStreak);
   state.prep = Math.max(0, Math.floor((state.prep || 0) * 0.35));
   state.lastTimingGrade = "피격";
   setPose("hit", 0.9, "피격");
@@ -4632,6 +4635,194 @@ function updateFightCombo(streak) {
   void node.offsetWidth;
   node.classList.add("fc-pop");
   _fightComboLast = next;
+}
+
+// ── 콤보 도박 정산 시스템 ──────────────────────────────────
+// 마일스톤 도달 시 일시정지 + 정산/계속 결정 모달
+// 정산: 즉시 보상 받고 콤보 0
+// 계속: 콤보 유지하고 다음 마일스톤까지 (실패 시 직전 마일스톤 보상의 50% 잃음)
+const COMBO_MILESTONES = [
+  { streak: 10, shards: 1, lootMult: 1.5, dignityBonus: 4,  label: "Bronze",  color: "#c89878" },
+  { streak: 20, shards: 3, lootMult: 2.5, dignityBonus: 8,  label: "Silver",  color: "#d8d8e0" },
+  { streak: 35, shards: 7, lootMult: 4.0, dignityBonus: 16, label: "Gold",    color: "#ffd76a" },
+  { streak: 55, shards: 14,lootMult: 6.5, dignityBonus: 28, label: "Diamond", color: "#b8e8ff" },
+];
+
+function getNextComboMilestone(streak) {
+  for (const m of COMBO_MILESTONES) {
+    if (streak < m.streak) return m;
+  }
+  return null;
+}
+function getCurrentComboMilestone(streak) {
+  let last = null;
+  for (const m of COMBO_MILESTONES) {
+    if (streak >= m.streak) last = m;
+    else break;
+  }
+  return last;
+}
+
+function checkComboMilestone() {
+  const streak = state.rescueStreak || 0;
+  const m = COMBO_MILESTONES.find(x => x.streak === streak);
+  if (!m) return;
+  if (state.paused) return; // 보스 카드 등 다른 모달 중이면 패스
+  showComboBetModal(m);
+}
+
+function showComboBetModal(m) {
+  let overlay = document.getElementById("comboBetOverlay");
+  if (!overlay) {
+    overlay = document.createElement("div");
+    overlay.id = "comboBetOverlay";
+    overlay.className = "combo-bet-overlay";
+    overlay.innerHTML = `
+      <div class="cb-bg"></div>
+      <div class="cb-panel">
+        <div class="cb-header">
+          <span class="cb-title">콤보 ${m.streak}연속 도달!</span>
+          <span class="cb-grade" id="cbGrade">${m.label}</span>
+        </div>
+        <p class="cb-question" id="cbQuestion">지금 정산할까, 더 갈까?</p>
+        <div class="cb-rewards">
+          <div class="cb-card cb-card--cashout" data-action="cashout">
+            <div class="cb-card-icon">💰</div>
+            <div class="cb-card-title">정산하기</div>
+            <div class="cb-card-rewards" id="cbCashoutRewards"></div>
+            <div class="cb-card-flavor">안전. 콤보 0으로 리셋.</div>
+          </div>
+          <div class="cb-card cb-card--continue" data-action="continue">
+            <div class="cb-card-icon">🔥</div>
+            <div class="cb-card-title">더 가자</div>
+            <div class="cb-card-rewards" id="cbContinueRewards"></div>
+            <div class="cb-card-flavor">콤보 끊기면 <em>50% 손실</em>.</div>
+          </div>
+        </div>
+        <div class="cb-timer-bar"><div class="cb-timer-fill" id="cbTimerFill"></div></div>
+        <p class="cb-tip">10초 안에 결정하지 않으면 자동 정산됩니다.</p>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+    overlay.querySelector('[data-action="cashout"]').addEventListener("click", () => {
+      hideComboBetModal();
+      cashoutComboBet(m);
+    });
+    overlay.querySelector('[data-action="continue"]').addEventListener("click", () => {
+      hideComboBetModal();
+      continueComboBet(m);
+    });
+  }
+  // 보상 텍스트 업데이트
+  const cashout = overlay.querySelector("#cbCashoutRewards");
+  const cont = overlay.querySelector("#cbContinueRewards");
+  cashout.innerHTML = `
+    <div class="cb-r-row"><span>파편</span><strong>+${m.shards} 💠</strong></div>
+    <div class="cb-r-row"><span>공물</span><strong>×${m.lootMult.toFixed(1)}</strong></div>
+    <div class="cb-r-row"><span>체면</span><strong>+${m.dignityBonus}</strong></div>
+  `;
+  const next = getNextComboMilestone(m.streak);
+  if (next) {
+    cont.innerHTML = `
+      <div class="cb-r-row cb-r-future"><span>다음 (${next.streak}연속)</span></div>
+      <div class="cb-r-row"><span>파편</span><strong>+${next.shards} 💠</strong></div>
+      <div class="cb-r-row"><span>공물</span><strong>×${next.lootMult.toFixed(1)}</strong></div>
+      <div class="cb-r-row"><span>체면</span><strong>+${next.dignityBonus}</strong></div>
+    `;
+  } else {
+    cont.innerHTML = `
+      <div class="cb-r-row cb-r-future"><span>최고 등급 도달!</span></div>
+      <div class="cb-r-row"><span>이후 연속</span><strong>×${(m.lootMult * 0.5).toFixed(1)} 추가</strong></div>
+    `;
+  }
+  // 등급 색상
+  const gradeEl = overlay.querySelector("#cbGrade");
+  if (gradeEl) gradeEl.style.color = m.color;
+  overlay.classList.remove("hidden");
+  state.paused = true;
+  state._comboBetActive = true;
+  state._comboBetMilestone = m;
+  // 타이머 (10초)
+  const fill = overlay.querySelector("#cbTimerFill");
+  if (fill) {
+    fill.style.transition = "none";
+    fill.style.width = "100%";
+    void fill.offsetWidth;
+    fill.style.transition = "width 10s linear";
+    fill.style.width = "0%";
+  }
+  if (state._comboBetTimer) window.clearTimeout(state._comboBetTimer);
+  state._comboBetTimer = window.setTimeout(() => {
+    if (state._comboBetActive) {
+      hideComboBetModal();
+      cashoutComboBet(m);
+    }
+  }, 10000);
+  playSfx("perfect");
+}
+
+function hideComboBetModal() {
+  const overlay = document.getElementById("comboBetOverlay");
+  if (overlay) overlay.classList.add("hidden");
+  state.paused = false;
+  state._comboBetActive = false;
+  if (state._comboBetTimer) {
+    window.clearTimeout(state._comboBetTimer);
+    state._comboBetTimer = null;
+  }
+}
+
+function cashoutComboBet(m) {
+  // 즉시 보상 지급
+  const maxDig = (typeof stats !== "undefined" && stats?.maxDignity) ? stats.maxDignity : 999;
+  state.dignity = clamp((state.dignity || 0) + m.dignityBonus, 0, maxDig);
+  state.shards = (state.shards || 0) + m.shards;
+  // 공물 즉시 보너스 = 마지막 적 처치 보상 기준 추정 → 직접 베이스 계산
+  const baseLoot = Math.max(8, Math.floor((state.floor || 1) * 6 * (m.lootMult - 1)));
+  gainTributes(baseLoot, "comboCashout");
+  // 콤보 리셋 + 잠금 해제
+  state.rescueStreak = 0;
+  state._lastCashedMilestone = m.streak;
+  // 화면 임팩트
+  flashScreen("gold", 0.55);
+  spawnParticles(28);
+  showToast(`💰 ${m.label} 정산! +${m.shards}💠 +${m.dignityBonus}체면 +${baseLoot}공물`);
+  showComboCashoutBurst(m);
+  playSfx("ultimate");
+}
+
+function continueComboBet(m) {
+  // 베팅 유지 — 다음 마일스톤까지 콤보 살리고, 끊기면 50% 페널티
+  state._comboBetPending = m; // 도달했지만 정산 안 한 마일스톤
+  showToast(`🔥 ${m.label} 베팅 유지! 다음 ${(getNextComboMilestone(m.streak)?.streak || m.streak + 20)}연속까지 가세요!`);
+  flashScreen("rose", 0.35);
+  playSfx("rescue");
+}
+
+function forfeitComboBet(brokenStreak) {
+  const pending = state._comboBetPending;
+  if (!pending) return;
+  // 50% 페널티: 절반만 받음
+  const half = (n) => Math.max(0, Math.floor(n * 0.5));
+  const lostShards = pending.shards - half(pending.shards);
+  const lostDignity = pending.dignityBonus - half(pending.dignityBonus);
+  state.shards = (state.shards || 0) + half(pending.shards);
+  const maxDig2 = (typeof stats !== "undefined" && stats?.maxDignity) ? stats.maxDignity : 999;
+  state.dignity = clamp((state.dignity || 0) + half(pending.dignityBonus), 0, maxDig2);
+  showToast(`💢 베팅 실패! ${pending.label} 50% 손실 (-${lostShards}💠 -${lostDignity}체면)`);
+  flashScreen("rose", 0.5);
+  shakeScreen(1.4);
+  state._comboBetPending = null;
+  state._lastCashedMilestone = 0;
+}
+
+function showComboCashoutBurst(m) {
+  const burst = document.createElement("div");
+  burst.className = "combo-cashout-burst";
+  burst.innerHTML = `<span class="ccb-grade">${m.label}</span><span class="ccb-text">정산 완료!</span>`;
+  burst.style.setProperty("--ccb-color", m.color);
+  document.body.appendChild(burst);
+  window.setTimeout(() => burst.remove(), 1400);
 }
 
 // ── 보스 카드 시스템 ───────────────────────────────────────

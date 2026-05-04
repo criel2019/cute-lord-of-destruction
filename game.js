@@ -1685,12 +1685,19 @@ function rescueAction() {
     setPose("rescue", 0.95, "가로채기");
     showScene("rescue", 0.62);
     triggerPulse("rescue", 0.55);
-    // 막기 성공 시 마왕님 점프 애니메이션
+    // 막기 성공 시 마왕님 점프 애니메이션 + 보좌관 잔상 트레일
     if (el.mainCharacter) {
       el.mainCharacter.classList.remove("char-rescue-jump");
       void el.mainCharacter.offsetWidth;
       el.mainCharacter.classList.add("char-rescue-jump");
-      window.setTimeout(() => el.mainCharacter.classList.remove("char-rescue-jump"), 380);
+      window.setTimeout(() => el.mainCharacter.classList.remove("char-rescue-jump"), 450);
+      const demonSide = el.mainCharacter.parentElement;
+      if (demonSide) {
+        demonSide.classList.remove("show-trail");
+        void demonSide.offsetWidth;
+        demonSide.classList.add("show-trail");
+        window.setTimeout(() => demonSide.classList.remove("show-trail"), 600);
+      }
     }
     showGradePopup(timing.key);
     // ⑤ BLOCK! 중앙 폭발 텍스트
@@ -4185,6 +4192,14 @@ function render() {
   el.stagePanel.classList.toggle("combo-warm", (state.rescueStreak || 0) >= 1);
   el.stagePanel.classList.toggle("combo-hot", (state.rescueStreak || 0) >= 3);
   el.stagePanel.classList.toggle("combo-fever", (state.rescueStreak || 0) >= 7);
+  // HP 위급 비네트 — 30% 이하면 화면 가장자리 빨간 펄스
+  const dignityPct = stats.maxDignity ? (state.dignity || 0) / stats.maxDignity : 1;
+  el.stagePanel.classList.toggle("low-hp", dignityPct <= 0.3 && dignityPct > 0.15);
+  el.stagePanel.classList.toggle("crisis-hp", dignityPct <= 0.15 && dignityPct > 0);
+  // 보스 idle 클래스 토글
+  if (el.arenaEnemy) {
+    el.arenaEnemy.classList.toggle("is-boss", !!state.enemy?.isBoss);
+  }
   updateFightCombo(state.rescueStreak || 0);
   el.stagePanel.classList.toggle("is-boss", state.enemy.isBoss);
   setBgmBossMode(state.enemy.isBoss);

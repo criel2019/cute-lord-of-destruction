@@ -1110,15 +1110,24 @@ img { display: block; max-width: 100%; }
 
 /* 적 공격 차징 오라 — aiming 단계에서 적 주위 빨간 오라 */
 .stage-panel.aiming .arena-enemy {
-  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.5)) drop-shadow(0 0 8px rgba(255, 80, 80, 0.55));
+  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.5)) drop-shadow(0 0 12px rgba(255, 100, 80, 0.7));
+  animation: enemyAnticipation 0.7s ease infinite alternate;
 }
 .stage-panel.danger .arena-enemy {
-  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.5)) drop-shadow(0 0 14px rgba(255, 60, 60, 0.95)) brightness(1.15);
-  animation: enemyChargeShake 0.18s ease infinite alternate;
+  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.5))
+          drop-shadow(0 0 22px rgba(255, 60, 60, 1))
+          drop-shadow(0 0 8px rgba(255, 200, 100, 0.6))
+          brightness(1.25)
+          contrast(1.15);
+  animation: enemyChargeShake 0.12s ease infinite alternate;
+}
+@keyframes enemyAnticipation {
+  from { transform: translateY(0) scale(1); }
+  to { transform: translateY(-3px) scale(1.06); }
 }
 @keyframes enemyChargeShake {
-  from { transform: translateX(0); }
-  to { transform: translateX(2px) rotate(0.5deg); }
+  0% { transform: translateX(-3px) translateY(-2px) scale(1.12) rotate(-1deg); }
+  100% { transform: translateX(3px) translateY(0) scale(1.18) rotate(1deg); }
 }
 
 /* 떠다니는 배경 입자 — 공기/먼지/별 (무대 안에서만) */
@@ -1191,11 +1200,17 @@ img { display: block; max-width: 100%; }
 
 @keyframes idleBreathPlayer {
   0%, 100% { transform: translateY(0) scale(1, 1); }
-  50% { transform: translateY(-2px) scale(1.012, 0.988); }
+  50% { transform: translateY(-4px) scale(1.022, 0.978); }
 }
 @keyframes idleBreathEnemy {
   0%, 100% { transform: translateY(0) scale(1, 1); }
-  50% { transform: translateY(-3px) scale(1.018, 0.982); }
+  50% { transform: translateY(-5px) scale(1.028, 0.972); }
+}
+/* 보스 idle은 더 위협적 — 빠르고 깊은 호흡 */
+.arena-enemy.is-boss { animation-name: idleBreathBoss; animation-duration: 1.8s; }
+@keyframes idleBreathBoss {
+  0%, 100% { transform: translateY(0) scale(1, 1); }
+  50% { transform: translateY(-7px) scale(1.04, 0.96); }
 }
 
 /* idle 중지: 활성 애니메이션과 충돌 방지 */
@@ -1207,8 +1222,12 @@ img { display: block; max-width: 100%; }
 .arena-enemy.enemy-defeated,
 .arena-enemy.enemy-defeated-elite,
 .arena-enemy.enemy-defeated-boss,
-.arena-enemy.enemy-dying { animation-play-state: paused; }
-.main-character.char-rescue-jump { animation-play-state: paused; }
+.arena-enemy.enemy-dying,
+.arena-enemy.auto-hit-flash { animation-play-state: paused; }
+.main-character.char-rescue-jump,
+.main-character.char-rescue-trail { animation-play-state: paused; }
+.stage-panel.aiming .arena-enemy,
+.stage-panel.danger .arena-enemy { animation-play-state: running; }
 
 /* 적 상태 변화 */
 .arena-enemy.enemy-enter { animation: enemyEnter 0.42s ease; }
@@ -1237,10 +1256,27 @@ img { display: block; max-width: 100%; }
   to { transform: translateY(40px) rotate(-30deg) scale(0.5); opacity: 0; filter: blur(4px); }
 }
 
-.arena-enemy.enemy-flinch-soft { animation: flinchSoft 0.18s ease; }
-.arena-enemy.enemy-flinch { animation: flinchMid 0.18s ease; }
-.arena-enemy.enemy-flinch-hard { animation: flinchHard 0.18s ease; }
-.arena-enemy.auto-hit-flash { filter: drop-shadow(0 6px 14px rgba(0,0,0,0.5)) brightness(1.6); }
+.arena-enemy.enemy-flinch-soft {
+  animation: flinchSoft 0.22s ease;
+  filter: drop-shadow(0 6px 14px rgba(0,0,0,0.5)) brightness(1.8) saturate(0.6) !important;
+}
+.arena-enemy.enemy-flinch {
+  animation: flinchMid 0.26s ease;
+  filter: drop-shadow(0 6px 14px rgba(0,0,0,0.5)) brightness(2.2) saturate(0.3) !important;
+}
+.arena-enemy.enemy-flinch-hard {
+  animation: flinchHard 0.32s ease;
+  filter: drop-shadow(0 6px 14px rgba(0,0,0,0.5)) brightness(2.6) saturate(0) contrast(1.4) !important;
+}
+.arena-enemy.auto-hit-flash {
+  filter: drop-shadow(0 6px 14px rgba(0,0,0,0.5)) brightness(2.0) saturate(0.4) !important;
+  animation: autoHitTwitch 0.16s ease;
+}
+@keyframes autoHitTwitch {
+  0% { transform: translateX(0) scale(1); }
+  40% { transform: translateX(6px) scale(1.04); }
+  100% { transform: translateX(0) scale(1); }
+}
 
 /* 임팩트 강화: 막기 성공 시 적이 하얗게 번쩍 + 강하게 튕겨나감 */
 .arena-enemy.enemy-impact {
@@ -1254,9 +1290,25 @@ img { display: block; max-width: 100%; }
   100% { transform: translateX(0) scale(1); }
 }
 
-@keyframes flinchSoft { 50% { transform: translateX(4px); } }
-@keyframes flinchMid { 50% { transform: translateX(8px) rotate(2deg); } }
-@keyframes flinchHard { 50% { transform: translateX(14px) rotate(4deg) scale(0.95); } }
+@keyframes flinchSoft {
+  0% { transform: translateX(0); }
+  35% { transform: translateX(8px) translateY(-2px); }
+  70% { transform: translateX(-2px); }
+  100% { transform: translateX(0); }
+}
+@keyframes flinchMid {
+  0% { transform: translateX(0) rotate(0); }
+  30% { transform: translateX(14px) translateY(-3px) rotate(3deg) scale(1.04); }
+  65% { transform: translateX(-4px) rotate(-1deg) scale(0.98); }
+  100% { transform: translateX(0) rotate(0); }
+}
+@keyframes flinchHard {
+  0% { transform: translateX(0) rotate(0) scale(1); }
+  25% { transform: translateX(22px) translateY(-5px) rotate(6deg) scale(1.08); }
+  55% { transform: translateX(-8px) rotate(-3deg) scale(0.92); }
+  80% { transform: translateX(3px) rotate(1deg) scale(1.01); }
+  100% { transform: translateX(0) rotate(0) scale(1); }
+}
 
 /* 시간정지 (hitstop): 0.12초 동안 모든 애니메이션 일시정지 */
 .stage-panel.hitstop * { animation-play-state: paused !important; transition: none !important; }
@@ -1353,11 +1405,68 @@ img { display: block; max-width: 100%; }
   100% { opacity: 0; transform: scale(1.6) rotate(45deg); }
 }
 
-.main-character.char-rescue-jump { animation: rescueJump 0.38s ease; }
+.main-character.char-rescue-jump {
+  animation: rescueJump 0.45s cubic-bezier(.18,.89,.32,1.28);
+  filter: drop-shadow(0 8px 18px rgba(255,200,80,0.5))
+          drop-shadow(0 0 16px rgba(255,220,120,0.85))
+          drop-shadow(0 0 30px rgba(255,180,60,0.55))
+          brightness(1.18);
+}
 @keyframes rescueJump {
-  0% { transform: translateY(0); }
-  40% { transform: translateY(-22px) scale(1.05); }
-  100% { transform: translateY(0); }
+  0% { transform: translateY(0) scale(1) rotate(0); }
+  20% { transform: translateY(-10px) scale(1.08, 0.92) rotate(-3deg); }
+  45% { transform: translateY(-32px) scale(1.12) rotate(3deg); }
+  70% { transform: translateY(-8px) scale(1.04) rotate(-1deg); }
+  100% { transform: translateY(0) scale(1) rotate(0); }
+}
+
+/* 마왕님 잔상 트레일 — char-rescue-trail 클래스로 보좌관 잔상 표현 */
+.main-character.char-rescue-trail::before,
+.main-character.char-rescue-trail::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: inherit;
+  background-image: inherit;
+  pointer-events: none;
+  border-radius: inherit;
+  opacity: 0;
+}
+.demon-side {
+  position: relative;
+}
+.demon-side::after,
+.demon-side::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 70%;
+  height: 70%;
+  background-image: url("assets/demon_state_idle.png");
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center bottom;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  opacity: 0;
+  filter: drop-shadow(0 0 16px rgba(255,220,120,0.95)) brightness(1.4) saturate(0.5);
+  z-index: -1;
+}
+.demon-side.show-trail::before {
+  animation: rescueTrailA 0.55s ease-out forwards;
+}
+.demon-side.show-trail::after {
+  animation: rescueTrailB 0.55s ease-out forwards;
+  animation-delay: 0.08s;
+}
+@keyframes rescueTrailA {
+  0% { opacity: 0.85; transform: translate(-50%, -50%) translateX(-18px) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, -50%) translateX(8px) scale(1.12); }
+}
+@keyframes rescueTrailB {
+  0% { opacity: 0.7; transform: translate(-50%, -50%) translateX(-8px) scale(1.08); }
+  100% { opacity: 0; transform: translate(-50%, -50%) translateX(14px) scale(1.18); }
 }
 
 /* 적 HP 미니바 — 적 발 아래, 작게 */
@@ -4221,4 +4330,49 @@ body.hp-warning .danger-vignette {
 @keyframes critParticleAnim {
   from { transform: translate(-50%, -50%) translate(0, 0) scale(1); opacity: 1; }
   to { transform: translate(-50%, -50%) translate(var(--pdx), var(--pdy)) scale(0.3); opacity: 0; }
+}
+
+/* ============================================
+   HP 위급 비네트 — 화면 가장자리 빨간 펄스
+   30% 이하: low-hp (느린 펄스), 15% 이하: crisis-hp (빠른 펄스)
+   ============================================ */
+.stage-panel.low-hp::before,
+.stage-panel.crisis-hp::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 7;
+  background: radial-gradient(ellipse at 50% 50%,
+    transparent 35%,
+    rgba(180, 20, 20, 0.0) 50%,
+    rgba(220, 30, 30, 0.4) 85%,
+    rgba(180, 0, 0, 0.65) 100%);
+  mix-blend-mode: screen;
+  animation: lowHpVignette 1.6s ease infinite;
+}
+.stage-panel.crisis-hp::before {
+  animation: crisisHpVignette 0.7s ease infinite;
+  background: radial-gradient(ellipse at 50% 50%,
+    transparent 25%,
+    rgba(255, 30, 30, 0.0) 45%,
+    rgba(255, 40, 40, 0.55) 80%,
+    rgba(220, 0, 0, 0.85) 100%);
+}
+@keyframes lowHpVignette {
+  0%,100% { opacity: 0.45; }
+  50% { opacity: 0.85; }
+}
+@keyframes crisisHpVignette {
+  0%,100% { opacity: 0.55; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.02); }
+}
+
+/* crisis 시 마왕 캐릭터도 흔들림 (긴장감) */
+.stage-panel.crisis-hp .main-character {
+  animation: crisisCharShake 0.4s ease infinite alternate, idleBreathPlayer 3.6s ease-in-out infinite;
+}
+@keyframes crisisCharShake {
+  0% { filter: drop-shadow(0 6px 14px rgba(0,0,0,0.5)) drop-shadow(0 0 8px rgba(255,80,80,0.4)); }
+  100% { filter: drop-shadow(0 6px 14px rgba(0,0,0,0.5)) drop-shadow(0 0 16px rgba(255,40,40,0.85)); }
 }

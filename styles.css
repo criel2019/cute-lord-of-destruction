@@ -4741,3 +4741,131 @@ body.hp-warning .danger-vignette {
 @media (prefers-reduced-motion: reduce) {
   .shard-leak, .shard-leaked { animation: none !important; }
 }
+
+/* ── 적 등장 walk-in ── */
+.arena-enemy.enemy-walk-in {
+  animation: enemyWalkIn 0.6s cubic-bezier(.2,.8,.3,1.2) both;
+}
+@keyframes enemyWalkIn {
+  0%   { transform: translateX(40%) scale(0.8); opacity: 0; filter: brightness(1.3); }
+  60%  { transform: translateX(-3%) scale(1.04); opacity: 1; filter: brightness(1.1); }
+  100% { transform: translateX(0) scale(1); opacity: 1; filter: brightness(1); }
+}
+.arena-enemy.enemy-walk-in-intro {
+  animation: enemyWalkInIntro 1.4s cubic-bezier(.2,.8,.3,1.2) both;
+}
+@keyframes enemyWalkInIntro {
+  0%   { transform: translateX(80%) scale(0.6); opacity: 0; filter: brightness(0.4) blur(4px); }
+  20%  { transform: translateX(40%) scale(0.85); opacity: 0.6; filter: brightness(0.7) blur(2px); }
+  55%  { transform: translateX(-6%) scale(1.08); opacity: 1; filter: brightness(1.2) blur(0); }
+  72%  { transform: translateX(2%) scale(1.0); opacity: 1; filter: brightness(1.1); }
+  100% { transform: translateX(0) scale(1); opacity: 1; filter: brightness(1); }
+}
+
+/* ── 0초 부팅 인트로 — VS 배너 (격투게임) ── */
+.intro-vs-banner {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  z-index: 8500;
+  pointer-events: none;
+  background: radial-gradient(ellipse at center, rgba(0,0,0,0.0) 0%, rgba(0,0,0,0.55) 70%, rgba(0,0,0,0.85) 100%);
+  animation: introVsFadeIn 0.4s ease both;
+}
+.intro-vs-banner.fade-out {
+  animation: introVsFadeOut 0.3s ease both;
+}
+@keyframes introVsFadeIn {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+@keyframes introVsFadeOut {
+  0% { opacity: 1; }
+  100% { opacity: 0; }
+}
+.intro-vs-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 22px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, rgba(0,0,0,0.0) 0%, rgba(0,0,0,0.7) 50%, rgba(0,0,0,0.0) 100%);
+}
+.intro-vs-top {
+  animation: introVsRowSlideLeft 0.6s cubic-bezier(.2,.8,.3,1.2) both;
+}
+.intro-vs-bot {
+  animation: introVsRowSlideRight 0.6s cubic-bezier(.2,.8,.3,1.2) 0.15s both;
+}
+@keyframes introVsRowSlideLeft {
+  0% { transform: translateX(-120%); opacity: 0; }
+  100% { transform: translateX(0); opacity: 1; }
+}
+@keyframes introVsRowSlideRight {
+  0% { transform: translateX(120%); opacity: 0; }
+  100% { transform: translateX(0); opacity: 1; }
+}
+.intro-vs-side {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+  color: #ffd76a;
+  background: rgba(255,180,60,0.18);
+  padding: 2px 8px;
+  border-radius: 2px;
+  border: 1px solid rgba(255,200,80,0.4);
+  text-shadow: 0 1px 2px rgba(0,0,0,0.7);
+}
+.intro-vs-bot .intro-vs-side {
+  color: #ff9a7a;
+  background: rgba(255,80,40,0.18);
+  border-color: rgba(255,120,60,0.4);
+}
+.intro-vs-name {
+  font-size: 22px;
+  font-weight: 900;
+  color: #fff;
+  letter-spacing: -0.01em;
+  text-shadow: 0 2px 6px rgba(0,0,0,0.85), 0 0 18px rgba(255,200,100,0.3);
+}
+.intro-vs-mid {
+  margin: 4px 0;
+  animation: introVsClash 0.5s cubic-bezier(.2,.8,.3,1.4) 0.45s both;
+}
+.intro-vs-text {
+  display: inline-block;
+  font-size: 64px;
+  font-weight: 900;
+  color: #fff;
+  letter-spacing: 0.05em;
+  text-shadow:
+    0 0 20px rgba(255,80,40,0.9),
+    0 0 40px rgba(255,150,60,0.6),
+    0 4px 8px rgba(0,0,0,0.9);
+  background: linear-gradient(135deg, #ffd76a 0%, #ff7a4a 60%, #c0392b 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 12px rgba(255,100,50,0.7));
+}
+@keyframes introVsClash {
+  0%   { transform: scale(3) rotate(-12deg); opacity: 0; }
+  40%  { transform: scale(0.9) rotate(3deg); opacity: 1; }
+  60%  { transform: scale(1.08) rotate(-1deg); }
+  100% { transform: scale(1) rotate(0); opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .arena-enemy.enemy-walk-in,
+  .arena-enemy.enemy-walk-in-intro,
+  .intro-vs-banner,
+  .intro-vs-top,
+  .intro-vs-bot,
+  .intro-vs-mid {
+    animation: none !important;
+    transform: none !important;
+  }
+}

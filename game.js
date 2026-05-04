@@ -1280,8 +1280,55 @@ function ensureEnemy() {
     if (state.enemy.isBoss) {
       triggerCameraBossEntry();
       window.setTimeout(showBossCardsModal, 1500);
+    } else {
+      // 일반 적 등장 — 화면 안으로 걸어 들어오는 walk-in 애니메이션
+      triggerEnemyWalkIn(state.floor === 1 && state.run <= 1);
     }
   }
+}
+
+// 적 등장 walk-in 애니메이션 — 첫 1층은 더 강조 (인트로)
+function triggerEnemyWalkIn(isFirstSpawn) {
+  const enemy = el.arenaEnemy;
+  if (!enemy) return;
+  enemy.classList.remove("enemy-walk-in", "enemy-walk-in-intro");
+  void enemy.offsetWidth;
+  enemy.classList.add(isFirstSpawn ? "enemy-walk-in-intro" : "enemy-walk-in");
+  const dur = isFirstSpawn ? 1400 : 600;
+  window.setTimeout(() => {
+    enemy.classList.remove("enemy-walk-in", "enemy-walk-in-intro");
+  }, dur);
+  // 첫 1층 인트로: VS 배너 한 번 띄움 (격투게임 느낌)
+  if (isFirstSpawn) {
+    showIntroVsBanner();
+  }
+}
+
+// 0초 부팅 인트로 — VS 배너 1.6초 노출
+function showIntroVsBanner() {
+  if (state._introBannerShown) return;
+  state._introBannerShown = true;
+  const banner = document.createElement("div");
+  banner.className = "intro-vs-banner";
+  const demonName = (typeof getDemonTitle === "function") ? getDemonTitle() : "허세의 마왕";
+  const enemyName = state.enemy?.name || "용기병";
+  const top = document.createElement("div");
+  top.className = "intro-vs-row intro-vs-top";
+  top.innerHTML = `<span class="intro-vs-side">마왕</span><span class="intro-vs-name"></span>`;
+  top.querySelector(".intro-vs-name").textContent = demonName;
+  const mid = document.createElement("div");
+  mid.className = "intro-vs-mid";
+  mid.innerHTML = `<span class="intro-vs-text">VS</span>`;
+  const bot = document.createElement("div");
+  bot.className = "intro-vs-row intro-vs-bot";
+  bot.innerHTML = `<span class="intro-vs-side">침입자</span><span class="intro-vs-name"></span>`;
+  bot.querySelector(".intro-vs-name").textContent = enemyName;
+  banner.append(top, mid, bot);
+  document.body.appendChild(banner);
+  window.setTimeout(() => {
+    banner.classList.add("fade-out");
+    window.setTimeout(() => banner.remove(), 300);
+  }, 1300);
 }
 
 function normalizeSlots(slots) {

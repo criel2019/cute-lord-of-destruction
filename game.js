@@ -1666,6 +1666,8 @@ function autoAttack(dt) {
 
 function rescueAction() {
   if (state.paused || state.cutscenePlaying) return;
+  // 즉시 탭 피드백 — 막기 성공/실패 판정 전에 유저 입력 인식
+  triggerTapFeedback();
   ensureEnemy();
   const stats = getStats();
   const targetEnemy = state.enemy;
@@ -1750,11 +1752,6 @@ function rescueAction() {
         gainTributes((state._consecutivePerfect * 8 + state.floor * 5), "rescue");
         window.setTimeout(() => {
           setDialogue(`${state._consecutivePerfect}연속?! 흑흑... 짐이 원래 이런 마왕이었던 것이니라!! 감동이구나!!`, "각성");
-          showInGameShareBanner(
-            `🌟 ${state._consecutivePerfect}연속 PERFECT!!`,
-            `${state.floor}F · 전설적인 타이밍`,
-            `👑 귀염뽀짝 파멸의 군주\n${state._consecutivePerfect}연속 PERFECT!! (${state.floor}층)\n실제: 보좌관이 막음 / 발표: 짐의 완벽한 지휘!\n▶ https://criel2019.github.io/cute-lord-of-destruction/`,
-          );
         }, 80);
       } else if (state._consecutivePerfect >= 3) {
         spawnParticles(48);
@@ -2198,6 +2195,7 @@ function enemyHits() {
 function defeatEnemy() {
   const defeatedBoss = state.enemy.isBoss;
   const defeatedElite = state.enemy.isElite;
+  const enemyName = state.enemy?.name || "";
   const oldFloor = state.floor;
   const stats = getStats();
 
@@ -2209,6 +2207,11 @@ function defeatEnemy() {
   hitstop(defeatedBoss ? 220 : defeatedElite ? 160 : 110);
   spawnImpactFlash();
   spawnImpactRay();
+  // 격투게임 KO 모먼트: 슬로우모션 + KO 도장 (보스/엘리트만 — mob은 hitstop으로 충분)
+  if (defeatedBoss || defeatedElite) {
+    triggerKoSlowmo(defeatedBoss);
+    showKoStamp(defeatedBoss, enemyName);
+  }
   // 폭발 파편 분사
   spawnDefeatShards(defeatedBoss ? 18 : defeatedElite ? 12 : 8);
   // 적 이미지 처치 연출 — boss/elite/mob 별 다름
@@ -2402,20 +2405,6 @@ function defeatEnemy() {
       // HUD 최고 기록 강조 펄스
       el.bestFloorText?.closest(".hud-stat")?.classList.add("record-pulse");
       window.setTimeout(() => el.bestFloorText?.closest(".hud-stat")?.classList.remove("record-pulse"), 1800);
-      // 5층 단위 신기록 마일스톤에서 공유 배너
-      if (state.bestFloor % 5 === 0 && state.bestFloor >= 10) {
-        const milestoneLabels = {
-          10: "10층 돌파!", 15: "공포의 마왕 달성!", 20: "전설 시작!", 25: "25층 정복!", 30: "30층 완전 제패!"
-        };
-        const label = milestoneLabels[state.bestFloor] || `${state.bestFloor}층 신기록!`;
-        window.setTimeout(() => {
-          showInGameShareBanner(
-            `🏆 ${label}`,
-            `실제: 보좌관이 다 함 / 발표: 짐의 위엄으로 이겼다!`,
-            `👑 귀염뽀짝 파멸의 군주\n최고 ${state.bestFloor}F 달성!\n실제: 보좌관이 다 해줌\n발표: 짐이 원래 이 정도니라!\n▶ https://criel2019.github.io/cute-lord-of-destruction/`,
-          );
-        }, 1200);
-      }
     }, 400);
   }
 
@@ -2704,11 +2693,6 @@ function defeatEnemy() {
         flashScreen("gold", 0.7);
         window.setTimeout(() => {
           setDialogue("흑흑... 짐이... 짐이 진짜 마왕인 건가?! 아니, 원래 알고 있었느니라!!", "각성");
-          showInGameShareBanner(
-            "🎉 첫 보스 처치!",
-            `${oldFloor}F 보스 격파 — 마왕님 전설의 시작`,
-            `👑 귀염뽀짝 파멸의 군주\n${oldFloor}F 보스 처치!\n실제: 보좌관이 막음 / 발표: 짐의 위엄으로 이겼다!\n▶ https://criel2019.github.io/cute-lord-of-destruction/`,
-          );
         }, 300);
       }
       // 보스 처치 후 전황 보고서 (2초 지연)
@@ -4652,6 +4636,52 @@ function updateFightCombo(streak) {
   _fightComboLast = next;
 }
 
+// ── 탭 즉시 피드백 + KO 슬로우모션 + KO 도장 ──────────────
+let _tapFeedbackTimer = null;
+function triggerTapFeedback() {
+  if (!el.stagePanel) return;
+  el.stagePanel.classList.remove("tap-feedback");
+  void el.stagePanel.offsetWidth;
+  el.stagePanel.classList.add("tap-feedback");
+  if (_tapFeedbackTimer) window.clearTimeout(_tapFeedbackTimer);
+  _tapFeedbackTimer = window.setTimeout(() => {
+    el.stagePanel?.classList.remove("tap-feedback");
+  }, 100);
+  // 햅틱 (모바일)
+  if (navigator.vibrate) {
+    try { navigator.vibrate(8); } catch (e) {}
+  }
+}
+
+let _koActive = false;
+function triggerKoSlowmo(isBoss = false) {
+  if (!el.stagePanel) return;
+  if (_koActive) return;
+  _koActive = true;
+  const cls = isBoss ? "ko-slowmo-boss" : "ko-slowmo";
+  el.stagePanel.classList.add(cls);
+  // 햅틱 강하게
+  if (navigator.vibrate) {
+    try { navigator.vibrate(isBoss ? [40, 30, 80] : [25]); } catch (e) {}
+  }
+  window.setTimeout(() => {
+    el.stagePanel?.classList.remove("ko-slowmo", "ko-slowmo-boss");
+    _koActive = false;
+  }, isBoss ? 600 : 360);
+}
+
+function showKoStamp(isBoss = false, enemyName = "") {
+  const stamp = document.createElement("div");
+  stamp.className = isBoss ? "ko-stamp ko-stamp-boss" : "ko-stamp";
+  const text = isBoss ? "BOSS DOWN" : "K.O.";
+  stamp.innerHTML = `
+    <span class="ko-stamp-text">${text}</span>
+    ${enemyName ? `<span class="ko-stamp-name">${enemyName}</span>` : ""}
+  `;
+  document.body.appendChild(stamp);
+  window.setTimeout(() => stamp.remove(), isBoss ? 1100 : 700);
+}
+
 // ── 콤보 도박 정산 시스템 ──────────────────────────────────
 // 마일스톤 도달 시 일시정지 + 정산/계속 결정 모달
 // 정산: 즉시 보상 받고 콤보 0
@@ -4999,18 +5029,46 @@ function spawnParticles(count) {
   }
 }
 
+// 토스트 메시지 분류: critical(반드시 표시) / tutorial(필수 학습) / info(생략 가능)
+const _CRITICAL_TOAST_PATTERNS = [
+  /신기록/, /보스 격파/, /^💰/, /^🔥/, /^💢/, /파편 \+\d/, /획득$/, /해금/, /돌파/,
+];
+const _TUTORIAL_TOAST_PATTERNS = [
+  /처음/, /첫 /, /💡/, /기력 MAX/, /기력 70%/, /가로채기/, /빨간/, /막기/, /궁극기 준비/, /궁극기 50%/,
+];
+
+function _classifyToastPriority(message) {
+  for (const re of _CRITICAL_TOAST_PATTERNS) if (re.test(message)) return "critical";
+  for (const re of _TUTORIAL_TOAST_PATTERNS) if (re.test(message)) return "tutorial";
+  return "info";
+}
+
+let _lastToastTime = 0;
+const _MIN_TOAST_INTERVAL = 600; // 동일 시점 폭격 방지
+
 function showToast(message) {
-  // 신규 유저 (처음 3분 / 3층 이하) — 동시 최대 1개로 제한
+  const priority = _classifyToastPriority(message);
+  const isBossFight = !!(state.enemy && (state.enemy.isBoss || state.enemy.isElite));
+  const isDanger = !!(el.stagePanel && (el.stagePanel.classList.contains("danger") || el.stagePanel.classList.contains("aiming")));
+  // 보스/엘리트 전투 중이거나 적이 공격 준비(빨간불) 중이면 info 토스트는 차단
+  if ((isBossFight || isDanger) && priority === "info") return;
+  // 튜토리얼 토스트는 첫 학습 시기 외에는 보스전에서 차단
+  if (isBossFight && priority === "tutorial" && state.run > 1 && state.firstBlockSeen) return;
+  // 신규 유저 — 동시 최대 1개
   const isNewbie = (state.floor <= 3 && state.run <= 1) || (!state.firstBlockSeen);
-  const maxToasts = isNewbie ? 1 : 2;
+  const maxToasts = isNewbie ? 1 : 1; // 항상 1개로 제한 (이전 2 → 1)
   while (el.toastStack.children.length >= maxToasts) {
     el.toastStack.firstChild?.remove();
   }
   // 직전 토스트와 동일 메시지 스팸 방지
   const lastToast = el.toastStack.lastChild;
   if (lastToast && lastToast.textContent === message) return;
+  // 600ms 이내 연속 호출이면 critical만 통과
+  const now = performance.now();
+  if (now - _lastToastTime < _MIN_TOAST_INTERVAL && priority !== "critical") return;
+  _lastToastTime = now;
   const toast = document.createElement("div");
-  toast.className = "toast";
+  toast.className = `toast toast-${priority}`;
   toast.textContent = message;
   el.toastStack.appendChild(toast);
   window.setTimeout(() => {

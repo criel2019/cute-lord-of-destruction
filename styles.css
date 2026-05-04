@@ -3010,6 +3010,83 @@ body.hp-warning .danger-vignette {
   }
 }
 
+/* 첫 보스 처치 일생 한 번뿐 배너 — 액션 RPG "FIRST KILL" 컨벤션 */
+.first-boss-achievement {
+  position: fixed;
+  left: 50%;
+  top: 30%;
+  transform: translate(-50%, -50%);
+  z-index: 9700;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 18px 36px;
+  background: linear-gradient(135deg, rgba(50, 30, 60, 0.95) 0%, rgba(20, 12, 30, 0.97) 50%, rgba(50, 30, 60, 0.95) 100%);
+  border-top: 2px solid #ffd76a;
+  border-bottom: 2px solid #ffd76a;
+  box-shadow: 0 0 0 1px rgba(255, 220, 120, 0.45), 0 0 40px rgba(255, 200, 90, 0.65), 0 12px 36px rgba(0,0,0,0.7);
+  animation: firstBossAchIn 3.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  overflow: hidden;
+}
+.first-boss-achievement .fba-spark {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 20% 50%, rgba(255, 220, 120, 0.45) 0%, transparent 40%),
+    radial-gradient(ellipse at 80% 50%, rgba(255, 180, 80, 0.45) 0%, transparent 40%);
+  animation: fbaSparkPulse 1.4s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+.first-boss-achievement .fba-label {
+  position: relative;
+  font-size: 13px;
+  font-weight: 800;
+  color: #ffd76a;
+  letter-spacing: 0.22em;
+  text-shadow: 0 0 8px rgba(255, 200, 90, 0.85), 0 1px 2px rgba(0,0,0,0.9);
+  margin-bottom: 2px;
+}
+.first-boss-achievement .fba-name {
+  position: relative;
+  font-size: 30px;
+  font-weight: 900;
+  color: #fff;
+  letter-spacing: 0.04em;
+  text-shadow: 0 0 14px rgba(255, 220, 120, 0.95), 0 0 28px rgba(255, 180, 80, 0.65), 0 2px 4px rgba(0,0,0,0.95);
+  font-style: italic;
+  -webkit-text-stroke: 1px #c89030;
+}
+.first-boss-achievement .fba-sub {
+  position: relative;
+  font-size: 12px;
+  color: rgba(240, 220, 180, 0.85);
+  letter-spacing: 0.05em;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.9);
+  margin-top: 4px;
+}
+@keyframes firstBossAchIn {
+  0%   { opacity: 0; transform: translate(-50%, -50%) scale(0.6) rotateX(-30deg); }
+  10%  { opacity: 1; transform: translate(-50%, -50%) scale(1.08) rotateX(0); }
+  18%  { transform: translate(-50%, -50%) scale(1) rotateX(0); }
+  85%  { opacity: 1; transform: translate(-50%, -50%) scale(1) rotateX(0); }
+  100% { opacity: 0; transform: translate(-50%, -55%) scale(1.04) rotateX(0); }
+}
+@keyframes fbaSparkPulse {
+  from { opacity: 0.5; }
+  to   { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .first-boss-achievement { animation: firstBossAchInReduced 3.2s ease forwards !important; }
+  .first-boss-achievement .fba-spark { animation: none !important; opacity: 0.7; }
+  @keyframes firstBossAchInReduced {
+    0%   { opacity: 0; }
+    10%, 85% { opacity: 1; }
+    100% { opacity: 0; }
+  }
+}
+
 .stage-panel.low-dignity .dignity-bar span { background: linear-gradient(90deg, var(--gold), #ff8a4c); }
 .stage-panel.dignity-crisis .dignity-bar span {
   background: var(--danger);

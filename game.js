@@ -2962,6 +2962,7 @@ function defeatEnemy() {
         state.firstBossDefeated = true;
         spawnParticles(60);
         flashScreen("gold", 0.7);
+        window.setTimeout(() => spawnFirstBossAchievement(enemyName), 1100);
         window.setTimeout(() => {
           setDialogue("흑흑... 짐이... 짐이 진짜 마왕인 건가?! 아니, 원래 알고 있었느니라!!", "각성");
         }, 300);
@@ -4879,6 +4880,19 @@ function spawnFloorAdvanceBanner(prevFloor, newFloor, fromBoss = false) {
   `;
   stage.appendChild(banner);
   window.setTimeout(() => banner.remove(), fromBoss ? 1400 : 1000);
+}
+
+function spawnFirstBossAchievement(bossName = "") {
+  const banner = document.createElement("div");
+  banner.className = "first-boss-achievement";
+  banner.innerHTML = `
+    <div class="fba-spark"></div>
+    <div class="fba-label">FIRST BOSS DEFEATED</div>
+    <div class="fba-name">${bossName || "첫 보스 격파"}</div>
+    <div class="fba-sub">짐의 첫 마왕 정복이니라!</div>
+  `;
+  document.body.appendChild(banner);
+  window.setTimeout(() => banner.remove(), 3200);
 }
 
 function spawnShardLeak(amount) {

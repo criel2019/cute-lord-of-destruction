@@ -5895,14 +5895,15 @@ function showUltimateFirstAlert() {
 }
 
 function showFloorClearBanner(floorNum, isBoss) {
+  // 격투게임 컨벤션 KO 시퀀스 — 풀스크린 오버레이 시간차 분리
+  // boss-defeat-flash(0~700ms, z:9100) → boss-victory-overlay(1100~2300ms, z:9250) → floor-clear-banner(2400~4800ms)
+  // KO 도장(z:9580)은 defeatEnemy에서 0ms에 단독 표시됨 (1100ms까지)
   if (isBoss) {
     const flash = document.createElement("div");
     flash.className = "boss-defeat-flash";
     document.body.appendChild(flash);
     window.setTimeout(() => flash.remove(), 700);
-    // 보스 격파 풀스크린 텍스트
-    const overlay = document.createElement("div");
-    overlay.className = "boss-victory-overlay";
+    // 보스 격파 풀스크린 텍스트 — KO 도장이 사라진 직후(+1100ms) 등장
     const bossVictoryLines = floorNum >= 25
       ? ["전설이 시작됐느니라!", "짐은 원래 이 정도니라!!"]
       : floorNum >= 15
@@ -5910,12 +5911,17 @@ function showFloorClearBanner(floorNum, isBoss) {
       : floorNum >= 10
       ? ["이 보스도 짐의 발 아래니라!", "계획대로니라. 처음부터 알았느니라!"]
       : ["보았느냐! 짐이 이겼느니라!", "흐흥, 이게 바로 짐이니라!"];
-    overlay.textContent = randomPick(bossVictoryLines);
-    document.body.appendChild(overlay);
+    const victoryLine = randomPick(bossVictoryLines);
     window.setTimeout(() => {
-      overlay.classList.add("boss-victory-exit");
-      window.setTimeout(() => overlay.remove(), 500);
-    }, 1200);
+      const overlay = document.createElement("div");
+      overlay.className = "boss-victory-overlay";
+      overlay.textContent = victoryLine;
+      document.body.appendChild(overlay);
+      window.setTimeout(() => {
+        overlay.classList.add("boss-victory-exit");
+        window.setTimeout(() => overlay.remove(), 500);
+      }, 1200);
+    }, 1100);
   }
   const totalActions = (state.floorInterceptCount || 0) + (state.floorHitCount || 0);
   const perfects = state.floorPerfectCount || 0;
@@ -5930,11 +5936,16 @@ function showFloorClearBanner(floorNum, isBoss) {
   banner.innerHTML = isBoss
     ? `<span class="floor-clear-num">BOSS</span><span class="floor-clear-label">처치!</span><span class="floor-clear-sub">${floorNum}F 완전 클리어${statLine ? ` · ${statLine}` : ""}</span>`
     : `<span class="floor-clear-num">${floorNum}F</span><span class="floor-clear-label">클리어</span>${statLine ? `<span class="floor-clear-sub">${statLine}</span>` : ""}`;
-  document.body.appendChild(banner);
-  window.setTimeout(() => {
-    banner.classList.add("floor-clear-exit");
-    window.setTimeout(() => banner.remove(), 400);
-  }, isBoss ? 2400 : 1100);
+  // 보스인 경우 victory-overlay 종료 후(+2400ms) 등장, 일반은 즉시
+  const showBanner = () => {
+    document.body.appendChild(banner);
+    window.setTimeout(() => {
+      banner.classList.add("floor-clear-exit");
+      window.setTimeout(() => banner.remove(), 400);
+    }, isBoss ? 2200 : 1100);
+  };
+  if (isBoss) window.setTimeout(showBanner, 2400);
+  else showBanner();
 }
 
 const murmurPools = {

@@ -2786,30 +2786,111 @@ body.hp-warning .danger-vignette {
   .run-upgrade-grid { grid-template-columns: 1fr 1fr; }
 }
 
-.upgrade-card, .run-upgrade-card {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+.upgrade-card, .run-upgrade-card, .run-upgrade {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 10px;
   padding: 10px 12px;
   border-radius: var(--radius);
-  background: rgba(255, 255, 255, 0.05);
+  background: linear-gradient(180deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.03) 100%);
   border: 1px solid var(--game-border);
   text-align: left;
-  transition: background 0.15s, border-color 0.15s, transform 0.08s;
+  color: var(--cream);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, transform 0.08s, box-shadow 0.18s;
+  font-family: inherit;
+  position: relative;
 }
 
-.upgrade-card:active, .run-upgrade-card:active { transform: scale(0.98); }
-.upgrade-card:hover, .run-upgrade-card:hover { border-color: var(--rose); }
+.upgrade-card:active, .run-upgrade-card:active, .run-upgrade:active { transform: scale(0.98); }
+.upgrade-card:hover, .run-upgrade-card:hover, .run-upgrade:hover { border-color: var(--rose); }
 
-.upgrade-card strong, .run-upgrade-card strong {
+.upgrade-card strong, .run-upgrade-card strong, .run-upgrade strong {
   font-size: 13px;
   color: var(--cream);
+  display: block;
+  margin-bottom: 2px;
 }
 
-.upgrade-card small, .run-upgrade-card small {
+.upgrade-card small, .run-upgrade-card small, .run-upgrade small {
   font-size: 11px;
   color: var(--game-text-dim);
   line-height: 1.3;
+}
+
+.run-upgrade p {
+  margin: 0;
+  font-size: 11px;
+  color: var(--game-text-dim);
+  line-height: 1.35;
+}
+
+.run-upgrade .upgrade-icon {
+  width: 44px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.28);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.run-upgrade .upgrade-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.run-upgrade .upgrade-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.run-upgrade .upgrade-stat-preview {
+  display: block;
+  margin-top: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--mint);
+  letter-spacing: 0.2px;
+}
+.run-upgrade .upgrade-stat-preview .stat-next {
+  color: var(--gold);
+  margin-left: 4px;
+  font-weight: 800;
+}
+.run-upgrade .upgrade-truth {
+  display: block;
+  margin-top: 3px;
+  font-size: 10.5px;
+  color: rgba(255, 255, 255, 0.5);
+  font-style: italic;
+}
+
+.run-upgrade .cost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 56px;
+  padding: 6px 10px;
+  border-radius: 10px;
+  background: rgba(243, 197, 95, 0.15);
+  color: var(--gold);
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+  flex-shrink: 0;
+}
+.run-upgrade .cost::before {
+  content: "🔸";
+  margin-right: 3px;
+  font-size: 12px;
 }
 
 .upgrade-card .price, .run-upgrade-card .price {
@@ -2824,14 +2905,112 @@ body.hp-warning .danger-vignette {
   align-self: flex-start;
 }
 
-.upgrade-card[disabled], .run-upgrade-card[disabled] {
-  opacity: 0.5;
+.upgrade-card[disabled], .run-upgrade-card[disabled], .run-upgrade[disabled] {
+  opacity: 0.55;
   pointer-events: none;
+  filter: grayscale(0.3);
+}
+.run-upgrade[disabled] .cost {
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.4);
 }
 
-.upgrade-card.affordable, .run-upgrade-card.affordable {
+.upgrade-card.affordable, .run-upgrade-card.affordable, .run-upgrade.affordable {
   border-color: var(--mint);
-  background: rgba(134, 216, 199, 0.08);
+  background: linear-gradient(180deg, rgba(134, 216, 199, 0.14) 0%, rgba(134, 216, 199, 0.05) 100%);
+  box-shadow: 0 0 0 1px rgba(134, 216, 199, 0.18) inset;
+}
+.run-upgrade.affordable .cost {
+  background: linear-gradient(180deg, rgba(243, 197, 95, 0.35) 0%, rgba(243, 197, 95, 0.18) 100%);
+  color: #fff5cc;
+  box-shadow: 0 1px 6px rgba(243, 197, 95, 0.35);
+}
+
+.run-upgrade.recommended {
+  border-color: var(--gold);
+  background: linear-gradient(180deg, rgba(243, 197, 95, 0.18) 0%, rgba(243, 197, 95, 0.06) 100%);
+  box-shadow: 0 0 0 1px rgba(243, 197, 95, 0.45) inset, 0 0 16px rgba(243, 197, 95, 0.2);
+  animation: runUpgradeRecommendPulse 2.4s ease-in-out infinite;
+}
+@keyframes runUpgradeRecommendPulse {
+  0%, 100% { box-shadow: 0 0 0 1px rgba(243, 197, 95, 0.45) inset, 0 0 14px rgba(243, 197, 95, 0.2); }
+  50%      { box-shadow: 0 0 0 1px rgba(243, 197, 95, 0.7) inset, 0 0 22px rgba(243, 197, 95, 0.4); }
+}
+.run-upgrade .recommend-badge {
+  position: absolute;
+  top: -6px;
+  right: 10px;
+  background: linear-gradient(180deg, var(--gold), #d99b3f);
+  color: #2c1930;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.5px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+  z-index: 2;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .run-upgrade.recommended { animation: none !important; }
+}
+
+/* 사이드 잠금 화면 — 1층 클리어 전 미리보기 */
+.side-lock-hint {
+  text-align: center;
+  padding: 14px 12px;
+  margin-bottom: 8px;
+  background: linear-gradient(180deg, rgba(243, 197, 95, 0.08) 0%, rgba(243, 197, 95, 0.02) 100%);
+  border: 1px dashed rgba(243, 197, 95, 0.45);
+  border-radius: var(--radius);
+  color: var(--cream);
+  font-size: 13px;
+  line-height: 1.6;
+  font-weight: 600;
+}
+.lock-preview-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+  opacity: 0.45;
+  filter: grayscale(0.4);
+  pointer-events: none;
+}
+@media (min-width: 540px) {
+  .lock-preview-grid { grid-template-columns: 1fr 1fr; }
+}
+.run-upgrade-preview {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--game-border);
+  color: var(--cream);
+}
+.run-upgrade-preview .upgrade-icon {
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.28);
+  overflow: hidden;
+}
+.run-upgrade-preview .upgrade-icon img {
+  width: 100%; height: 100%; object-fit: cover;
+}
+.run-upgrade-preview .upgrade-copy strong {
+  display: block; font-size: 12px; color: var(--cream);
+}
+.run-upgrade-preview .upgrade-copy p {
+  margin: 0; font-size: 10.5px; color: var(--game-text-dim); line-height: 1.3;
+}
+.run-upgrade-preview .cost {
+  font-size: 11px; color: var(--gold); font-weight: 700;
 }
 
 .upgrade-grid {

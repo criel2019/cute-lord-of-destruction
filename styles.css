@@ -4100,6 +4100,125 @@ body.hp-warning .danger-vignette {
   50% { opacity: 0.85; }
 }
 
+/* ============================================================
+   stage 배경 풍경 — tier별로 절차적 SVG/그라데이션 배경 레이어
+   imagen 이미지 도착 전 1차 시각 변화 부여
+   ============================================================ */
+
+/* main-stage 위에 배경 풍경 레이어 추가 — ::before는 이미 바닥용으로 사용 중이라
+   별도로 .stage-panel 자체의 배경에 다중 레이어 합성 */
+.stage-panel[data-floor-tier="early"] > .main-stage {
+  background:
+    /* 양쪽 거대 기둥 실루엣 */
+    linear-gradient(90deg, rgba(20,10,40,0.88) 0%, transparent 14%, transparent 86%, rgba(20,10,40,0.88) 100%),
+    /* 멀리 있는 옥좌 실루엣 — 가운데 위쪽 */
+    radial-gradient(ellipse 22% 14% at 50% 30%, rgba(60,20,80,0.6) 0%, transparent 70%),
+    /* 떠다니는 영혼 입자 — 도트 패턴 */
+    radial-gradient(circle at 22% 35%, rgba(180,120,255,0.35) 0%, transparent 1.2%),
+    radial-gradient(circle at 78% 25%, rgba(180,120,255,0.3) 0%, transparent 1%),
+    radial-gradient(circle at 38% 18%, rgba(180,120,255,0.25) 0%, transparent 0.8%),
+    radial-gradient(circle at 65% 42%, rgba(180,120,255,0.3) 0%, transparent 1%),
+    radial-gradient(ellipse 80% 38% at 50% 92%, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.15) 55%, transparent 80%),
+    linear-gradient(180deg, hsla(265, 50%, 12%, 0.95) 0%, hsla(255, 40%, 20%, 0.85) 55%, hsla(245, 35%, 28%, 0.75) 100%);
+}
+
+.stage-panel[data-floor-tier="rise"] > .main-stage {
+  background:
+    /* 양쪽 횃불 글로우 */
+    radial-gradient(ellipse 12% 18% at 6% 45%, rgba(255,180,120,0.3) 0%, transparent 70%),
+    radial-gradient(ellipse 12% 18% at 94% 45%, rgba(255,180,120,0.3) 0%, transparent 70%),
+    /* 스테인드글라스 빛줄기 */
+    linear-gradient(170deg, transparent 0%, transparent 30%, rgba(140,255,200,0.12) 35%, transparent 50%),
+    linear-gradient(190deg, transparent 0%, transparent 30%, rgba(180,200,255,0.1) 35%, transparent 50%),
+    /* 안개 */
+    radial-gradient(ellipse 100% 30% at 50% 70%, rgba(140,200,180,0.18) 0%, transparent 80%),
+    radial-gradient(ellipse 80% 38% at 50% 92%, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.15) 55%, transparent 80%),
+    linear-gradient(180deg, hsla(180, 35%, 16%, 0.92) 0%, hsla(170, 30%, 26%, 0.82) 55%, hsla(160, 28%, 35%, 0.7) 100%);
+}
+
+.stage-panel[data-floor-tier="mid"] > .main-stage {
+  background:
+    /* 천장 샹들리에 글로우 */
+    radial-gradient(ellipse 30% 12% at 50% 8%, rgba(255,220,140,0.45) 0%, transparent 70%),
+    /* 황금 가루 도트 */
+    radial-gradient(circle at 18% 55%, rgba(255,210,120,0.4) 0%, transparent 1.2%),
+    radial-gradient(circle at 82% 38%, rgba(255,210,120,0.4) 0%, transparent 1%),
+    radial-gradient(circle at 42% 22%, rgba(255,210,120,0.35) 0%, transparent 0.9%),
+    radial-gradient(circle at 68% 65%, rgba(255,210,120,0.3) 0%, transparent 1%),
+    radial-gradient(circle at 25% 78%, rgba(255,210,120,0.35) 0%, transparent 1.1%),
+    /* 보물 더미 실루엣 — 양쪽 하단 */
+    radial-gradient(ellipse 30% 14% at 12% 88%, rgba(180,130,40,0.5) 0%, transparent 70%),
+    radial-gradient(ellipse 30% 14% at 88% 88%, rgba(180,130,40,0.5) 0%, transparent 70%),
+    radial-gradient(ellipse 80% 38% at 50% 92%, rgba(40,20,5,0.55) 0%, rgba(40,20,5,0.15) 55%, transparent 80%),
+    linear-gradient(180deg, hsla(35, 60%, 16%, 0.92) 0%, hsla(40, 55%, 28%, 0.82) 55%, hsla(45, 50%, 38%, 0.72) 100%);
+}
+
+.stage-panel[data-floor-tier="deep"] > .main-stage {
+  background:
+    /* 용암 강 — 양쪽 하단 글로우 */
+    radial-gradient(ellipse 60% 8% at 0% 88%, rgba(255,80,30,0.6) 0%, transparent 70%),
+    radial-gradient(ellipse 60% 8% at 100% 88%, rgba(255,80,30,0.6) 0%, transparent 70%),
+    /* 떠다니는 불씨 */
+    radial-gradient(circle at 28% 30%, rgba(255,140,40,0.5) 0%, transparent 1.4%),
+    radial-gradient(circle at 72% 22%, rgba(255,140,40,0.45) 0%, transparent 1.2%),
+    radial-gradient(circle at 48% 45%, rgba(255,160,60,0.4) 0%, transparent 1%),
+    radial-gradient(circle at 15% 60%, rgba(255,120,30,0.4) 0%, transparent 1.1%),
+    radial-gradient(circle at 85% 55%, rgba(255,120,30,0.4) 0%, transparent 1.1%),
+    /* 검은 화산암 양쪽 벽 */
+    linear-gradient(90deg, rgba(15,5,5,0.7) 0%, transparent 18%, transparent 82%, rgba(15,5,5,0.7) 100%),
+    radial-gradient(ellipse 80% 38% at 50% 92%, rgba(60,10,5,0.65) 0%, rgba(60,10,5,0.2) 55%, transparent 80%),
+    linear-gradient(180deg, hsla(15, 65%, 12%, 0.95) 0%, hsla(20, 60%, 22%, 0.85) 55%, hsla(25, 55%, 32%, 0.75) 100%);
+  animation: deepLavaPulse 4s ease infinite;
+}
+@keyframes deepLavaPulse {
+  0%, 100% { filter: brightness(1) saturate(1); }
+  50% { filter: brightness(1.08) saturate(1.15); }
+}
+
+.stage-panel[data-floor-tier="abyss"] > .main-stage {
+  background:
+    /* 별 점들 */
+    radial-gradient(circle at 18% 12%, rgba(255,255,255,0.7) 0%, transparent 0.4%),
+    radial-gradient(circle at 65% 8%, rgba(255,255,255,0.6) 0%, transparent 0.3%),
+    radial-gradient(circle at 32% 22%, rgba(255,255,255,0.55) 0%, transparent 0.4%),
+    radial-gradient(circle at 88% 18%, rgba(255,255,255,0.65) 0%, transparent 0.4%),
+    radial-gradient(circle at 50% 5%, rgba(255,255,255,0.5) 0%, transparent 0.3%),
+    /* 부서진 돌 조각 — 회색 점 클러스터 */
+    radial-gradient(circle at 20% 50%, rgba(80,60,90,0.6) 0%, transparent 2.5%),
+    radial-gradient(circle at 78% 42%, rgba(80,60,90,0.55) 0%, transparent 2%),
+    radial-gradient(circle at 45% 60%, rgba(80,60,90,0.5) 0%, transparent 1.8%),
+    /* 균열에서 새어나오는 보라색 빛 */
+    linear-gradient(165deg, transparent 0%, transparent 40%, rgba(180,80,220,0.18) 50%, transparent 65%),
+    linear-gradient(195deg, transparent 0%, transparent 40%, rgba(180,80,220,0.18) 50%, transparent 65%),
+    radial-gradient(ellipse 80% 38% at 50% 92%, rgba(20,5,40,0.7) 0%, rgba(20,5,40,0.2) 55%, transparent 80%),
+    linear-gradient(180deg, hsla(285, 50%, 8%, 0.97) 0%, hsla(280, 45%, 16%, 0.88) 55%, hsla(275, 40%, 24%, 0.78) 100%);
+}
+
+.stage-panel[data-floor-tier="legend"] > .main-stage {
+  background:
+    /* 강한 신성한 빛줄기 */
+    linear-gradient(170deg, transparent 0%, transparent 25%, rgba(255,220,140,0.25) 38%, transparent 55%),
+    linear-gradient(190deg, transparent 0%, transparent 25%, rgba(255,220,140,0.25) 38%, transparent 55%),
+    /* 떠다니는 황금 깃털/입자 */
+    radial-gradient(circle at 22% 28%, rgba(255,230,160,0.55) 0%, transparent 1.4%),
+    radial-gradient(circle at 78% 18%, rgba(255,230,160,0.5) 0%, transparent 1.2%),
+    radial-gradient(circle at 38% 45%, rgba(255,230,160,0.45) 0%, transparent 1%),
+    radial-gradient(circle at 65% 55%, rgba(255,230,160,0.5) 0%, transparent 1.1%),
+    radial-gradient(circle at 85% 38%, rgba(255,230,160,0.45) 0%, transparent 1%),
+    /* 구름 */
+    radial-gradient(ellipse 35% 10% at 20% 75%, rgba(255,240,200,0.3) 0%, transparent 70%),
+    radial-gradient(ellipse 35% 10% at 80% 78%, rgba(255,240,200,0.3) 0%, transparent 70%),
+    /* 신전 기둥 실루엣 */
+    linear-gradient(90deg, rgba(180,130,40,0.45) 0%, transparent 12%, transparent 88%, rgba(180,130,40,0.45) 100%),
+    radial-gradient(ellipse 80% 38% at 50% 92%, rgba(120,70,20,0.55) 0%, rgba(120,70,20,0.15) 55%, transparent 80%),
+    linear-gradient(180deg, hsla(38, 70%, 22%, 0.92) 0%, hsla(42, 65%, 35%, 0.82) 55%, hsla(48, 60%, 48%, 0.7) 100%);
+  animation: legendDivinePulse 3.5s ease infinite;
+}
+@keyframes legendDivinePulse {
+  0%, 100% { filter: brightness(1) saturate(1.05); }
+  50% { filter: brightness(1.12) saturate(1.2); }
+}
+
 /* levelup-badge: upgrade 버튼 위 작은 배지 (강화 직후 0.9초) */
 .levelup-badge {
   position: absolute;
@@ -4375,4 +4494,165 @@ body.hp-warning .danger-vignette {
 @keyframes crisisCharShake {
   0% { filter: drop-shadow(0 6px 14px rgba(0,0,0,0.5)) drop-shadow(0 0 8px rgba(255,80,80,0.4)); }
   100% { filter: drop-shadow(0 6px 14px rgba(0,0,0,0.5)) drop-shadow(0 0 16px rgba(255,40,40,0.85)); }
+}
+
+/* ============================================
+   탭 즉시 피드백 — main-stage 클릭 시 0.1초 펄스
+   ============================================ */
+.stage-panel.tap-feedback {
+  animation: tapFeedbackPulse 0.1s ease;
+}
+@keyframes tapFeedbackPulse {
+  0% { transform: scale(1); filter: brightness(1); }
+  50% { transform: scale(0.992); filter: brightness(1.08) saturate(1.15); }
+  100% { transform: scale(1); filter: brightness(1); }
+}
+/* 탭 시 main-stage 버튼 자체에도 미세 ripple */
+.main-stage:active::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 50%, rgba(255,220,140,0.2), transparent 60%);
+  pointer-events: none;
+  z-index: 10;
+  animation: tapRipple 0.18s ease-out forwards;
+}
+@keyframes tapRipple {
+  0% { opacity: 0; transform: scale(0.8); }
+  40% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.05); }
+}
+
+/* ============================================
+   KO 슬로우모션 — 적 처치 시 stage 시간 감속
+   ============================================ */
+.stage-panel.ko-slowmo {
+  animation: koSlowmoFlash 0.36s ease;
+}
+.stage-panel.ko-slowmo > * {
+  animation-duration: 0.7s !important;
+  transition-duration: 0.4s !important;
+}
+.stage-panel.ko-slowmo-boss {
+  animation: koSlowmoFlashBoss 0.6s ease;
+}
+.stage-panel.ko-slowmo-boss > * {
+  animation-duration: 1.5s !important;
+  transition-duration: 0.6s !important;
+}
+.stage-panel.ko-slowmo::after,
+.stage-panel.ko-slowmo-boss::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 50%, transparent 30%, rgba(0,0,0,0.55) 90%);
+  pointer-events: none;
+  z-index: 9;
+  animation: koVignetteAnim 0.4s ease forwards;
+}
+.stage-panel.ko-slowmo-boss::after {
+  background: radial-gradient(ellipse at 50% 50%, rgba(255,200,80,0.15) 20%, rgba(120,40,20,0.5) 60%, rgba(0,0,0,0.85) 100%);
+  animation: koVignetteAnimBoss 0.6s ease forwards;
+}
+@keyframes koSlowmoFlash {
+  0% { filter: brightness(1) saturate(1); }
+  20% { filter: brightness(2.4) saturate(0); }
+  60% { filter: brightness(1.2) saturate(0.7); }
+  100% { filter: brightness(1) saturate(1); }
+}
+@keyframes koSlowmoFlashBoss {
+  0% { filter: brightness(1) saturate(1) contrast(1); }
+  10% { filter: brightness(3) saturate(0) contrast(1.5); }
+  35% { filter: brightness(1.4) saturate(0.6) contrast(1.2); }
+  70% { filter: brightness(1.1) saturate(0.85); }
+  100% { filter: brightness(1) saturate(1); }
+}
+@keyframes koVignetteAnim {
+  0% { opacity: 0; }
+  30% { opacity: 1; }
+  100% { opacity: 0; }
+}
+@keyframes koVignetteAnimBoss {
+  0% { opacity: 0; }
+  20% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* ============================================
+   KO 도장 — 화면 가운데 큰 KO 텍스트 (격투게임)
+   ============================================ */
+.ko-stamp {
+  position: fixed;
+  top: 42%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 9550;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  pointer-events: none;
+  animation: koStampIn 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+.ko-stamp .ko-stamp-text {
+  font-size: 80px;
+  font-weight: 900;
+  color: #fff;
+  letter-spacing: 0.04em;
+  font-style: italic;
+  text-shadow:
+    -3px 0 0 #c0202a, 3px 0 0 #c0202a,
+    0 -3px 0 #c0202a, 0 3px 0 #c0202a,
+    0 0 20px rgba(255,80,80,0.85),
+    0 0 40px rgba(180,30,30,0.6),
+    0 8px 18px rgba(0,0,0,0.7);
+  -webkit-text-stroke: 2px #c0202a;
+  transform: skewX(-8deg);
+}
+.ko-stamp .ko-stamp-name {
+  font-size: 13px;
+  color: #ffd76a;
+  letter-spacing: 0.1em;
+  font-weight: 800;
+  text-shadow: 0 0 8px rgba(0,0,0,0.9);
+  opacity: 0.85;
+}
+@keyframes koStampIn {
+  0% { transform: translate(-50%, -50%) scale(2.2) rotate(-12deg); opacity: 0; }
+  18% { transform: translate(-50%, -50%) scale(0.85) rotate(3deg); opacity: 1; }
+  35% { transform: translate(-50%, -50%) scale(1.08) rotate(-2deg); opacity: 1; }
+  55% { transform: translate(-50%, -50%) scale(1) rotate(0); opacity: 1; }
+  100% { transform: translate(-50%, -50%) scale(1.05) rotate(0); opacity: 0; }
+}
+
+/* 보스 KO 도장 — 더 크고 황금 + 더 오래 */
+.ko-stamp-boss {
+  top: 38%;
+  z-index: 9580;
+  animation: koStampBossIn 1.1s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+.ko-stamp-boss .ko-stamp-text {
+  font-size: 96px;
+  color: #fff;
+  -webkit-text-stroke: 3px #ffaa20;
+  text-shadow:
+    -4px 0 0 #ffaa20, 4px 0 0 #ffaa20,
+    0 -4px 0 #ffaa20, 0 4px 0 #ffaa20,
+    0 0 28px rgba(255,200,80,1),
+    0 0 60px rgba(255,150,30,0.85),
+    0 12px 28px rgba(0,0,0,0.85);
+}
+.ko-stamp-boss .ko-stamp-name {
+  font-size: 18px;
+  color: #ffd76a;
+  text-shadow: 0 0 14px rgba(255,200,80,0.85), 0 4px 10px rgba(0,0,0,0.9);
+}
+@keyframes koStampBossIn {
+  0% { transform: translate(-50%, -50%) scale(2.6) rotate(-15deg); opacity: 0; }
+  12% { transform: translate(-50%, -50%) scale(0.75) rotate(5deg); opacity: 1; }
+  22% { transform: translate(-50%, -50%) scale(1.18) rotate(-3deg); opacity: 1; }
+  35% { transform: translate(-50%, -50%) scale(0.98) rotate(1deg); opacity: 1; }
+  50% { transform: translate(-50%, -50%) scale(1.04) rotate(0); opacity: 1; }
+  85% { transform: translate(-50%, -50%) scale(1.04) rotate(0); opacity: 1; }
+  100% { transform: translate(-50%, -50%) scale(1.15) rotate(0); opacity: 0; }
 }

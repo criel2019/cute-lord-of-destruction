@@ -1277,10 +1277,12 @@ function ensureEnemy() {
         window.setTimeout(() => showToast(flavor), 300);
       }
     }
-    // 보스 등장 시 카메라 줌인 컷씬 + 전략 카드 모달
+    // 보스 등장 시 카메라 줌인 컷씬 + 보스 인트로 배너 + 전략 카드 모달
     if (state.enemy.isBoss) {
       triggerCameraBossEntry();
-      window.setTimeout(showBossCardsModal, 1500);
+      showBossIntroBanner();
+      // 보스 카드 모달은 인트로 컷씬 후로 더 늦춤 (1500 → 2400)
+      window.setTimeout(showBossCardsModal, 2400);
     } else {
       // 일반 적 등장 — 화면 안으로 걸어 들어오는 walk-in 애니메이션
       triggerEnemyWalkIn(state.floor === 1 && state.run <= 1);
@@ -1330,6 +1332,50 @@ function showIntroVsBanner() {
     banner.classList.add("fade-out");
     window.setTimeout(() => banner.remove(), 300);
   }, 1300);
+}
+
+// 보스 등장 인트로 — 거대 풀스크린 컷씬 (격투게임 보스 등장)
+function showBossIntroBanner() {
+  if (!state.enemy?.isBoss) return;
+  const banner = document.createElement("div");
+  banner.className = "boss-intro-banner";
+  // 좌측 슬릿 (어두운 검정 띠)
+  const slitTop = document.createElement("div");
+  slitTop.className = "boss-intro-slit boss-intro-slit-top";
+  const slitBot = document.createElement("div");
+  slitBot.className = "boss-intro-slit boss-intro-slit-bot";
+  // 가운데 컨텐츠
+  const content = document.createElement("div");
+  content.className = "boss-intro-content";
+  const warning = document.createElement("div");
+  warning.className = "boss-intro-warning";
+  warning.textContent = "⚠ WARNING ⚠";
+  const titleSm = document.createElement("div");
+  titleSm.className = "boss-intro-title-sm";
+  titleSm.textContent = state.enemy.title || "보스";
+  const titleLg = document.createElement("div");
+  titleLg.className = "boss-intro-title-lg";
+  titleLg.textContent = state.enemy.name || "보스";
+  const floorTag = document.createElement("div");
+  floorTag.className = "boss-intro-floor";
+  floorTag.textContent = `${state.floor}F BOSS`;
+  // 보스 이미지 (작게)
+  if (state.enemy.image) {
+    const img = document.createElement("img");
+    img.className = "boss-intro-portrait";
+    img.src = state.enemy.image;
+    img.alt = "";
+    content.appendChild(img);
+  }
+  content.append(floorTag, warning, titleSm, titleLg);
+  banner.append(slitTop, content, slitBot);
+  document.body.appendChild(banner);
+  // 보스 인트로 사운드 — 강한 hit 사운드 빌려쓰기
+  try { playSfx("perfect"); } catch {}
+  window.setTimeout(() => {
+    banner.classList.add("fade-out");
+    window.setTimeout(() => banner.remove(), 350);
+  }, 1700);
 }
 
 function normalizeSlots(slots) {

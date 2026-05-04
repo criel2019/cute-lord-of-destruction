@@ -2976,7 +2976,10 @@ function skipCutsceneIfDone() {
 
 function resolveUltimate(crisisBonus) {
   const stats = getStats();
-  shakeScreen(3);
+  // 결정타 풀스크린 컷인 — 흰 플래시 + 거대 "절초식!" 텍스트 + 강한 흔들림
+  triggerUltimateFinisher();
+  shakeScreen(4.2);
+  hitstop(280);
   if (state.enemy) {
     const targetEnemy = state.enemy;
     const damage = state.enemy.maxHp * (0.42 + (0.28 + crisisBonus) * stats.ultimatePower) + stats.counterDamage * 3.2;
@@ -4718,6 +4721,47 @@ function triggerCameraBossEntry() {
     _camTimer = null;
   }, 1400);
 }
+// 궁극기 결정타 — 풀스크린 흰 플래시 + 거대 "절초식!" 텍스트 + 방사형 빛줄기
+function triggerUltimateFinisher() {
+  // 흰 플래시 (강도 강화 + 0.5초 지속)
+  const flash = document.createElement("div");
+  flash.className = "ultimate-finisher-flash";
+  document.body.appendChild(flash);
+  window.setTimeout(() => flash.remove(), 600);
+
+  // 풀스크린 컷인 — "절초식!" 거대 텍스트 + 방사형 빛
+  const cutin = document.createElement("div");
+  cutin.className = "ultimate-finisher-cutin";
+  // 방사형 빛줄기 8개
+  for (let i = 0; i < 8; i++) {
+    const ray = document.createElement("span");
+    ray.className = "ufc-ray";
+    ray.style.setProperty("--rot", `${i * 45 + Math.random() * 8}deg`);
+    ray.style.animationDelay = `${i * 30}ms`;
+    cutin.appendChild(ray);
+  }
+  // 거대 텍스트
+  const text = document.createElement("div");
+  text.className = "ufc-text";
+  // 보스/일반 적 구분해서 다른 텍스트
+  const isBossFight = !!(state.enemy && state.enemy.isBoss);
+  const labels = isBossFight
+    ? ["✦ 절초식! ✦", "✦ 비전 폭발! ✦", "✦ 마왕의 일격! ✦"]
+    : ["✦ 처치! ✦", "✦ 일격! ✦", "✦ 비전! ✦"];
+  text.textContent = labels[Math.floor(Math.random() * labels.length)];
+  cutin.appendChild(text);
+  // 서브 텍스트
+  const sub = document.createElement("div");
+  sub.className = "ufc-sub";
+  sub.textContent = "ULTIMATE";
+  cutin.appendChild(sub);
+  document.body.appendChild(cutin);
+  window.setTimeout(() => {
+    cutin.classList.add("fade-out");
+    window.setTimeout(() => cutin.remove(), 250);
+  }, 750);
+}
+
 function triggerCameraDefeat(isBoss, isElite) {
   const stage = el.stagePanel;
   if (!stage) return;

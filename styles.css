@@ -1330,6 +1330,126 @@ img { display: block; max-width: 100%; }
   }
 }
 
+/* ── 궁극기 결정타 풀스크린 컷인 ── */
+.ultimate-finisher-flash {
+  position: fixed;
+  inset: 0;
+  z-index: 9100;
+  pointer-events: none;
+  background: radial-gradient(ellipse at center, #fff 0%, #ffe066 30%, #ff9d2e 55%, rgba(255,80,40,0.4) 80%, transparent 100%);
+  animation: ultFlash 0.6s ease-out forwards;
+}
+@keyframes ultFlash {
+  0%   { opacity: 0; transform: scale(0.5); }
+  10%  { opacity: 1; transform: scale(1.2); }
+  35%  { opacity: 0.85; transform: scale(1); }
+  100% { opacity: 0; transform: scale(0.95); }
+}
+
+.ultimate-finisher-cutin {
+  position: fixed;
+  inset: 0;
+  z-index: 9200;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  overflow: hidden;
+}
+.ultimate-finisher-cutin.fade-out {
+  animation: ultCutinFadeOut 0.25s ease both;
+}
+@keyframes ultCutinFadeOut { from { opacity: 1; } to { opacity: 0; } }
+
+/* 방사형 빛줄기 */
+.ufc-ray {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 200vmax;
+  height: 8vmin;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(255,230,100,0.25) 35%,
+    rgba(255,200,80,0.55) 50%,
+    rgba(255,230,100,0.25) 65%,
+    transparent 100%);
+  transform-origin: 50% 50%;
+  transform: translate(-50%, -50%) rotate(var(--rot, 0deg)) scaleX(0);
+  filter: blur(2px);
+  animation: ufcRayBurst 0.7s cubic-bezier(.2,.8,.3,1) forwards;
+}
+@keyframes ufcRayBurst {
+  0%   { transform: translate(-50%, -50%) rotate(var(--rot)) scaleX(0); opacity: 0; }
+  20%  { transform: translate(-50%, -50%) rotate(var(--rot)) scaleX(1); opacity: 1; }
+  100% { transform: translate(-50%, -50%) rotate(var(--rot)) scaleX(1); opacity: 0; }
+}
+
+/* 거대 "절초식!" 텍스트 */
+.ufc-text {
+  font-size: clamp(48px, 12vw, 110px);
+  font-weight: 900;
+  background: linear-gradient(180deg, #fff 0%, #ffe066 30%, #ff9d2e 60%, #c0392b 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow:
+    -3px 0 0 rgba(0,0,0,0.7),
+    3px 0 0 rgba(0,0,0,0.7),
+    0 -3px 0 rgba(0,0,0,0.7),
+    0 3px 0 rgba(0,0,0,0.7);
+  filter:
+    drop-shadow(0 0 24px rgba(255,180,60,0.95))
+    drop-shadow(0 0 50px rgba(255,80,40,0.7))
+    drop-shadow(0 6px 12px rgba(0,0,0,0.85));
+  letter-spacing: -0.02em;
+  line-height: 1;
+  position: relative;
+  z-index: 1;
+  animation: ufcTextSlam 0.8s cubic-bezier(.2,.8,.3,1.4) both;
+  text-align: center;
+  word-break: keep-all;
+}
+@keyframes ufcTextSlam {
+  0%   { transform: scale(3.5) rotate(-10deg); opacity: 0; filter: blur(12px) drop-shadow(0 0 40px rgba(255,180,60,1)); }
+  18%  { transform: scale(0.85) rotate(4deg); opacity: 1; filter: blur(0) drop-shadow(0 0 24px rgba(255,180,60,0.95)); }
+  35%  { transform: scale(1.12) rotate(-2deg); opacity: 1; }
+  55%  { transform: scale(0.97) rotate(1deg); opacity: 1; }
+  80%  { transform: scale(1.02); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* 서브 텍스트 ULTIMATE */
+.ufc-sub {
+  font-size: clamp(14px, 2.5vw, 20px);
+  font-weight: 900;
+  letter-spacing: 0.5em;
+  color: #ffd76a;
+  text-shadow: 0 1px 0 #000, 0 0 10px rgba(255,180,60,0.8), 0 0 4px rgba(0,0,0,0.95);
+  position: relative;
+  z-index: 1;
+  margin-top: 8px;
+  animation: ufcSubFade 0.5s ease 0.25s both;
+}
+@keyframes ufcSubFade {
+  0% { transform: translateY(15px); opacity: 0; letter-spacing: 0.2em; }
+  100% { transform: translateY(0); opacity: 1; letter-spacing: 0.5em; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ultimate-finisher-flash,
+  .ultimate-finisher-cutin,
+  .ufc-ray,
+  .ufc-text,
+  .ufc-sub {
+    animation: none !important;
+    opacity: 0.8;
+  }
+  .ufc-text { transform: none !important; }
+}
+
 /* 보스 등장 시네마틱 오버레이 */
 .boss-title-overlay {
   position: fixed;

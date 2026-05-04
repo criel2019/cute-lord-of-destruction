@@ -203,6 +203,60 @@ img { display: block; max-width: 100%; }
   animation: streakPulse 0.8s ease infinite alternate;
 }
 
+/* 자원 chip 색상 분기 — 한눈에 자원 식별 */
+.hud-chip--tribute {
+  background: linear-gradient(180deg, rgba(255, 168, 76, 0.22) 0%, rgba(255, 168, 76, 0.08) 100%);
+  border-color: rgba(255, 168, 76, 0.45);
+}
+.hud-chip--tribute strong { color: #ffd28a; }
+.hud-chip--tribute i { filter: drop-shadow(0 0 3px rgba(255, 168, 76, 0.55)); }
+
+.hud-chip--shard {
+  background: linear-gradient(180deg, rgba(120, 200, 255, 0.22) 0%, rgba(120, 200, 255, 0.08) 100%);
+  border-color: rgba(120, 200, 255, 0.45);
+}
+.hud-chip--shard strong { color: #c8e8ff; }
+.hud-chip--shard i { filter: drop-shadow(0 0 3px rgba(120, 200, 255, 0.6)); }
+
+.hud-chip--best {
+  background: linear-gradient(180deg, rgba(243, 197, 95, 0.18) 0%, rgba(243, 197, 95, 0.05) 100%);
+  border-color: rgba(243, 197, 95, 0.4);
+}
+.hud-chip--best strong { color: var(--gold); }
+
+/* 값 변경 시 펄스 — 자원 들어올 때 미세하게 살아있는 느낌 */
+.hud-chip.chip-bump {
+  animation: hudChipBump 0.34s cubic-bezier(0.2, 0.7, 0.3, 1.5);
+}
+@keyframes hudChipBump {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.16); filter: brightness(1.4); }
+  100% { transform: scale(1); }
+}
+.hud-chip--tribute.chip-bump { box-shadow: 0 0 12px rgba(255, 168, 76, 0.55); }
+.hud-chip--shard.chip-bump   { box-shadow: 0 0 12px rgba(120, 200, 255, 0.55); }
+.hud-chip--best.chip-bump    { box-shadow: 0 0 14px rgba(243, 197, 95, 0.7); }
+
+/* tribute-bounce: 강화 구매 가능 임계 도달 시 더 강한 강조 (chip-bump보다 길고 강함) */
+.hud-chip--tribute.tribute-bounce {
+  animation: tributeBounce 0.6s cubic-bezier(0.2, 0.7, 0.3, 1.4);
+  box-shadow: 0 0 18px rgba(255, 168, 76, 0.85);
+}
+@keyframes tributeBounce {
+  0%   { transform: scale(1); }
+  20%  { transform: scale(1.22) rotate(-3deg); filter: brightness(1.5); }
+  40%  { transform: scale(1.1)  rotate(3deg); }
+  60%  { transform: scale(1.16) rotate(-2deg); }
+  100% { transform: scale(1) rotate(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hud-chip--tribute.tribute-bounce { animation: none !important; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hud-chip.chip-bump { animation: none !important; }
+}
+
 @keyframes streakPulse {
   from { box-shadow: 0 0 0 rgba(243, 197, 95, 0); }
   to { box-shadow: 0 0 12px rgba(243, 197, 95, 0.6); }

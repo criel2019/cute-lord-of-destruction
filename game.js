@@ -4550,8 +4550,18 @@ function render() {
     if (state.tributes !== prev) {
       el.tributeText.textContent = formatNumber(state.tributes);
       el.tributeText._lastVal = state.tributes;
+      // 값 증가 시 chip 자체 펄스 (tribute는 빈번히 들어와서 살아있는 느낌의 핵심)
+      if (typeof prev === "number" && state.tributes > prev) {
+        const chip = el.tributeChip;
+        if (chip) {
+          chip.classList.remove("chip-bump");
+          void chip.offsetWidth;
+          chip.classList.add("chip-bump");
+          window.setTimeout(() => chip.classList.remove("chip-bump"), 360);
+        }
+      }
       if (canAffordUpgrade && state.tributes > prev) {
-        const chip = el.tributeText.closest(".hud-stat--tribute");
+        const chip = el.tributeChip;
         if (chip && !chip.classList.contains("tribute-bounce")) {
           chip.classList.add("tribute-bounce");
           window.setTimeout(() => chip.classList.remove("tribute-bounce"), 600);
@@ -5042,6 +5052,16 @@ function pulseValue(node, value, direction = "auto") {
   void node.offsetWidth;
   node.classList.add(cls);
   window.setTimeout(() => node.classList.remove(cls), 460);
+  // 자원 chip 자체도 bump — 값이 늘어날 때만 (감소는 shard-leaked가 따로 처리)
+  if (cls === "value-pulse-up") {
+    const chip = node.closest?.(".hud-chip");
+    if (chip) {
+      chip.classList.remove("chip-bump");
+      void chip.offsetWidth;
+      chip.classList.add("chip-bump");
+      window.setTimeout(() => chip.classList.remove("chip-bump"), 360);
+    }
+  }
 }
 
 function flashScreen(color = "white", duration = 0.35) {

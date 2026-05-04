@@ -1731,6 +1731,14 @@ function dealEnemyDamage(amount, source = "auto", label = "") {
   }
   if (source !== "auto") spawnDamage(damage, crit || source !== "auto", label);
   if (source !== "auto") spawnParticles(source === "ultimate" ? 34 : 16);
+  // 적 mini-hp 바 피격 플래시 — 자동 공격 포함 모든 데미지에 적용
+  const miniHp = el.enemyHpBar?.parentElement;
+  if (miniHp) {
+    miniHp.classList.remove("mini-hp-damaged");
+    void miniHp.offsetWidth;
+    miniHp.classList.add("mini-hp-damaged");
+    window.setTimeout(() => miniHp.classList.remove("mini-hp-damaged"), 320);
+  }
   if (state.enemy.hp <= 0) defeatEnemy();
 }
 

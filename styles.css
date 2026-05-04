@@ -577,30 +577,103 @@ img { display: block; max-width: 100%; }
   z-index: 6;
 }
 
-/* 탭 콤보 팝업 — 화면 가운데 위쪽 큰 글자, 잠깐 떴다 사라짐 */
-.stage-panel > .tap-combo-popup {
-  top: 30%;
+/* ──────────────────────────────────────────────────────────────
+   탭/콤보/기력 팝업 — 모두 dialogue 바로 위 안전 영역에 통일.
+   캐릭터/HP바/intent-bar/fight-combo와 절대 안 겹침.
+   위치 기준: action-zone 바로 위, dialogue line 위쪽
+   ────────────────────────────────────────────────────────────── */
+.stage-panel > .tap-combo-popup,
+.stage-panel > .prep-gain-pop,
+.stage-panel > .streak-break-popup {
+  position: absolute !important;
+  /* dialogue line 위쪽 = action-zone + dialogue 높이 위 */
+  bottom: calc(var(--h-action) + var(--h-dialogue) + 6px);
   left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 24px;
-  font-weight: 900;
-  color: var(--gold);
-  text-shadow: 0 0 12px rgba(243, 197, 95, 0.7), 0 0 6px rgba(0, 0, 0, 0.8);
+  transform: translateX(-50%);
+  z-index: 9;
+  pointer-events: none;
   white-space: nowrap;
-  animation: comboPopShow 0.4s ease;
+  max-width: calc(100% - 24px);
+  /* 어떤 배경 위에 떠도 가독성 */
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: rgba(8, 4, 14, 0.92);
+  border: 1.5px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.55);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.85);
 }
 
-.stage-panel > .tap-combo-popup.tcp-exit {
-  animation: comboPopExit 0.3s ease forwards;
+/* 탭 콤보 팝업 — 노란 강조 */
+.stage-panel > .tap-combo-popup {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--gold);
+  border-color: rgba(243, 197, 95, 0.6);
+  animation: comboPopShow 0.3s ease;
 }
+.stage-panel > .tap-combo-popup.tcp-exit { animation: comboPopExit 0.3s ease forwards; }
+
+/* 기력 충전 +X% — 작은 민트 */
+.stage-panel > .prep-gain-pop {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--mint);
+  border-color: rgba(134, 216, 199, 0.55);
+  animation: comboPopShow 0.25s ease;
+}
+.stage-panel > .prep-gain-pop.pgp-exit { animation: comboPopExit 0.28s ease forwards; }
+
+/* 콤보 끊김 — 빨강 강조 */
+.stage-panel > .streak-break-popup {
+  font-size: 13px;
+  font-weight: 800;
+  color: #ffd3d3;
+  border-color: rgba(242, 99, 99, 0.65);
+  background: rgba(60, 8, 18, 0.92);
+  animation: comboPopShow 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.stage-panel > .streak-break-popup .sb-num { color: #ff8484; font-weight: 900; }
+.stage-panel > .streak-break-popup .sb-label { font-size: 11px; opacity: 0.85; }
 
 @keyframes comboPopShow {
-  from { opacity: 0; transform: translate(-50%, -30%) scale(0.6); }
-  to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  from { opacity: 0; transform: translateX(-50%) translateY(8px) scale(0.8); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+}
+@keyframes comboPopExit {
+  to { opacity: 0; transform: translateX(-50%) translateY(-12px) scale(0.9); }
 }
 
-@keyframes comboPopExit {
-  to { opacity: 0; transform: translate(-50%, -80%) scale(1.1); }
+/* 타이밍 등급 팝업 — 화면 가운데 위쪽, 다른 UI 위로 */
+.grade-popup {
+  position: fixed;
+  top: 22%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 8500;
+  pointer-events: none;
+  animation: gradePopShow 0.3s cubic-bezier(.18,.89,.32,1.28);
+}
+.grade-popup-text {
+  display: inline-block;
+  padding: 8px 18px;
+  border-radius: 14px;
+  font-size: 18px;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  background: rgba(8, 4, 14, 0.92);
+  border: 2px solid rgba(255,255,255,0.25);
+  color: #fff;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+  box-shadow: 0 6px 24px rgba(0,0,0,0.65);
+}
+.grade-popup-text.grade-missed { color: #ffd3d3; border-color: var(--danger); }
+.grade-popup-text.grade-perfect { color: #ffe566; border-color: var(--gold); }
+@keyframes gradePopShow {
+  from { opacity: 0; transform: translateX(-50%) translateY(20px) scale(0.7); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
 }
 
 /* 보스 티저 — 캐릭터 무대 위쪽 (alert rail 아래) */

@@ -2302,6 +2302,7 @@ function enemyHits() {
   const incomingMod = bossMod ? bossMod.incomingMod : 1;
   const loss = Math.round((state.enemy.isBoss ? 22 : stats.hitLoss) * damageMod * incomingMod * (1 - Math.min(0.55, (stats.guardPower - 1) * 0.45)) * (1 - hitReductionEv));
   state.dignity = clamp(state.dignity - loss, 0, stats.maxDignity);
+  if (loss > 0) flashDignityHit();
   // 공물 누출 — 막기 실패 시 누적 공물의 일부가 적에게 빨려나감
   // 1층 튜토리얼/2층은 면제, 보스전 5%, 일반전 3%, 최소 1, 최대 999
   if (state.floor >= 3 && state.shards >= 20) {
@@ -4793,6 +4794,23 @@ function triggerPerfectConverge() {
 }
 
 // 공물 누출 시각화 — 플레이어 위치에서 황금 파편이 적 방향으로 빨려나감
+// 체면(HP) 바 피해 강조 — 빨간 플래시 + 짧은 shake (사용자가 맞은 걸 즉각 인지)
+function flashDignityHit() {
+  const bar = el.heroHpBar?.parentElement;
+  if (!bar) return;
+  bar.classList.remove("dignity-hit");
+  void bar.offsetWidth;
+  bar.classList.add("dignity-hit");
+  window.setTimeout(() => bar.classList.remove("dignity-hit"), 420);
+  // 숫자도 빨간 펄스
+  if (el.heroHpText) {
+    el.heroHpText.classList.remove("dignity-num-hit");
+    void el.heroHpText.offsetWidth;
+    el.heroHpText.classList.add("dignity-num-hit");
+    window.setTimeout(() => el.heroHpText.classList.remove("dignity-num-hit"), 420);
+  }
+}
+
 function spawnShardLeak(amount) {
   const stage = el.stagePanel?.querySelector(".main-stage");
   if (!stage) return;

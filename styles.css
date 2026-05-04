@@ -2888,6 +2888,88 @@ body.hp-warning .danger-vignette {
   .dignity-heal-pop { animation: none !important; opacity: 1 !important; }
 }
 
+/* 층 전환 펄스 + 배너 — 클리커 RPG 진행감 */
+#floorText.floor-advance {
+  animation: floorTextAdvance 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes floorTextAdvance {
+  0%   { transform: scale(1); color: inherit; text-shadow: none; }
+  35%  { transform: scale(1.32); color: #ffe48a; text-shadow: 0 0 14px rgba(255, 200, 90, 0.95), 0 0 28px rgba(255, 220, 120, 0.55); }
+  100% { transform: scale(1); color: inherit; text-shadow: none; }
+}
+
+.floor-advance-banner {
+  position: absolute;
+  left: 50%;
+  top: 36%;
+  transform: translate(-50%, -50%);
+  z-index: 7;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 22px;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent 0%, rgba(20, 14, 26, 0.92) 18%, rgba(8, 6, 14, 0.95) 50%, rgba(20, 14, 26, 0.92) 82%, transparent 100%);
+  border-top: 1px solid rgba(255, 220, 120, 0.55);
+  border-bottom: 1px solid rgba(255, 220, 120, 0.55);
+  width: 92%;
+  justify-content: center;
+  animation: floorBannerSlide 1s cubic-bezier(0.2, 0.7, 0.3, 1) forwards;
+}
+.floor-advance-banner .fab-from {
+  font-size: 22px;
+  font-weight: 800;
+  color: rgba(220, 215, 235, 0.7);
+  text-shadow: 0 1px 2px rgba(0,0,0,0.85);
+  letter-spacing: 0.05em;
+}
+.floor-advance-banner .fab-arrow {
+  font-size: 18px;
+  color: #ffd76a;
+  text-shadow: 0 0 10px rgba(255, 200, 90, 0.85);
+  animation: fabArrowPulse 0.6s ease-in-out 0.18s;
+}
+.floor-advance-banner .fab-to {
+  font-size: 28px;
+  font-weight: 900;
+  color: #ffe48a;
+  text-shadow: 0 0 12px rgba(255, 200, 90, 0.95), 0 0 24px rgba(255, 220, 120, 0.55), 0 1px 2px rgba(0,0,0,0.9);
+  letter-spacing: 0.05em;
+}
+.floor-advance-banner-boss {
+  border-top-color: rgba(255, 200, 80, 0.85);
+  border-bottom-color: rgba(255, 200, 80, 0.85);
+  box-shadow: 0 0 30px rgba(255, 180, 60, 0.45);
+  animation-duration: 1.4s;
+}
+.floor-advance-banner-boss .fab-to {
+  font-size: 34px;
+  color: #fff3c0;
+  text-shadow: 0 0 16px rgba(255, 200, 80, 1), 0 0 36px rgba(255, 160, 30, 0.75), 0 2px 4px rgba(0,0,0,0.9);
+}
+@keyframes floorBannerSlide {
+  0%   { opacity: 0; transform: translate(-50%, -50%) scaleX(0.4); }
+  18%  { opacity: 1; transform: translate(-50%, -50%) scaleX(1.04); }
+  28%  { opacity: 1; transform: translate(-50%, -50%) scaleX(1); }
+  78%  { opacity: 1; transform: translate(-50%, -50%) scaleX(1); }
+  100% { opacity: 0; transform: translate(-50%, -50%) scaleX(0.92); }
+}
+@keyframes fabArrowPulse {
+  0%   { transform: translateX(0); opacity: 0.7; }
+  50%  { transform: translateX(6px); opacity: 1; text-shadow: 0 0 16px rgba(255, 200, 90, 1); }
+  100% { transform: translateX(0); opacity: 0.85; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #floorText.floor-advance { animation: none !important; }
+  .floor-advance-banner { animation: floorBannerSlideReduced 1s ease forwards !important; }
+  .floor-advance-banner .fab-arrow { animation: none !important; }
+  @keyframes floorBannerSlideReduced {
+    0%   { opacity: 0; }
+    18%, 78% { opacity: 1; }
+    100% { opacity: 0; }
+  }
+}
+
 .stage-panel.low-dignity .dignity-bar span { background: linear-gradient(90deg, var(--gold), #ff8a4c); }
 .stage-panel.dignity-crisis .dignity-bar span {
   background: var(--danger);

@@ -2658,7 +2658,9 @@ function defeatEnemy() {
       }
     }, defeatedBoss ? 1200 : 500);
   }
+  const _prevFloor = state.floor;
   state.floor += 1;
+  spawnFloorAdvanceBanner(_prevFloor, state.floor, defeatedBoss);
   const prevBest = state.bestFloor;
   state.bestFloor = Math.max(state.bestFloor, state.floor);
   if (state.bestFloor > prevBest && state.run > 1) {
@@ -4850,6 +4852,28 @@ function flashDignityHeal(amount = 0) {
     bar.appendChild(pop);
     window.setTimeout(() => pop.remove(), 920);
   }
+}
+
+function spawnFloorAdvanceBanner(prevFloor, newFloor, fromBoss = false) {
+  // floorText 펄스
+  if (el.floorText) {
+    el.floorText.classList.remove("floor-advance");
+    void el.floorText.offsetWidth;
+    el.floorText.classList.add("floor-advance");
+    window.setTimeout(() => el.floorText?.classList.remove("floor-advance"), 720);
+  }
+  // 짧은 배너 — 보스 처치 후엔 더 길게/밝게
+  const stage = el.stagePanel?.querySelector(".main-stage") || el.stagePanel;
+  if (!stage) return;
+  const banner = document.createElement("div");
+  banner.className = fromBoss ? "floor-advance-banner floor-advance-banner-boss" : "floor-advance-banner";
+  banner.innerHTML = `
+    <span class="fab-from">${prevFloor}F</span>
+    <span class="fab-arrow">▶</span>
+    <span class="fab-to">${newFloor}F</span>
+  `;
+  stage.appendChild(banner);
+  window.setTimeout(() => banner.remove(), fromBoss ? 1400 : 1000);
 }
 
 function spawnShardLeak(amount) {

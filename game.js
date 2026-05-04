@@ -13,6 +13,31 @@ function getAudioCtx() {
   return _audioCtx;
 }
 
+// 짧은 노이즈 버스트 (펀치 임팩트의 "퍽")
+function _noiseBurst(ctx, now, duration = 0.06, gainPeak = 0.18, lowpass = 1200) {
+  try {
+    const bufferSize = Math.max(64, Math.floor(ctx.sampleRate * duration));
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) {
+      data[i] = (Math.random() * 2 - 1) * (1 - i / bufferSize);
+    }
+    const src = ctx.createBufferSource();
+    src.buffer = buffer;
+    const filter = ctx.createBiquadFilter();
+    filter.type = "lowpass";
+    filter.frequency.value = lowpass;
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(gainPeak, now);
+    g.gain.exponentialRampToValueAtTime(0.001, now + duration);
+    src.connect(filter);
+    filter.connect(g);
+    g.connect(ctx.destination);
+    src.start(now);
+    src.stop(now + duration + 0.02);
+  } catch {}
+}
+
 function playSfx(type) {
   const ctx = getAudioCtx();
   if (!ctx) return;
@@ -23,32 +48,73 @@ function playSfx(type) {
     gain.connect(ctx.destination);
     const now = ctx.currentTime;
     if (type === "perfect") {
-      // 밝고 짧은 핑 — 성공감
+      // 밝은 차임 — 핑+옥타브 하모니로 성취감
       osc.type = "sine";
       osc.frequency.setValueAtTime(880, now);
-      osc.frequency.exponentialRampToValueAtTime(1320, now + 0.06);
+      osc.frequency.exponentialRampToValueAtTime(1760, now + 0.07);
       gain.gain.setValueAtTime(0.22, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.32);
+      osc.start(now);
+      osc.stop(now + 0.32);
+      // 완전5도 하모니 (벨처럼)
+      const harm = ctx.createOscillator();
+      const harmGain = ctx.createGain();
+      harm.type = "triangle";
+      harm.frequency.setValueAtTime(1320, now);
+      harm.frequency.exponentialRampToValueAtTime(2640, now + 0.09);
+      harmGain.gain.setValueAtTime(0.12, now);
+      harmGain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+      harm.connect(harmGain);
+      harmGain.connect(ctx.destination);
+      harm.start(now);
+      harm.stop(now + 0.4);
+      // 살짝 메탈릭 노이즈
+      _noiseBurst(ctx, now, 0.04, 0.08, 6000);
+    } else if (type === "rescue") {
+      // 메탈 막기 — 짧은 클랭+노이즈+톤 다운
+      osc.type = "triangle";
+      osc.frequency.setValueAtTime(640, now);
+      osc.frequency.exponentialRampToValueAtTime(220, now + 0.14);
+      gain.gain.setValueAtTime(0.2, now);
       gain.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
       osc.start(now);
       osc.stop(now + 0.22);
-    } else if (type === "rescue") {
-      // 부드러운 탁 — 가로채기
-      osc.type = "triangle";
-      osc.frequency.setValueAtTime(520, now);
-      osc.frequency.exponentialRampToValueAtTime(280, now + 0.12);
-      gain.gain.setValueAtTime(0.18, now);
+      // 메탈릭 클랭 (square 살짝)
+      const clang = ctx.createOscillator();
+      const clangGain = ctx.createGain();
+      clang.type = "square";
+      clang.frequency.setValueAtTime(1200, now);
+      clang.frequency.exponentialRampToValueAtTime(800, now + 0.08);
+      clangGain.gain.setValueAtTime(0.06, now);
+      clangGain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+      clang.connect(clangGain);
+      clangGain.connect(ctx.destination);
+      clang.start(now);
+      clang.stop(now + 0.1);
+      _noiseBurst(ctx, now, 0.05, 0.14, 3200);
+    } else if (type === "hit") {
+      // 펀치 임팩트 — 킥드럼 같은 둔탁함 + 노이즈 퍽
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(180, now);
+      osc.frequency.exponentialRampToValueAtTime(45, now + 0.12);
+      gain.gain.setValueAtTime(0.32, now);
       gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
       osc.start(now);
       osc.stop(now + 0.18);
-    } else if (type === "hit") {
-      // 둔탁한 충격음 — 피격
-      osc.type = "sawtooth";
-      osc.frequency.setValueAtTime(160, now);
-      osc.frequency.exponentialRampToValueAtTime(60, now + 0.14);
-      gain.gain.setValueAtTime(0.28, now);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
-      osc.start(now);
-      osc.stop(now + 0.2);
+      // 서브 베이스 보강
+      const sub = ctx.createOscillator();
+      const subGain = ctx.createGain();
+      sub.type = "sawtooth";
+      sub.frequency.setValueAtTime(90, now);
+      sub.frequency.exponentialRampToValueAtTime(40, now + 0.16);
+      subGain.gain.setValueAtTime(0.18, now);
+      subGain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+      sub.connect(subGain);
+      subGain.connect(ctx.destination);
+      sub.start(now);
+      sub.stop(now + 0.2);
+      // 펀치 노이즈 (낮은 lowpass = 묵직)
+      _noiseBurst(ctx, now, 0.08, 0.22, 800);
     } else if (type === "danger") {
       // 날카로운 경고음 — 위험
       osc.type = "square";
@@ -58,24 +124,65 @@ function playSfx(type) {
       osc.start(now);
       osc.stop(now + 0.1);
     } else if (type === "ultimate") {
-      // 웅장한 스윕 — 궁극기
+      // 웅장한 스윕 + 베이스 충격 + 빛나는 톱
       osc.type = "sine";
       osc.frequency.setValueAtTime(220, now);
       osc.frequency.exponentialRampToValueAtTime(880, now + 0.35);
       gain.gain.setValueAtTime(0.25, now);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
       osc.start(now);
-      osc.stop(now + 0.45);
+      osc.stop(now + 0.5);
+      // 옥타브 위 톱 (빛나는 광채)
+      const bright = ctx.createOscillator();
+      const brightGain = ctx.createGain();
+      bright.type = "triangle";
+      bright.frequency.setValueAtTime(440, now + 0.05);
+      bright.frequency.exponentialRampToValueAtTime(1760, now + 0.4);
+      brightGain.gain.setValueAtTime(0.0, now);
+      brightGain.gain.linearRampToValueAtTime(0.16, now + 0.1);
+      brightGain.gain.exponentialRampToValueAtTime(0.001, now + 0.55);
+      bright.connect(brightGain);
+      brightGain.connect(ctx.destination);
+      bright.start(now);
+      bright.stop(now + 0.55);
+      // 발사 임팩트 (노이즈 휘익)
+      _noiseBurst(ctx, now, 0.18, 0.16, 4500);
     } else if (type === "defeat") {
-      // 짧은 팡파르 — 적 처치
+      // 처치 팡파르 — 3음 + 폭발음 + 종소리
       osc.type = "sine";
       osc.frequency.setValueAtTime(523, now);
-      osc.frequency.setValueAtTime(659, now + 0.1);
-      osc.frequency.setValueAtTime(784, now + 0.2);
-      gain.gain.setValueAtTime(0.2, now);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.38);
+      osc.frequency.setValueAtTime(659, now + 0.09);
+      osc.frequency.setValueAtTime(880, now + 0.2);
+      gain.gain.setValueAtTime(0.22, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.42);
       osc.start(now);
-      osc.stop(now + 0.38);
+      osc.stop(now + 0.42);
+      // 종소리 하모니 (3도 위)
+      const bell = ctx.createOscillator();
+      const bellGain = ctx.createGain();
+      bell.type = "triangle";
+      bell.frequency.setValueAtTime(659, now);
+      bell.frequency.setValueAtTime(831, now + 0.09);
+      bell.frequency.setValueAtTime(1108, now + 0.2);
+      bellGain.gain.setValueAtTime(0.1, now);
+      bellGain.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+      bell.connect(bellGain);
+      bellGain.connect(ctx.destination);
+      bell.start(now);
+      bell.stop(now + 0.5);
+      // 폭발 임팩트 (노이즈 퍽 + 묵직한 베이스)
+      _noiseBurst(ctx, now, 0.18, 0.24, 1600);
+      const boom = ctx.createOscillator();
+      const boomGain = ctx.createGain();
+      boom.type = "sine";
+      boom.frequency.setValueAtTime(120, now);
+      boom.frequency.exponentialRampToValueAtTime(40, now + 0.2);
+      boomGain.gain.setValueAtTime(0.28, now);
+      boomGain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+      boom.connect(boomGain);
+      boomGain.connect(ctx.destination);
+      boom.start(now);
+      boom.stop(now + 0.25);
     } else if (type === "bossDefeat") {
       // 웅장한 보스 처치 팡파르 — 3음 상승 + 긴 여운
       osc.type = "sine";
@@ -102,15 +209,29 @@ function playSfx(type) {
       gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.85);
       osc2.start(now);
       osc2.stop(now + 0.85);
+      // 거대 폭발 임팩트
+      _noiseBurst(ctx, now, 0.32, 0.28, 1200);
+      const bigBoom = ctx.createOscillator();
+      const bigBoomGain = ctx.createGain();
+      bigBoom.type = "sine";
+      bigBoom.frequency.setValueAtTime(80, now);
+      bigBoom.frequency.exponentialRampToValueAtTime(28, now + 0.4);
+      bigBoomGain.gain.setValueAtTime(0.34, now);
+      bigBoomGain.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+      bigBoom.connect(bigBoomGain);
+      bigBoomGain.connect(ctx.destination);
+      bigBoom.start(now);
+      bigBoom.stop(now + 0.5);
     } else if (type === "click") {
-      // 부드러운 팝 — 기력 충전 탭
-      osc.type = "sine";
-      osc.frequency.setValueAtTime(660, now);
-      osc.frequency.exponentialRampToValueAtTime(440, now + 0.06);
-      gain.gain.setValueAtTime(0.07, now);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
+      // 펀치감 있는 탭 — 짧은 톤 + 작은 노이즈
+      osc.type = "triangle";
+      osc.frequency.setValueAtTime(720, now);
+      osc.frequency.exponentialRampToValueAtTime(380, now + 0.05);
+      gain.gain.setValueAtTime(0.1, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
       osc.start(now);
-      osc.stop(now + 0.09);
+      osc.stop(now + 0.08);
+      _noiseBurst(ctx, now, 0.025, 0.06, 4500);
     } else if (type === "upgrade") {
       // 밝은 상승음 — 강화 구매
       osc.type = "sine";
@@ -269,6 +390,13 @@ const el = {
   creditClaim: $("#creditClaim"),
   enemyHpText: $("#enemyHpText"),
   enemyHpBar: $("#enemyHpBar"),
+  bossHpBar: $("#bossHpBar"),
+  bossHpFill: $("#bossHpFill"),
+  bossHpGhost: $("#bossHpGhost"),
+  bossHpName: $("#bossHpName"),
+  bossHpNum: $("#bossHpNum"),
+  fightCombo: $("#fightCombo"),
+  fightComboNum: $("#fightComboNum"),
   heroHpText: $("#heroHpText"),
   heroHpBar: $("#heroHpBar"),
   breakText: $("#breakText"),
@@ -3885,6 +4013,15 @@ function render() {
   el.arenaEnemy.src = state.enemy.image;
   el.enemyHpText.textContent = `${formatNumber(state.enemy.hp)} / ${formatNumber(state.enemy.maxHp)}`;
   el.enemyHpBar.style.width = `${clamp(enemyHpRate * 100, 0, 100)}%`;
+  // 보스 HP바: 보스일 때만 표시, 게임 스타일 디자인
+  el.stagePanel?.classList.toggle("boss-active", !!state.enemy.isBoss);
+  el.stagePanel?.classList.toggle("boss-low", !!state.enemy.isBoss && enemyHpRate <= 0.25);
+  if (state.enemy.isBoss) {
+    if (el.bossHpFill) el.bossHpFill.style.setProperty("--boss-hp-rate", String(clamp(enemyHpRate, 0, 1)));
+    if (el.bossHpGhost) el.bossHpGhost.style.setProperty("--boss-hp-ghost", String(clamp(enemyHpRate, 0, 1)));
+    if (el.bossHpName) el.bossHpName.textContent = state.enemy.name || "보스";
+    if (el.bossHpNum) el.bossHpNum.textContent = `${formatNumber(state.enemy.hp)} / ${formatNumber(state.enemy.maxHp)}`;
+  }
   // 적 HP 단계에 따라 바 색상 변화
   el.enemyHpBar.parentElement?.classList.toggle("hp-phase-low", enemyHpRate <= 0.25);
   el.enemyHpBar.parentElement?.classList.toggle("hp-phase-mid", enemyHpRate > 0.25 && enemyHpRate <= 0.5);
@@ -3945,7 +4082,7 @@ function render() {
   el.breakBar.style.width = `${clamp(breakCharge, 0, 100)}%`;
   // 브레이크 80% 이상 → 임박 강조
   el.breakBar.parentElement?.classList.toggle("break-near", state.enemy.isBoss && breakCharge >= 80);
-  el.ultimateBar.style.width = `${clamp(state.ultimate, 0, 100)}%`;
+  el.ultimateBar.style.setProperty("--ult-fill", `${clamp(state.ultimate, 0, 100)}%`);
   el.ultimateBtn.disabled = state.ultimate < 100 || state.paused || state.cutscenePlaying;
   el.ultimateBtn.classList.toggle("ultimate-ready", state.ultimate >= 100 && !state.paused && !state.cutscenePlaying);
   if (el.ultimateBtnLabel) {
@@ -4026,6 +4163,7 @@ function render() {
   el.stagePanel.classList.toggle("combo-warm", (state.rescueStreak || 0) >= 1);
   el.stagePanel.classList.toggle("combo-hot", (state.rescueStreak || 0) >= 3);
   el.stagePanel.classList.toggle("combo-fever", (state.rescueStreak || 0) >= 7);
+  updateFightCombo(state.rescueStreak || 0);
   el.stagePanel.classList.toggle("is-boss", state.enemy.isBoss);
   setBgmBossMode(state.enemy.isBoss);
   el.stagePanel.classList.toggle("low-dignity", dignityCritical);
@@ -4443,6 +4581,38 @@ function flashScreen(color = "white", duration = 0.35) {
   div.style.cssText = `position:fixed;inset:0;pointer-events:none;z-index:9999;--flash-dur:${duration}s`;
   document.body.appendChild(div);
   window.setTimeout(() => div.remove(), duration * 1000 + 50);
+}
+
+let _fightComboLast = 0;
+let _fightComboHideTimer = null;
+function updateFightCombo(streak) {
+  const node = el.fightCombo;
+  const numNode = el.fightComboNum;
+  if (!node || !numNode) return;
+  const next = Math.max(0, streak | 0);
+  if (next < 2) {
+    if (_fightComboLast >= 2 && !node.classList.contains("hidden")) {
+      node.classList.remove("fc-pop", "fc-mega");
+      node.classList.add("fc-fade");
+      window.clearTimeout(_fightComboHideTimer);
+      _fightComboHideTimer = window.setTimeout(() => {
+        node.classList.add("hidden");
+        node.classList.remove("fc-fade");
+      }, 380);
+    }
+    _fightComboLast = next;
+    return;
+  }
+  // 2 이상
+  window.clearTimeout(_fightComboHideTimer);
+  node.classList.remove("hidden", "fc-fade");
+  numNode.textContent = String(next);
+  node.classList.toggle("fc-mega", next >= 10);
+  // pop 재트리거
+  node.classList.remove("fc-pop");
+  void node.offsetWidth;
+  node.classList.add("fc-pop");
+  _fightComboLast = next;
 }
 
 function spawnDamage(amount, good = false, label = "") {

@@ -63,6 +63,17 @@
           <!-- 보스 알림 -->
           <div class="boss-alert hidden" id="bossAlert">⚠ 보스가 옵니다!</div>
 
+          <!-- 보스 HP바 (보스 등장 시 표시) -->
+          <div class="boss-hp-bar" id="bossHpBar" aria-hidden="true">
+            <div class="boss-hp-frame"></div>
+            <div class="boss-hp-ghost" id="bossHpGhost"></div>
+            <div class="boss-hp-fill" id="bossHpFill"></div>
+            <div class="boss-hp-text">
+              <span class="boss-hp-name" id="bossHpName">보스</span>
+              <span class="boss-hp-num" id="bossHpNum">0 / 0</span>
+            </div>
+          </div>
+
           <!-- 캐릭터 무대 (메인 탭 영역) -->
           <button class="main-stage" id="stageTap" type="button" aria-label="막기">
             <div class="arena">
@@ -89,6 +100,11 @@
             </div>
             <!-- 보조 장면 오버레이 (게임 로직용) -->
             <img src="assets/scene_rescue.png" alt="" class="scene-overlay hidden" id="sceneOverlay" />
+            <!-- 격투게임 스타일 콤보 카운터 -->
+            <div class="fight-combo hidden" id="fightCombo" aria-hidden="true">
+              <span class="fc-num" id="fightComboNum">0</span>
+              <span class="fc-label">COMBO</span>
+            </div>
           </button>
 
           <!-- 마왕 대사 한 줄 -->

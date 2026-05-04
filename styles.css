@@ -3326,20 +3326,169 @@ body.hp-warning .danger-vignette {
 }
 
 .choice-grid > * {
-  padding: 12px;
+  position: relative;
+  padding: 14px 12px 12px;
   border-radius: var(--radius);
-  background: rgba(255, 255, 255, 0.05);
+  background: linear-gradient(180deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.02) 100%);
   border: 1px solid var(--game-border);
   text-align: left;
   display: flex;
   flex-direction: column;
   gap: 4px;
-  transition: background 0.15s, border-color 0.15s, transform 0.08s;
+  transition: background 0.15s, border-color 0.15s, transform 0.08s, box-shadow 0.18s;
   cursor: pointer;
+  font-family: inherit;
+  color: var(--cream);
+  overflow: hidden;
 }
 
 .choice-grid > *:active { transform: scale(0.98); }
-.choice-grid > *:hover { border-color: var(--rose); background: rgba(240, 154, 187, 0.08); }
+.choice-grid > *:hover { border-color: var(--rose); background: linear-gradient(180deg, rgba(240, 154, 187, 0.14) 0%, rgba(240, 154, 187, 0.04) 100%); box-shadow: 0 0 18px rgba(240, 154, 187, 0.25); }
+
+/* 특성 카드 내부 요소 — 시너지/희귀도/스탯 미리보기 */
+.choice-card .choice-icon {
+  width: 100%;
+  height: 64px;
+  object-fit: cover;
+  border-radius: 10px;
+  margin-bottom: 4px;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(0, 0, 0, 0.25);
+}
+/* 희귀도별 배경 색상 (data-rarity로 분기) */
+.choice-card[data-rarity="일반"]   { border-color: rgba(180, 180, 200, 0.4); }
+.choice-card[data-rarity="고급"]   { border-color: rgba(120, 200, 255, 0.55); box-shadow: 0 0 0 1px rgba(120, 200, 255, 0.2) inset; }
+.choice-card[data-rarity="희귀"]   { border-color: rgba(186, 120, 255, 0.6); box-shadow: 0 0 0 1px rgba(186, 120, 255, 0.25) inset, 0 0 12px rgba(186, 120, 255, 0.18); }
+.choice-card[data-rarity="전설"]   { border-color: var(--gold); box-shadow: 0 0 0 1px rgba(243, 197, 95, 0.55) inset, 0 0 18px rgba(243, 197, 95, 0.3); }
+.choice-card[data-rarity="신화"]   { border-color: #ff8a4c; box-shadow: 0 0 0 1px rgba(255, 138, 76, 0.7) inset, 0 0 22px rgba(255, 138, 76, 0.4); animation: choiceMythicPulse 2.4s ease-in-out infinite; }
+@keyframes choiceMythicPulse {
+  0%, 100% { box-shadow: 0 0 0 1px rgba(255, 138, 76, 0.7) inset, 0 0 18px rgba(255, 138, 76, 0.35); }
+  50%      { box-shadow: 0 0 0 1px rgba(255, 138, 76, 0.95) inset, 0 0 28px rgba(255, 138, 76, 0.6); }
+}
+
+/* 희귀도 칩 (rarity-pill은 upgrade-card에도 쓰이지만 choice-card에서는 좌상단 고정) */
+.choice-card .rarity-pill {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.4px;
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  z-index: 2;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.5);
+}
+.choice-card[data-rarity="일반"]   .rarity-pill { background: linear-gradient(180deg, #c8c8d4, #88889c); color: #1a1620; }
+.choice-card[data-rarity="고급"]   .rarity-pill { background: linear-gradient(180deg, #78c8ff, #4a8ac6); color: #0a1830; }
+.choice-card[data-rarity="희귀"]   .rarity-pill { background: linear-gradient(180deg, #ba78ff, #7a48c4); color: #fff; }
+.choice-card[data-rarity="전설"]   .rarity-pill { background: linear-gradient(180deg, var(--gold), #c08032); color: #2c1930; }
+.choice-card[data-rarity="신화"]   .rarity-pill { background: linear-gradient(135deg, #ff8a4c, #ff3a3a); color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.4); }
+
+/* 시너지 배지 — 우상단 */
+.choice-card .synergy-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 9.5px;
+  font-weight: 900;
+  letter-spacing: 0.3px;
+  z-index: 2;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.5);
+}
+.choice-card .synergy-match {
+  background: linear-gradient(180deg, var(--gold), #c08032);
+  color: #2c1930;
+  animation: synergyPulse 1.4s ease-in-out infinite;
+}
+.choice-card .synergy-good {
+  background: linear-gradient(180deg, var(--mint), #5ea995);
+  color: #0a1f1a;
+}
+@keyframes synergyPulse {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.08); }
+}
+
+/* 첫 발견 배지 — 카드 왼쪽 옆구리에 부착 */
+.choice-card .first-seen-badge {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  padding: 2px 7px;
+  border-radius: 6px;
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+  background: linear-gradient(180deg, #ffe27a, #d99b3f);
+  color: #2c1930;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.45), 0 0 8px rgba(255, 226, 122, 0.5);
+  z-index: 2;
+}
+
+.choice-card strong {
+  font-size: 14px;
+  color: var(--cream);
+  margin-top: 4px;
+  line-height: 1.25;
+}
+.choice-card p {
+  margin: 2px 0 0;
+  font-size: 11.5px;
+  color: var(--game-text-dim);
+  line-height: 1.45;
+}
+.choice-card .trait-stat-preview {
+  display: inline-block;
+  margin-top: 6px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: rgba(134, 216, 199, 0.18);
+  color: var(--mint);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.2px;
+  align-self: flex-start;
+}
+.choice-card .claim-line {
+  display: block;
+  margin-top: 6px;
+  font-style: italic;
+  font-size: 11px;
+  color: rgba(255, 230, 200, 0.65);
+  line-height: 1.4;
+}
+.choice-card .card-tag {
+  display: inline-flex;
+  align-self: flex-start;
+  margin-top: 6px;
+  padding: 3px 9px;
+  border-radius: 6px;
+  background: rgba(108, 58, 104, 0.45);
+  border: 1px solid rgba(240, 154, 187, 0.4);
+  color: var(--rose);
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+}
+.choice-card .style-hint {
+  display: block;
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px dashed rgba(255, 255, 255, 0.12);
+  font-size: 10.5px;
+  color: rgba(255, 255, 255, 0.6);
+  line-height: 1.4;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .choice-card[data-rarity="신화"] { animation: none !important; }
+  .choice-card .synergy-match { animation: none !important; }
+}
 
 .choice-grid strong {
   font-size: 13px;

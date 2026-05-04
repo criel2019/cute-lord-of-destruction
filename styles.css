@@ -867,12 +867,13 @@ img { display: block; max-width: 100%; }
 .enemy-side { justify-content: flex-end; padding-right: 4px; }
 .demon-side { justify-content: flex-start; padding-left: 4px; }
 
-/* 격투게임 스타일 콤보 카운터 */
+/* 격투게임 스타일 콤보 카운터 — 무대 우측 상단(보스 HP바 아래, 캐릭터 안 가리는 영역) */
 .fight-combo {
   position: absolute;
-  top: 36%;
-  right: 8%;
-  z-index: 8;
+  /* 보스 HP바(상단)와 캐릭터(중앙~하단) 사이 안전 영역 */
+  top: 8%;
+  right: 6%;
+  z-index: 6;
   pointer-events: none;
   display: flex;
   flex-direction: column;
@@ -880,12 +881,19 @@ img { display: block; max-width: 100%; }
   gap: 0;
   text-align: right;
   font-style: italic;
-  transform-origin: right center;
+  transform-origin: right top;
+  /* 캐릭터를 가리지 않도록 폭 제한 */
+  max-width: 40%;
+}
+/* 보스 등장 시에는 보스 HP바와 안 겹치도록 더 아래로 */
+.stage-panel.boss-active .fight-combo {
+  top: 18%;
 }
 .fight-combo .fc-num {
-  font-size: clamp(36px, 8vw, 56px);
+  /* 작아도 눈에 띄게 — 캐릭터 가리지 않게 크기 축소 */
+  font-size: clamp(28px, 6.5vw, 44px);
   font-weight: 900;
-  line-height: 1;
+  line-height: 0.95;
   background: linear-gradient(180deg, #fff 0%, #ffe066 45%, #ff9d2e 100%);
   -webkit-background-clip: text;
   background-clip: text;
@@ -895,17 +903,17 @@ img { display: block; max-width: 100%; }
     2px 0 0 #2c1930,
     0 -2px 0 #2c1930,
     0 2px 0 #2c1930,
-    4px 4px 0 rgba(0,0,0,0.45);
+    3px 3px 0 rgba(0,0,0,0.45);
   letter-spacing: -0.04em;
   filter: drop-shadow(0 0 8px rgba(255,200,80,0.7));
 }
 .fight-combo .fc-label {
-  font-size: clamp(11px, 2vw, 14px);
+  font-size: clamp(10px, 1.7vw, 12px);
   font-weight: 800;
   color: #ffe066;
   text-shadow: 0 1px 0 #2c1930, 0 0 4px rgba(0,0,0,0.95);
   letter-spacing: 0.16em;
-  margin-top: -2px;
+  margin-top: -1px;
 }
 .fight-combo.fc-pop {
   animation: fcPop 0.34s cubic-bezier(.18,.89,.32,1.28);
@@ -2664,3 +2672,168 @@ body.hp-warning .danger-vignette {
   50% { opacity: 0.8; }
   to { transform: rotate(360deg); opacity: 0.4; }
 }
+
+/* =========================================================================
+   ⑩ 보스 등장 전략 카드 모달 — 능동성 의사결정의 순간
+   ========================================================================= */
+.boss-cards-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+.boss-cards-overlay.hidden { display: none; }
+.boss-cards-bg {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at center, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.92) 80%),
+    repeating-linear-gradient(45deg,
+      rgba(255,80,80,0.05) 0 12px,
+      transparent 12px 24px);
+  backdrop-filter: blur(6px);
+  animation: bossCardsBgIn 0.4s ease;
+}
+@keyframes bossCardsBgIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.boss-cards-panel {
+  position: relative;
+  width: min(420px, 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  animation: bossCardsPanelIn 0.5s cubic-bezier(.18,.89,.32,1.28);
+}
+@keyframes bossCardsPanelIn {
+  from { transform: translateY(20px) scale(0.92); opacity: 0; }
+  to { transform: translateY(0) scale(1); opacity: 1; }
+}
+.boss-cards-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  text-align: center;
+  padding: 8px 12px;
+}
+.boss-cards-eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  color: #ff8888;
+  font-weight: 700;
+  text-transform: uppercase;
+  text-shadow: 0 0 12px rgba(255,80,80,0.6);
+}
+.boss-cards-header strong {
+  font-size: clamp(18px, 4.5vw, 24px);
+  color: #fff;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  text-shadow: 0 2px 0 rgba(0,0,0,0.6), 0 0 16px rgba(255,200,100,0.4);
+}
+.boss-cards-hint {
+  font-size: 11px;
+  color: rgba(255,255,255,0.6);
+  font-weight: 500;
+}
+.boss-cards-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.boss-card {
+  appearance: none;
+  border: 2px solid rgba(255,255,255,0.18);
+  border-radius: 16px;
+  padding: 14px 16px;
+  background: linear-gradient(180deg, rgba(40,28,55,0.92), rgba(20,12,30,0.92));
+  color: #fff;
+  cursor: pointer;
+  display: grid;
+  grid-template-columns: 44px 1fr;
+  grid-template-rows: auto auto;
+  column-gap: 12px;
+  row-gap: 2px;
+  align-items: center;
+  text-align: left;
+  font-family: inherit;
+  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+  box-shadow: 0 4px 0 rgba(0,0,0,0.35), 0 8px 24px rgba(0,0,0,0.5);
+  position: relative;
+  overflow: hidden;
+}
+.boss-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(180deg, rgba(255,255,255,0.12), transparent 40%);
+  pointer-events: none;
+}
+.boss-card:hover, .boss-card:focus-visible {
+  transform: translateY(-2px);
+  outline: none;
+}
+.boss-card:active { transform: translateY(2px); box-shadow: 0 1px 0 rgba(0,0,0,0.35), 0 2px 8px rgba(0,0,0,0.5); }
+.boss-card-icon {
+  grid-row: 1 / span 2;
+  font-size: 32px;
+  text-align: center;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+}
+.boss-card-title {
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+.boss-card-desc {
+  font-size: 12px;
+  color: rgba(255,255,255,0.85);
+  font-weight: 600;
+  line-height: 1.4;
+}
+.boss-card-flavor {
+  grid-column: 2;
+  font-size: 11px;
+  color: rgba(255,255,255,0.5);
+  font-style: italic;
+  margin-top: 4px;
+}
+.boss-card-shield { border-color: rgba(120,200,255,0.5); }
+.boss-card-shield:hover { border-color: #78c8ff; box-shadow: 0 4px 0 rgba(0,0,0,0.35), 0 0 24px rgba(120,200,255,0.4); }
+.boss-card-shield .boss-card-icon { color: #9ad8ff; }
+.boss-card-gamble { border-color: rgba(255,120,120,0.5); }
+.boss-card-gamble:hover { border-color: #ff7878; box-shadow: 0 4px 0 rgba(0,0,0,0.35), 0 0 24px rgba(255,120,120,0.4); }
+.boss-card-gamble .boss-card-icon { color: #ffa0a0; }
+.boss-card-loot { border-color: rgba(255,200,90,0.5); }
+.boss-card-loot:hover { border-color: #ffc85a; box-shadow: 0 4px 0 rgba(0,0,0,0.35), 0 0 24px rgba(255,200,90,0.4); }
+.boss-card-loot .boss-card-icon { color: #ffd76a; }
+
+/* 선택된 모디파이어를 stage-panel에 작은 배지로 표시 */
+.boss-modifier-badge {
+  position: absolute;
+  top: calc(var(--h-intent) + 6px);
+  left: 8px;
+  z-index: 7;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  background: rgba(20,12,28,0.92);
+  border: 1.5px solid rgba(255,255,255,0.3);
+  color: #fff;
+  pointer-events: none;
+  display: none;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+}
+.stage-panel.boss-active .boss-modifier-badge.active { display: inline-block; }
+.boss-modifier-badge.mod-shield { border-color: #78c8ff; color: #9ad8ff; }
+.boss-modifier-badge.mod-gamble { border-color: #ff7878; color: #ffa0a0; }
+.boss-modifier-badge.mod-loot { border-color: #ffc85a; color: #ffd76a; }

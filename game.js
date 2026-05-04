@@ -397,6 +397,9 @@ const el = {
   bossHpNum: $("#bossHpNum"),
   fightCombo: $("#fightCombo"),
   fightComboNum: $("#fightComboNum"),
+  bossCardsOverlay: $("#bossCardsOverlay"),
+  bossCardsName: $("#bossCardsName"),
+  bossModifierBadge: $("#bossModifierBadge"),
   heroHpText: $("#heroHpText"),
   heroHpBar: $("#heroHpBar"),
   breakText: $("#breakText"),
@@ -499,6 +502,9 @@ if (el.bottomSheet) {
 el.sheetTabs?.forEach(btn => {
   btn.addEventListener("click", () => switchSheetTab(btn.dataset.tab));
 });
+
+// 보스 카드 모달 — 카드 클릭 → 모디파이어 적용
+bindBossCardListeners();
 
 const renderCache = {
   parts: "",
@@ -1209,6 +1215,8 @@ function ensureEnemy() {
     state._aimTapCount = 0;
     state._currentEnemyTaunt = "";
     state._idleEnemyTauntTimer = 3.5 + Math.random() * 2.5;
+    // 새 적이면 이전 보스 모디파이어 리셋
+    state._bossModifierId = null;
     if (state.floor !== _lastEnemyFloor) {
       _lastEnemyFloor = state.floor;
       const flavor = floorFlavors[state.floor];
@@ -1216,6 +1224,10 @@ function ensureEnemy() {
       if (flavor && !state.enemy.isBoss && !(state.floor <= 2 && state.run <= 1)) {
         window.setTimeout(() => showToast(flavor), 300);
       }
+    }
+    // 보스 등장 시 전략 카드 모달 띄움 (1.0초 지연으로 등장 컷씬 후)
+    if (state.enemy.isBoss) {
+      window.setTimeout(showBossCardsModal, 1100);
     }
   }
 }
@@ -1481,6 +1493,9 @@ function dealEnemyDamage(amount, source = "auto", label = "") {
   let damage = amount;
   if (state.enemy.isBoss) {
     damage *= stats.bossDamage;
+    // 보스 카드 모디파이어 — 광기:데미지 +60%, 방어:변동 없음
+    const mod = getBossModifier();
+    if (mod) damage *= mod.damageMod;
   } else {
     damage *= (stats.mobDamageMulti || 1);
   }
@@ -2037,7 +2052,10 @@ function enemyHits() {
   const stats = getStats();
   const damageMod = state.enemy.damageMod || 1;
   const hitReductionEv = state.floorEvent?.hitReduction || 0;
-  const loss = Math.round((state.enemy.isBoss ? 22 : stats.hitLoss) * damageMod * (1 - Math.min(0.55, (stats.guardPower - 1) * 0.45)) * (1 - hitReductionEv));
+  // 보스 카드 모디파이어 — 방어:받는 피해 -30%, 광기:+20%
+  const bossMod = state.enemy.isBoss ? getBossModifier() : null;
+  const incomingMod = bossMod ? bossMod.incomingMod : 1;
+  const loss = Math.round((state.enemy.isBoss ? 22 : stats.hitLoss) * damageMod * incomingMod * (1 - Math.min(0.55, (stats.guardPower - 1) * 0.45)) * (1 - hitReductionEv));
   state.dignity = clamp(state.dignity - loss, 0, stats.maxDignity);
   const prevUltimateHit = state.ultimate;
   const hitCharge = 12 * stats.chargeGain + (stats.hitChargeBonus || 0);
@@ -2414,9 +2432,13 @@ function defeatEnemy() {
       }, teaserDelay);
     }
   }
-  state.dignity = clamp(state.dignity + (defeatedBoss ? 18 : 7), 0, stats.maxDignity);
+  // 보스 카드 모디파이어: 약탈은 공물 x2/체면 -50%, 다른 카드는 영향 없음
+  const bossRewardMod = defeatedBoss ? getBossModifier() : null;
+  const dignityRewardMod = bossRewardMod ? bossRewardMod.dignityRewardMod : 1;
+  const lootMod = bossRewardMod ? bossRewardMod.lootMod : 1;
+  state.dignity = clamp(state.dignity + (defeatedBoss ? 18 * dignityRewardMod : 7), 0, stats.maxDignity);
   state.ultimate = clamp(state.ultimate + (defeatedBoss ? 24 : 9), 0, 100);
-  gainTributes((defeatedBoss ? 18 : 6) * Math.max(1, oldFloor) * stats.rewardMult, "kill");
+  gainTributes((defeatedBoss ? 18 : 6) * Math.max(1, oldFloor) * stats.rewardMult * lootMod, "kill");
   if (stats.shardPerFloor) {
     state.shards += stats.shardPerFloor;
     showToast(`파편 수집가: 파편 +${stats.shardPerFloor}`);
@@ -4018,6 +4040,7 @@ function render() {
     if (el.bossHpName) el.bossHpName.textContent = state.enemy.name || "보스";
     if (el.bossHpNum) el.bossHpNum.textContent = `${formatNumber(state.enemy.hp)} / ${formatNumber(state.enemy.maxHp)}`;
   }
+  applyBossModifierBadge();
   // 적 HP 단계에 따라 바 색상 변화
   el.enemyHpBar.parentElement?.classList.toggle("hp-phase-low", enemyHpRate <= 0.25);
   el.enemyHpBar.parentElement?.classList.toggle("hp-phase-mid", enemyHpRate > 0.25 && enemyHpRate <= 0.5);
@@ -4609,6 +4632,85 @@ function updateFightCombo(streak) {
   void node.offsetWidth;
   node.classList.add("fc-pop");
   _fightComboLast = next;
+}
+
+// ── 보스 카드 시스템 ───────────────────────────────────────
+const BOSS_MODIFIERS = {
+  shield: { label: "🛡 방어", className: "mod-shield", incomingMod: 0.7,  damageMod: 1.0,  attackTimeMod: 1.25, lootMod: 1.0,  dignityRewardMod: 1.0 },
+  gamble: { label: "⚔ 광기", className: "mod-gamble", incomingMod: 1.2,  damageMod: 1.6,  attackTimeMod: 1.0,  lootMod: 1.0,  dignityRewardMod: 1.0 },
+  loot:   { label: "💰 약탈", className: "mod-loot",   incomingMod: 1.0,  damageMod: 1.0,  attackTimeMod: 1.0,  lootMod: 2.0,  dignityRewardMod: 0.5 },
+};
+
+function getBossModifier() {
+  const id = state._bossModifierId;
+  return id ? BOSS_MODIFIERS[id] : null;
+}
+
+function showBossCardsModal() {
+  const node = el.bossCardsOverlay;
+  if (!node) return;
+  // 이미 띄워져 있거나 이미 선택된 적 있으면 패스
+  if (state._bossModifierId || !node.classList.contains("hidden")) return;
+  if (el.bossCardsName && state.enemy?.name) {
+    el.bossCardsName.textContent = `${state.enemy.name} 등장!`;
+  }
+  node.classList.remove("hidden");
+  // 카드 선택 동안은 게임 멈춤 — 결정에 집중
+  state._bossCardsPaused = true;
+  state.paused = true;
+  // BGM/사운드 살짝
+  try { playSfx("danger"); } catch {}
+}
+
+function hideBossCardsModal() {
+  el.bossCardsOverlay?.classList.add("hidden");
+  if (state._bossCardsPaused) {
+    state._bossCardsPaused = false;
+    state.paused = false;
+  }
+}
+
+function applyBossModifierBadge() {
+  const badge = el.bossModifierBadge;
+  if (!badge) return;
+  const mod = getBossModifier();
+  badge.classList.remove("active", "mod-shield", "mod-gamble", "mod-loot");
+  if (mod && state.enemy?.isBoss) {
+    badge.classList.add("active", mod.className);
+    badge.textContent = mod.label;
+  } else {
+    badge.textContent = "";
+  }
+}
+
+function chooseBossCard(modId) {
+  if (!BOSS_MODIFIERS[modId]) return;
+  state._bossModifierId = modId;
+  // 보스 적의 공격 시간/속도 조정
+  if (state.enemy?.isBoss) {
+    const mod = BOSS_MODIFIERS[modId];
+    state.enemy.attackMax = (state.enemy.attackMax || 8) * mod.attackTimeMod;
+    state.enemy.attackTimer = Math.max(state.enemy.attackTimer || 0, state.enemy.attackMax * 0.6);
+  }
+  applyBossModifierBadge();
+  hideBossCardsModal();
+  try { playSfx("ultimate"); } catch {}
+  showToast(`${BOSS_MODIFIERS[modId].label} 작전 선택!`);
+  // stage hue를 모디파이어 색조로 살짝
+  const stageHueMap = { shield: 210, gamble: 0, loot: 38 };
+  if (el.stagePanel) el.stagePanel.style.setProperty("--stage-hue", String(stageHueMap[modId] || 230));
+}
+
+// 보스 카드 버튼 이벤트 — DOMContentLoaded 후 한 번만
+function bindBossCardListeners() {
+  const overlay = el.bossCardsOverlay;
+  if (!overlay) return;
+  overlay.querySelectorAll(".boss-card").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const mod = btn.getAttribute("data-mod");
+      if (mod) chooseBossCard(mod);
+    });
+  });
 }
 
 function spawnDamage(amount, good = false, label = "") {

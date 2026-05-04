@@ -2114,6 +2114,15 @@ function enemyHits() {
   const incomingMod = bossMod ? bossMod.incomingMod : 1;
   const loss = Math.round((state.enemy.isBoss ? 22 : stats.hitLoss) * damageMod * incomingMod * (1 - Math.min(0.55, (stats.guardPower - 1) * 0.45)) * (1 - hitReductionEv));
   state.dignity = clamp(state.dignity - loss, 0, stats.maxDignity);
+  // 공물 누출 — 막기 실패 시 누적 공물의 일부가 적에게 빨려나감
+  // 1층 튜토리얼/2층은 면제, 보스전 5%, 일반전 3%, 최소 1, 최대 999
+  if (state.floor >= 3 && state.shards >= 20) {
+    const leakRate = state.enemy.isBoss ? 0.05 : 0.03;
+    const leakAmount = Math.min(999, Math.max(1, Math.floor(state.shards * leakRate)));
+    state.shards = Math.max(0, state.shards - leakAmount);
+    spawnShardLeak(leakAmount);
+    showToast(`💸 공물 ${formatNumber(leakAmount)} 빼앗김`);
+  }
   const prevUltimateHit = state.ultimate;
   const hitCharge = 12 * stats.chargeGain + (stats.hitChargeBonus || 0);
   state.ultimate = clamp(state.ultimate + hitCharge, 0, 100);
@@ -4521,6 +4530,38 @@ function spawnImpactFlash() {
   div.className = "impact-flash";
   document.body.appendChild(div);
   window.setTimeout(() => div.remove(), 220);
+}
+
+// 공물 누출 시각화 — 플레이어 위치에서 황금 파편이 적 방향으로 빨려나감
+function spawnShardLeak(amount) {
+  const stage = el.stagePanel?.querySelector(".main-stage");
+  if (!stage) return;
+  // 파편 개수: amount에 비례하지만 cap (4~12개)
+  const count = Math.min(12, Math.max(4, Math.ceil(Math.log2(amount + 1) + 2)));
+  for (let i = 0; i < count; i++) {
+    const shard = document.createElement("span");
+    shard.className = "shard-leak";
+    // 시작 위치: 플레이어 영역 (좌하단 근처)
+    const sx = 25 + Math.random() * 25;
+    const sy = 60 + Math.random() * 25;
+    // 종료 위치: 적 영역 (우상단 근처)
+    const ex = 60 + Math.random() * 25;
+    const ey = 20 + Math.random() * 25;
+    shard.style.setProperty("--sx", `${sx}%`);
+    shard.style.setProperty("--sy", `${sy}%`);
+    shard.style.setProperty("--ex", `${ex}%`);
+    shard.style.setProperty("--ey", `${ey}%`);
+    shard.style.animationDelay = `${i * 30}ms`;
+    stage.appendChild(shard);
+    window.setTimeout(() => shard.remove(), 850 + i * 30);
+  }
+  // 잠깐 shard 카운터 흔들기 (값 빠짐 강조)
+  if (el.shardText) {
+    el.shardText.classList.remove("shard-leaked");
+    void el.shardText.offsetWidth;
+    el.shardText.classList.add("shard-leaked");
+    window.setTimeout(() => el.shardText.classList.remove("shard-leaked"), 700);
+  }
 }
 
 // ── 카메라 다이내믹스: 보스 진입/처치 시 main-stage transform 줌인 ──

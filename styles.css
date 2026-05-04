@@ -4699,3 +4699,45 @@ body.hp-warning .danger-vignette {
     transition: none !important;
   }
 }
+
+/* ── 공물 누출 파티클 — 막기 실패 시 적에게 빨려나가는 황금 파편 ── */
+.shard-leak {
+  position: absolute;
+  left: var(--sx, 25%);
+  top: var(--sy, 60%);
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #ffe066 0%, #ffaa22 55%, rgba(255,160,40,0) 100%);
+  box-shadow: 0 0 8px rgba(255,200,60,0.85), 0 0 14px rgba(255,150,40,0.5);
+  pointer-events: none;
+  z-index: 6;
+  animation: shardLeakFly 0.8s cubic-bezier(.55,.05,.85,.95) forwards;
+  --ex: 75%;
+  --ey: 25%;
+}
+@keyframes shardLeakFly {
+  0% {
+    left: var(--sx); top: var(--sy);
+    transform: scale(0.6); opacity: 0;
+  }
+  15% {
+    transform: scale(1.2); opacity: 1;
+  }
+  100% {
+    left: var(--ex); top: var(--ey);
+    transform: scale(0.3); opacity: 0;
+  }
+}
+/* 공물 카운터 자체도 흔들림 + 빨간 펄스 (값이 빠진 것 강조) */
+.shard-leaked {
+  animation: shardLeakedPulse 0.7s cubic-bezier(.36,.07,.19,.97) both;
+}
+@keyframes shardLeakedPulse {
+  0%, 100% { transform: translateX(0); color: inherit; }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-3px); color: #ff7a4a; text-shadow: 0 0 8px rgba(255,80,40,0.6); }
+  20%, 40%, 60%, 80% { transform: translateX(3px); color: #ff7a4a; text-shadow: 0 0 8px rgba(255,80,40,0.6); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .shard-leak, .shard-leaked { animation: none !important; }
+}

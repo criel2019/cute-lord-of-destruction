@@ -2332,39 +2332,91 @@ body.hp-warning .danger-vignette {
 /* 크레딧 컷 — 막기 성공 시 짧게 */
 .credit-cut {
   position: absolute;
-  bottom: 12px;
+  bottom: 14px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
-  padding: 8px 14px;
+  gap: 4px;
+  padding: 9px 18px 10px;
   border-radius: var(--radius);
-  background: rgba(14, 10, 18, 0.88);
+  background: linear-gradient(135deg, rgba(20, 14, 26, 0.94) 0%, rgba(8, 6, 14, 0.94) 100%);
   border: 1px solid var(--game-border-bright);
+  box-shadow: 0 4px 14px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.06);
   pointer-events: none;
   z-index: 6;
   animation: creditCutShow 1.4s ease forwards;
   max-width: 88%;
   text-align: center;
+  overflow: hidden;
+}
+/* 좌우 사선 광선 — 격투게임 자막 느낌 */
+.credit-cut::before, .credit-cut::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 22%;
+  pointer-events: none;
+  opacity: 0.65;
+}
+.credit-cut::before {
+  left: 0;
+  background: linear-gradient(105deg, rgba(255, 200, 90, 0.35) 0%, transparent 70%);
+}
+.credit-cut::after {
+  right: 0;
+  background: linear-gradient(255deg, rgba(255, 200, 90, 0.35) 0%, transparent 70%);
 }
 
 .credit-cut span {
   font-size: 10px;
-  color: var(--game-text-dim);
+  color: rgba(200, 195, 220, 0.7);
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  font-weight: 600;
 }
 
 .credit-cut strong {
-  font-size: 13px;
-  color: var(--gold);
-  font-weight: 700;
+  font-size: 15px;
+  color: #ffe48a;
+  font-weight: 800;
+  text-shadow: 0 0 10px rgba(255, 200, 90, 0.55), 0 1px 2px rgba(0,0,0,0.85);
+  letter-spacing: 0.2px;
+  line-height: 1.2;
+}
+
+/* kind별 분기 — rescue/streak는 골드(영웅적), hit은 빨강(타격) */
+.credit-cut.credit-hit {
+  border-color: rgba(255, 100, 100, 0.55);
+  box-shadow: 0 4px 14px rgba(0,0,0,0.55), 0 0 16px rgba(255, 80, 80, 0.35), inset 0 1px 0 rgba(255,255,255,0.06);
+}
+.credit-cut.credit-hit::before { background: linear-gradient(105deg, rgba(255, 90, 90, 0.4) 0%, transparent 70%); }
+.credit-cut.credit-hit::after { background: linear-gradient(255deg, rgba(255, 90, 90, 0.4) 0%, transparent 70%); }
+.credit-cut.credit-hit strong {
+  color: #ffb0b0;
+  text-shadow: 0 0 10px rgba(255, 80, 80, 0.7), 0 1px 2px rgba(0,0,0,0.85);
+}
+.credit-cut.credit-streak {
+  border-color: rgba(255, 220, 120, 0.65);
+  box-shadow: 0 4px 14px rgba(0,0,0,0.55), 0 0 18px rgba(255, 200, 90, 0.4), inset 0 1px 0 rgba(255,255,255,0.06);
 }
 
 @keyframes creditCutShow {
-  0% { opacity: 0; transform: translate(-50%, 16px); }
-  20%, 80% { opacity: 1; transform: translate(-50%, 0); }
-  100% { opacity: 0; transform: translate(-50%, -8px); }
+  0%   { opacity: 0; transform: translate(-50%, 22px) scale(0.92); }
+  12%  { opacity: 1; transform: translate(-50%, -2px) scale(1.04); }
+  18%  { opacity: 1; transform: translate(-50%, 0) scale(1); }
+  82%  { opacity: 1; transform: translate(-50%, 0) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, -10px) scale(0.98); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .credit-cut { animation: creditCutShowReduced 1.4s ease forwards !important; }
+  @keyframes creditCutShowReduced {
+    0%   { opacity: 0; }
+    12%, 82% { opacity: 1; }
+    100% { opacity: 0; }
+  }
 }
 
 /* 보조 장면 오버레이 */

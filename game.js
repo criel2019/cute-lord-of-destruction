@@ -2779,7 +2779,11 @@ function defeatEnemy() {
             el.enemyIntentText.textContent = bossIntent;
           }, 2200);
         }
-        showBossTitleOverlay(bossName, bossIntent, state.enemy?.image);
+        // boss-intro-banner(8800)는 0~2050ms 표시, boss-title-overlay(9990)는 분리해서 후속 등장
+        // 두 풀스크린이 겹치지 않게 1900ms 지연 → intro-banner fade-out과 자연스럽게 교대
+        window.setTimeout(() => {
+          showBossTitleOverlay(bossName, bossIntent, state.enemy?.image);
+        }, 1900);
         // 보스 등장 시 강화 탭으로 자동 전환 후 2.5초 뒤 원래대로
         if (state.sideUnlocked) {
           switchTab("upgrade");

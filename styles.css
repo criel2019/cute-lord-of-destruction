@@ -4629,3 +4629,73 @@ body.hp-warning .danger-vignette {
   85% { transform: translate(-50%, -50%) scale(1.04) rotate(0); opacity: 1; }
   100% { transform: translate(-50%, -50%) scale(1.15) rotate(0); opacity: 0; }
 }
+
+/* ── 카메라 다이내믹스 — 보스 진입/처치/위기 줌 ── */
+/* main-stage 자체에 transform-origin + transition을 깔아 둔다 */
+.stage-panel > .main-stage {
+  transform-origin: 50% 60%;
+  transition: transform 0.4s cubic-bezier(.2,.8,.3,1.2);
+  will-change: transform;
+}
+/* 보스 진입 컷씬 — 1초 동안 줌인했다가 살짝 풀림 */
+.stage-panel.cam-boss-entry > .main-stage {
+  animation: camBossEntry 1.4s cubic-bezier(.2,.8,.3,1.2) both;
+}
+@keyframes camBossEntry {
+  0%   { transform: scale(1) translateY(0); filter: brightness(1) saturate(1); }
+  18%  { transform: scale(1.18) translateY(2%); filter: brightness(1.18) saturate(1.25); }
+  35%  { transform: scale(1.22) translateY(2%); filter: brightness(1.22) saturate(1.35); }
+  60%  { transform: scale(1.16) translateY(1%); filter: brightness(1.12) saturate(1.2); }
+  100% { transform: scale(1.06) translateY(0); filter: brightness(1.05) saturate(1.08); }
+}
+/* 보스가 살아있는 동안 살짝 줌인된 상태 유지 — 전투 긴장감 */
+.stage-panel.boss-active:not(.cam-boss-entry):not(.cam-boss-defeat) > .main-stage {
+  transform: scale(1.06);
+}
+/* 보스 HP 25% 이하 — 더 좁혀들어 결정타 분위기 */
+.stage-panel.boss-low:not(.cam-boss-entry):not(.cam-boss-defeat) > .main-stage {
+  transform: scale(1.12);
+  filter: brightness(1.06) saturate(1.15) contrast(1.05);
+}
+/* 보스 처치 임팩트 — 강한 줌인 후 줌아웃 */
+.stage-panel.cam-boss-defeat > .main-stage {
+  animation: camBossDefeat 1.1s cubic-bezier(.2,.8,.3,1.4) both;
+}
+@keyframes camBossDefeat {
+  0%   { transform: scale(1.12); filter: brightness(1.1) saturate(1.2); }
+  10%  { transform: scale(1.32); filter: brightness(1.6) saturate(1.4); }
+  25%  { transform: scale(1.28); filter: brightness(1.4) saturate(1.3); }
+  55%  { transform: scale(1.04); filter: brightness(1.0) saturate(1.05); }
+  100% { transform: scale(1.0); filter: brightness(1) saturate(1); }
+}
+/* 엘리트 처치 — 약한 펀치 줌 */
+.stage-panel.cam-elite-defeat > .main-stage {
+  animation: camEliteDefeat 0.65s cubic-bezier(.2,.8,.3,1.4) both;
+}
+@keyframes camEliteDefeat {
+  0%   { transform: scale(1); }
+  20%  { transform: scale(1.14); filter: brightness(1.2); }
+  100% { transform: scale(1); filter: brightness(1); }
+}
+/* 위기 (HP 낮음 + 적 공격 직전) — 미세하게 떨리는 줌 */
+.stage-panel.aiming.danger > .main-stage {
+  animation: camDanger 0.6s ease-in-out infinite alternate;
+}
+@keyframes camDanger {
+  0%   { transform: scale(1.04); }
+  100% { transform: scale(1.07); filter: brightness(1.05) saturate(1.08); }
+}
+/* 모션 줄이기 선호 사용자 — 카메라 효과 끔 */
+@media (prefers-reduced-motion: reduce) {
+  .stage-panel > .main-stage,
+  .stage-panel.cam-boss-entry > .main-stage,
+  .stage-panel.cam-boss-defeat > .main-stage,
+  .stage-panel.cam-elite-defeat > .main-stage,
+  .stage-panel.boss-active > .main-stage,
+  .stage-panel.boss-low > .main-stage,
+  .stage-panel.aiming.danger > .main-stage {
+    animation: none !important;
+    transform: none !important;
+    transition: none !important;
+  }
+}

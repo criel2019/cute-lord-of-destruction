@@ -1225,9 +1225,10 @@ function ensureEnemy() {
         window.setTimeout(() => showToast(flavor), 300);
       }
     }
-    // 보스 등장 시 전략 카드 모달 띄움 (1.0초 지연으로 등장 컷씬 후)
+    // 보스 등장 시 카메라 줌인 컷씬 + 전략 카드 모달
     if (state.enemy.isBoss) {
-      window.setTimeout(showBossCardsModal, 1100);
+      triggerCameraBossEntry();
+      window.setTimeout(showBossCardsModal, 1500);
     }
   }
 }
@@ -2207,10 +2208,11 @@ function defeatEnemy() {
   hitstop(defeatedBoss ? 220 : defeatedElite ? 160 : 110);
   spawnImpactFlash();
   spawnImpactRay();
-  // 격투게임 KO 모먼트: 슬로우모션 + KO 도장 (보스/엘리트만 — mob은 hitstop으로 충분)
+  // 격투게임 KO 모먼트: 슬로우모션 + KO 도장 + 카메라 줌 (보스/엘리트만)
   if (defeatedBoss || defeatedElite) {
     triggerKoSlowmo(defeatedBoss);
     showKoStamp(defeatedBoss, enemyName);
+    triggerCameraDefeat(defeatedBoss, defeatedElite);
   }
   // 폭발 파편 분사
   spawnDefeatShards(defeatedBoss ? 18 : defeatedElite ? 12 : 8);
@@ -4468,6 +4470,41 @@ function spawnImpactFlash() {
   div.className = "impact-flash";
   document.body.appendChild(div);
   window.setTimeout(() => div.remove(), 220);
+}
+
+// ── 카메라 다이내믹스: 보스 진입/처치 시 main-stage transform 줌인 ──
+let _camTimer = null;
+function triggerCameraBossEntry() {
+  const stage = el.stagePanel;
+  if (!stage) return;
+  if (_camTimer) { clearTimeout(_camTimer); _camTimer = null; }
+  stage.classList.remove("cam-boss-entry", "cam-boss-defeat", "cam-elite-defeat");
+  void stage.offsetWidth;
+  stage.classList.add("cam-boss-entry");
+  _camTimer = window.setTimeout(() => {
+    stage.classList.remove("cam-boss-entry");
+    _camTimer = null;
+  }, 1400);
+}
+function triggerCameraDefeat(isBoss, isElite) {
+  const stage = el.stagePanel;
+  if (!stage) return;
+  if (_camTimer) { clearTimeout(_camTimer); _camTimer = null; }
+  stage.classList.remove("cam-boss-entry", "cam-boss-defeat", "cam-elite-defeat");
+  void stage.offsetWidth;
+  if (isBoss) {
+    stage.classList.add("cam-boss-defeat");
+    _camTimer = window.setTimeout(() => {
+      stage.classList.remove("cam-boss-defeat");
+      _camTimer = null;
+    }, 1100);
+  } else if (isElite) {
+    stage.classList.add("cam-elite-defeat");
+    _camTimer = window.setTimeout(() => {
+      stage.classList.remove("cam-elite-defeat");
+      _camTimer = null;
+    }, 650);
+  }
 }
 
 function spawnImpactRay() {

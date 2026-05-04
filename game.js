@@ -2016,7 +2016,12 @@ function rescueAction(ev) {
     setDialogue(randomPick(counterLines), "허세");
     shakeScreen(timing.key === "perfect" ? 2.4 : 1.4);
     // 타격감: hitstop + 흰 플래시 + 적 임팩트 연출
-    hitstop(timing.key === "perfect" ? 160 : 110);
+    // PERFECT는 280ms로 격투게임 finisher급 시간 정지 (GREAT 110ms의 2.5배)
+    hitstop(timing.key === "perfect" ? 280 : 110);
+    // PERFECT 전용 — 카메라 줌인 + 4방향 수렴 빛 (Guilty Gear Roman Cancel 컨벤션)
+    if (timing.key === "perfect") {
+      triggerPerfectConverge();
+    }
     spawnImpactFlash();
     spawnImpactRay();
     enemyImpactHit();
@@ -4725,6 +4730,25 @@ function spawnImpactFlash() {
   div.className = "impact-flash";
   document.body.appendChild(div);
   window.setTimeout(() => div.remove(), 220);
+}
+
+// PERFECT 막기 전용 — 카메라 줌인 + 4방향 빛줄기 수렴 (Guilty Gear Roman Cancel 컨벤션)
+function triggerPerfectConverge() {
+  const stage = el.stagePanel?.querySelector(".main-stage") || el.stagePanel;
+  if (!stage) return;
+  // 줌인
+  stage.classList.remove("perfect-zoom-in");
+  void stage.offsetWidth;
+  stage.classList.add("perfect-zoom-in");
+  window.setTimeout(() => stage.classList.remove("perfect-zoom-in"), 360);
+  // 4방향 수렴 빛줄기
+  const dirs = ["top", "bottom", "left", "right"];
+  dirs.forEach((d) => {
+    const ray = document.createElement("div");
+    ray.className = `perfect-converge-ray perfect-converge-ray-${d}`;
+    stage.appendChild(ray);
+    window.setTimeout(() => ray.remove(), 480);
+  });
 }
 
 // 공물 누출 시각화 — 플레이어 위치에서 황금 파편이 적 방향으로 빨려나감

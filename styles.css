@@ -5439,3 +5439,76 @@ body.hp-warning .danger-vignette {
 @media (prefers-reduced-motion: reduce) {
   .prep-gain-mini { animation: none !important; }
 }
+
+/* ── PERFECT 막기 전용: 카메라 줌인 + 4방향 수렴 빛줄기 ── */
+.perfect-zoom-in {
+  animation: perfectZoomIn 360ms cubic-bezier(0.2, 0.8, 0.3, 1) both;
+  transform-origin: 50% 55%;
+  will-change: transform;
+}
+@keyframes perfectZoomIn {
+  0%   { transform: scale(1); }
+  35%  { transform: scale(1.045); }
+  100% { transform: scale(1); }
+}
+.perfect-converge-ray {
+  position: absolute;
+  pointer-events: none;
+  z-index: 9;
+  opacity: 0;
+  background: linear-gradient(var(--ray-dir, 180deg),
+    rgba(255, 240, 140, 0) 0%,
+    rgba(255, 215, 80, 0.85) 35%,
+    rgba(180, 120, 255, 0.95) 70%,
+    rgba(255, 240, 140, 0) 100%);
+  filter: blur(1.5px) drop-shadow(0 0 8px rgba(255, 215, 80, 0.7));
+  mix-blend-mode: screen;
+}
+.perfect-converge-ray-top {
+  top: -20%; left: 50%; width: 14%; height: 70%;
+  --ray-dir: 180deg;
+  transform: translateX(-50%);
+  animation: perfectRayTop 420ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+.perfect-converge-ray-bottom {
+  bottom: -20%; left: 50%; width: 14%; height: 70%;
+  --ray-dir: 0deg;
+  transform: translateX(-50%);
+  animation: perfectRayBottom 420ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+.perfect-converge-ray-left {
+  left: -20%; top: 50%; width: 70%; height: 14%;
+  --ray-dir: 90deg;
+  transform: translateY(-50%);
+  animation: perfectRayLeft 420ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+.perfect-converge-ray-right {
+  right: -20%; top: 50%; width: 70%; height: 14%;
+  --ray-dir: 270deg;
+  transform: translateY(-50%);
+  animation: perfectRayRight 420ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+@keyframes perfectRayTop {
+  0%   { opacity: 0; transform: translateX(-50%) translateY(-40%) scaleY(0.6); }
+  30%  { opacity: 1; }
+  100% { opacity: 0; transform: translateX(-50%) translateY(35%) scaleY(0.4); }
+}
+@keyframes perfectRayBottom {
+  0%   { opacity: 0; transform: translateX(-50%) translateY(40%) scaleY(0.6); }
+  30%  { opacity: 1; }
+  100% { opacity: 0; transform: translateX(-50%) translateY(-35%) scaleY(0.4); }
+}
+@keyframes perfectRayLeft {
+  0%   { opacity: 0; transform: translateY(-50%) translateX(-40%) scaleX(0.6); }
+  30%  { opacity: 1; }
+  100% { opacity: 0; transform: translateY(-50%) translateX(35%) scaleX(0.4); }
+}
+@keyframes perfectRayRight {
+  0%   { opacity: 0; transform: translateY(-50%) translateX(40%) scaleX(0.6); }
+  30%  { opacity: 1; }
+  100% { opacity: 0; transform: translateY(-50%) translateX(-35%) scaleX(0.4); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .perfect-zoom-in { animation: none !important; }
+  .perfect-converge-ray { display: none !important; }
+}

@@ -250,7 +250,7 @@ img { display: block; max-width: 100%; }
   /* 영역별 높이 변수 (한 곳에서 조정 가능) */
   --h-intent: 56px;
   --h-alert: 30px;        /* 떠다니는 알림 전용 레일 */
-  --h-dialogue: 36px;
+  --h-dialogue: 52px;     /* 2줄 대사 허용 — 잘림 방지 */
   --h-action: calc(192px + var(--safe-bottom));
 }
 
@@ -409,6 +409,27 @@ img { display: block; max-width: 100%; }
   overflow: hidden;
   text-overflow: ellipsis;
   min-width: 0;
+}
+
+/* 보스/엘리트 — 이름이 길어서 잘리는 문제 해결: 라벨 위치는 절대 배치, 이름은 전체 폭 사용 */
+.stage-panel.boss-active .intent-row--name {
+  position: relative;
+}
+.stage-panel.boss-active .intent-row--name .enemy-label {
+  font-size: 9px;
+  padding: 1px 4px;
+  letter-spacing: 0.05em;
+  background: linear-gradient(135deg, rgba(255,150,80,0.35), rgba(255,80,40,0.28));
+  border: 1px solid rgba(255,180,100,0.5);
+  color: #ffd0a0;
+  font-weight: 800;
+}
+.stage-panel.boss-active .intent-row--name .enemy-name {
+  font-size: 12.5px;
+  font-weight: 900;
+  letter-spacing: -0.01em;
+  color: #ffe0c0;
+  text-shadow: 0 1px 3px rgba(255,80,40,0.5), 0 0 8px rgba(255,120,60,0.3);
 }
 
 .intent-row .intent-arrow {
@@ -1178,8 +1199,9 @@ img { display: block; max-width: 100%; }
 
 .arena-enemy {
   width: auto;
-  max-width: 100%;
-  max-height: 75%;
+  max-width: 92%;
+  /* 일반 적: 캐릭터 영역의 60%까지만 차지 — 마왕님 가리지 않게 */
+  max-height: 60%;
   object-fit: contain;
   filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.5));
   transition: transform 0.2s, filter 0.2s, opacity 0.3s;
@@ -1189,14 +1211,19 @@ img { display: block; max-width: 100%; }
 
 .main-character {
   width: auto;
-  max-width: 100%;
-  max-height: 88%;
+  max-width: 92%;
+  /* 마왕님: 적과 비슷한 높이 — 격투게임 좌우 대치 구도 */
+  max-height: 62%;
   object-fit: contain;
   filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.5));
   transition: transform 0.2s, filter 0.2s;
   transform-origin: center bottom;
   animation: idleBreathPlayer 3.6s ease-in-out infinite;
 }
+
+/* 엘리트는 일반보다 약간 큰 정도, 보스는 한 단계 더 크지만 마왕님이 보일 정도까지만 */
+.arena-enemy.is-elite { max-height: 65%; }
+.arena-enemy.is-boss { max-height: 72%; }
 
 @keyframes idleBreathPlayer {
   0%, 100% { transform: translateY(0) scale(1, 1); }
@@ -1840,9 +1867,14 @@ body.hp-warning .danger-vignette {
   font-weight: 500;
   color: var(--game-text);
   font-style: italic;
+  /* 2줄까지 허용, 그 이상은 ellipsis */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
   overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  white-space: normal;
+  line-height: 1.3;
+  word-break: keep-all;
   flex: 1;
 }
 

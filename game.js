@@ -4180,9 +4180,10 @@ function render() {
   const dignityPct = stats.maxDignity ? (state.dignity || 0) / stats.maxDignity : 1;
   el.stagePanel.classList.toggle("low-hp", dignityPct <= 0.3 && dignityPct > 0.15);
   el.stagePanel.classList.toggle("crisis-hp", dignityPct <= 0.15 && dignityPct > 0);
-  // 보스 idle 클래스 토글
+  // 보스/엘리트 idle 클래스 토글
   if (el.arenaEnemy) {
     el.arenaEnemy.classList.toggle("is-boss", !!state.enemy?.isBoss);
+    el.arenaEnemy.classList.toggle("is-elite", !!state.enemy?.isElite);
   }
   updateFightCombo(state.rescueStreak || 0);
   el.stagePanel.classList.toggle("is-boss", state.enemy.isBoss);
